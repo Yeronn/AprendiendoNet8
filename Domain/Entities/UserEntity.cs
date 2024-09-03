@@ -10,12 +10,12 @@ namespace Domain.Entities
     public class UserEntity
     {
         public int Id { get; set; }
-        public string Username { get; set; } = string.Empty;
-        public string password { get; set; } = string.Empty;
-        public string Fullname { get; set; } = string.Empty;
-        public string Email { get; set; } = string.Empty;
-        public int identityCard { get; set; }
+        public string? Username { get; set; } 
+        public string? Password { get; set; }
+        public string? Fullname { get; set; }
+        public string? Email { get; set; }
+        public int IdentityCard { get; set; }
         [Column(TypeName = "decimal(18,2)")]
-        public decimal salary { get; set; }
+        public decimal Salary { get; set; }
     }
 }

@@ -3,28 +3,16 @@
   "WorkspaceRootPath": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{26378204-9ECA-4A9C-A70A-896003046619}|Infrastructure\\Infrastructure.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{26378204-9ECA-4A9C-A70A-896003046619}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{75345BF1-9E5E-49B0-B12C-BBFFC39F238A}|WebAPI\\WebAPI.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\webapi\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{75345BF1-9E5E-49B0-B12C-BBFFC39F238A}|WebAPI\\WebAPI.csproj|solutionrelative:webapi\\controllers\\usercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{26378204-9ECA-4A9C-A70A-896003046619}|Infrastructure\\Infrastructure.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\infrastructure\\data\\dappercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{26378204-9ECA-4A9C-A70A-896003046619}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\data\\dappercontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{75345BF1-9E5E-49B0-B12C-BBFFC39F238A}|WebAPI\\WebAPI.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\webapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{75345BF1-9E5E-49B0-B12C-BBFFC39F238A}|WebAPI\\WebAPI.csproj|solutionrelative:webapi\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{F0D4CF1A-7C6A-46FE-9A4E-952CA94D7638}|Application\\Application.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\application\\mappers\\usermappers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F0D4CF1A-7C6A-46FE-9A4E-952CA94D7638}|Application\\Application.csproj|solutionrelative:application\\mappers\\usermappers.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F0D4CF1A-7C6A-46FE-9A4E-952CA94D7638}|Application\\Application.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\application\\dtos\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F0D4CF1A-7C6A-46FE-9A4E-952CA94D7638}|Application\\Application.csproj|solutionrelative:application\\dtos\\userdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{26378204-9ECA-4A9C-A70A-896003046619}|Infrastructure\\Infrastructure.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{26378204-9ECA-4A9C-A70A-896003046619}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -42,80 +30,41 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "UserController.cs",
-              "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\WebAPI\\Controllers\\UserController.cs",
-              "RelativeDocumentMoniker": "WebAPI\\Controllers\\UserController.cs",
-              "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\WebAPI\\Controllers\\UserController.cs",
-              "RelativeToolTip": "WebAPI\\Controllers\\UserController.cs",
-              "ViewState": "AgIAABcAAAAAAAAAAAAwwCYAAABVAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-02T21:29:23.106Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "Program.cs",
-              "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\WebAPI\\Program.cs",
-              "RelativeDocumentMoniker": "WebAPI\\Program.cs",
-              "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\WebAPI\\Program.cs",
-              "RelativeToolTip": "WebAPI\\Program.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAtAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-02T21:27:13.607Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "UserRepository.cs",
               "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Infrastructure\\Repositories\\UserRepository.cs",
               "RelativeDocumentMoniker": "Infrastructure\\Repositories\\UserRepository.cs",
               "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Infrastructure\\Repositories\\UserRepository.cs",
               "RelativeToolTip": "Infrastructure\\Repositories\\UserRepository.cs",
-              "ViewState": "AgIAABoAAAAAAAAAAAAwwCwAAAARAAAAAAAAAA==",
+              "ViewState": "AgIAACAAAAAAAAAAAAAwwCwAAAAzAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-02T21:27:39.332Z",
+              "WhenOpened": "2024-09-03T15:56:35.451Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "DapperContext.cs",
-              "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Infrastructure\\Data\\DapperContext.cs",
-              "RelativeDocumentMoniker": "Infrastructure\\Data\\DapperContext.cs",
-              "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Infrastructure\\Data\\DapperContext.cs",
-              "RelativeToolTip": "Infrastructure\\Data\\DapperContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAAyAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-02T21:23:17.58Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 1,
               "Title": "UserMappers.cs",
               "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Application\\Mappers\\UserMappers.cs",
               "RelativeDocumentMoniker": "Application\\Mappers\\UserMappers.cs",
               "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Application\\Mappers\\UserMappers.cs",
               "RelativeToolTip": "Application\\Mappers\\UserMappers.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAkAAAAeAAAAAAAAAA==",
+              "ViewState": "AgIAAAUAAAAAAAAAAAAxwB0AAAAqAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-02T21:23:00.547Z",
+              "WhenOpened": "2024-09-03T17:34:26.424Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "UserDto.cs",
-              "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Application\\DTOs\\UserDto.cs",
-              "RelativeDocumentMoniker": "Application\\DTOs\\UserDto.cs",
-              "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Application\\DTOs\\UserDto.cs",
-              "RelativeToolTip": "Application\\DTOs\\UserDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAFAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "UserController.cs",
+              "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\WebAPI\\Controllers\\UserController.cs",
+              "RelativeDocumentMoniker": "WebAPI\\Controllers\\UserController.cs",
+              "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\WebAPI\\Controllers\\UserController.cs",
+              "RelativeToolTip": "WebAPI\\Controllers\\UserController.cs",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAwwFEAAABOAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-02T21:22:55.695Z",
+              "WhenOpened": "2024-09-03T15:53:48.554Z",
               "EditorCaption": ""
             }
           ]

@@ -1,18 +1,24 @@
 [
   {
     "ContainingType": "WebAPI.Controllers.UserController",
-    "Method": "GetUsers",
+    "Method": "CreateUser",
     "RelativePath": "api/User",
-    "HttpMethod": "GET",
+    "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
-    "Parameters": [],
+    "Parameters": [
+      {
+        "Name": "newUser",
+        "Type": "Application.DTOs.RegisterUserDto",
+        "IsRequired": true
+      }
+    ],
     "ReturnTypes": []
   },
   {
     "ContainingType": "WebAPI.Controllers.UserController",
     "Method": "GetUserById",
-    "RelativePath": "api/User/{id}",
+    "RelativePath": "api/User/getUser/{id}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -23,6 +29,16 @@
         "IsRequired": true
       }
     ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WebAPI.Controllers.UserController",
+    "Method": "GetUsers",
+    "RelativePath": "api/User/getUsers",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
     "ReturnTypes": []
   },
   {

@@ -1,11 +1,11 @@
-﻿using Domain.DTOs;
+﻿using Application.DTOs;
 using Domain.Entities;
 
-namespace Infrastructure.Mappers
+namespace Application.Mappers
 {
     public static class UserMappers
     {
-        public static UserDto ToUserDto(this UserEntity userEntity)
+        public static UserDto ToUserDto (this UserEntity userEntity)
         {
             return new UserDto
             {
@@ -15,6 +15,19 @@ namespace Infrastructure.Mappers
                 Email = userEntity.Email,
                 //IdentityCard = userEntity.identityCard,
                 //Salary = userEntity.salary
+            };
+        }
+
+        public static UserEntity ToUserEntity(this RegisterUserDto registerUserDto)
+        {
+            return new UserEntity
+            {
+                Fullname = registerUserDto.Fullname,
+                Email = registerUserDto.Email,
+                IdentityCard = registerUserDto.IdentityCard,
+                Salary = registerUserDto.Salary,
+                Username = registerUserDto.Username,
+                Password = registerUserDto.Password
             };
         }
     }

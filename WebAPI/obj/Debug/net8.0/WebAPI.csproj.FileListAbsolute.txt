@@ -73,3 +73,5 @@ C:\Users\Janus\yefferson\AprendidendoNet8\WebAPI\bin\Debug\net8.0\runtimes\win-x
 C:\Users\Janus\yefferson\AprendidendoNet8\WebAPI\bin\Debug\net8.0\runtimes\win\lib\net8.0\System.Runtime.Caching.dll
 C:\Users\Janus\yefferson\AprendidendoNet8\WebAPI\bin\Debug\net8.0\Infrastructure.dll
 C:\Users\Janus\yefferson\AprendidendoNet8\WebAPI\bin\Debug\net8.0\Infrastructure.pdb
+C:\Users\Janus\yefferson\AprendidendoNet8\WebAPI\obj\Debug\net8.0\WebAPI.sourcelink.json
+C:\Users\Janus\yefferson\AprendidendoNet8\WebAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
