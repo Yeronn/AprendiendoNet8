@@ -1,8 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using Application.Mappers;
-using Domain.Interfaces;
-using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;

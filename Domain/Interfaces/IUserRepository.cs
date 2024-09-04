@@ -11,6 +11,7 @@ namespace Domain.Interfaces
     {
         Task<IEnumerable<UserEntity>> GetAll();
         Task<UserEntity?> GetById(int id);
+        Task<UserEntity?> GetByEmail(string email);
         Task<UserEntity?> Login(string email, string password);
         Task<UserEntity?> Create(UserEntity newUser);
     }

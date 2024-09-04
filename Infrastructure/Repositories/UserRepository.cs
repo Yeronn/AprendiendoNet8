@@ -36,6 +36,16 @@ namespace Infrastructure.Repositories
             }
         }
 
+        public async Task<UserEntity?> GetByEmail(string email)
+        {
+            var query = "SELECT * FROM [User] WHERE Email = @Email";
+
+            using (var connection = _context.CreateConnection())
+            {
+                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Email = email });
+            }
+        }
+
         public async Task<UserEntity?> Login(string email, string password)
         {
             var query = "SELECT * FROM [User] WHERE Email = @Email AND Password = @Password";
