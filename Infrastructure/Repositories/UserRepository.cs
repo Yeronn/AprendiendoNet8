@@ -21,7 +21,8 @@ namespace Infrastructure.Repositories
             var query = "SELECT * FROM [User]";
             using (var connection = _context.CreateConnection())
             {
-                return await connection.QueryAsync<UserEntity>(query);
+                var users = await connection.QueryAsync<UserEntity>(query);
+                return users;
             }
         }
 
@@ -29,35 +30,20 @@ namespace Infrastructure.Repositories
         {
             var query = "SELECT * FROM [User] WHERE Id = @Id";
 
-            try
+            using (var connection = _context.CreateConnection())
             {
-                using (var connection = _context.CreateConnection())
-                {
-                    return await connection.QueryFirstAsync<UserEntity>(query, new { Id = id });
-                }
-            }
-            catch (Exception ex)
-            {
-
-                return null;
+                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Id = id });
             }
         }
 
         public async Task<UserEntity?> Login(string email, string password)
         {
             var query = "SELECT * FROM [User] WHERE Email = @Email AND Password = @Password";
-
-            try
+            //TODO: Falta validar que los emails sean únicos
+            using (var connection = _context.CreateConnection())
             {
-                using (var connection = _context.CreateConnection())
-                {
-                    var user = await connection.QueryFirstAsync<UserEntity>(query, new { Email = email, Password = password });
-                    return user;
-                }
-            }
-            catch (Exception ex)
-            {
-                return null;
+                var user = await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Email = email, Password = password });
+                return user;
             }
         }
 
@@ -77,7 +63,7 @@ namespace Infrastructure.Repositories
 
             using (var connection = _context.CreateConnection())
             {
-                var id = await connection.QuerySingleAsync<int>(query, parameters);
+                var id = await connection.QuerySingleOrDefaultAsync<int>(query, parameters);
 
                 var createdUser = new UserEntity
                 {

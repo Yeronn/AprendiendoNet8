@@ -1,5 +1,7 @@
 ﻿using Application.DTOs;
+using Application.Interfaces;
 using Application.Mappers;
+using Domain.Interfaces;
 using Infrastructure.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,28 +16,40 @@ namespace WebAPI.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly UserRepository _userRepository;
+        private readonly IUserService _userService;
         private readonly IConfiguration _configuration;
 
-        public UserController(UserRepository userRepository, IConfiguration configuration)
+        public UserController(IUserService userService, IConfiguration configuration)
         {
-            _userRepository = userRepository;
+            _userService = userService;
             _configuration = configuration;
         }
 
         [HttpGet("getUsers")]
-        public async Task<ActionResult> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
         {
-            var users = await _userRepository.GetAll();
-            var usersDto = users.Select(u => u.ToUserDto());
-            return Ok(usersDto);
+            try
+            {
+                var users = await _userService.GetAll();
+                if (users == null || !users.Any())
+                {
+                    return NotFound("No users found.");
+                }
+                return Ok(users);
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Exception: {ex.Message}");
+                return StatusCode(500, $"Ha ocurrido un error obteniendo los usuarios: {ex.Message}");
+            }
         }
 
 
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            var user = await _userRepository.Login(loginDto.Email, loginDto.Password);
+            var user = await _userService.Login(loginDto.Email, loginDto.Password);
 
             if (user == null)
             {
@@ -69,7 +83,7 @@ namespace WebAPI.Controllers
         [HttpGet("getUser/{id}", Name ="getUser")]
         public async Task<ActionResult> GetUserById(int id)
         {
-            var user = await _userRepository.GetById(id);
+            var user = await _userService.GetById(id);
             if (user == null)
                 return NotFound();
             return Ok(user.ToUserDto());
@@ -84,16 +98,14 @@ namespace WebAPI.Controllers
                 return BadRequest(ModelState);
             }
 
-            var userEntity = newUser.ToUserEntity();
-
             try
             {
-                var createdUser = await _userRepository.Create(userEntity);
+                var createdUser = await _userService.Create(newUser);
                 return CreatedAtRoute("getUser", new { id = createdUser.Id }, createdUser);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, ex.Message );
+                return StatusCode(500, $"Ocurrio un error al crear usuario: {ex.Message}" );
             }
         }
     }
