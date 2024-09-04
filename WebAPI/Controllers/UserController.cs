@@ -23,8 +23,7 @@ namespace WebAPI.Controllers
             _configuration = configuration;
         }
 
-        [HttpGet]
-        [Route("getUsers")]
+        [HttpGet("getUsers")]
         public async Task<ActionResult> GetUsers()
         {
             var users = await _userRepository.GetAll();
@@ -67,8 +66,7 @@ namespace WebAPI.Controllers
         }
 
         [Authorize]
-        [HttpGet]
-        [Route("getUser/{id}")]
+        [HttpGet("getUser/{id}", Name ="getUser")]
         public async Task<ActionResult> GetUserById(int id)
         {
             var user = await _userRepository.GetById(id);
@@ -90,12 +88,12 @@ namespace WebAPI.Controllers
 
             try
             {
-                await _userRepository.Create(userEntity);
-                return Ok("User created successfully.");
+                var createdUser = await _userRepository.Create(userEntity);
+                return CreatedAtRoute("getUser", new { id = createdUser.Id }, createdUser);
             }
             catch (Exception ex)
             {
-                return StatusCode(500, "An error occurred while creating the user.");
+                return StatusCode(500, ex.Message );
             }
         }
     }

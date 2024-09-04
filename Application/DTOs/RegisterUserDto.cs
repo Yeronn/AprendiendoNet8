@@ -12,12 +12,10 @@ namespace Application.DTOs
     {
         [Required]
         public string Fullname { get; set; } = string.Empty;
-        [Required, EmailAddress]
-        public string Email { get; set; } = string.Empty;
         [Required]
         public int IdentityCard { get; set; }
-        [Required]
-        public decimal Salary { get; set; }
+        [Required, EmailAddress]
+        public string Email { get; set; } = string.Empty;
         [Required]
         public string Username { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;

@@ -29,7 +29,8 @@
         "IsRequired": true
       }
     ],
-    "ReturnTypes": []
+    "ReturnTypes": [],
+    "EndpointName": "getUser"
   },
   {
     "ContainingType": "WebAPI.Controllers.UserController",

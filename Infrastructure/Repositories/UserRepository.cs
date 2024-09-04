@@ -1,8 +1,9 @@
 ﻿using Dapper;
 using Domain.Entities;
-using Domain.Interfaces.Repository;
+using Domain.Interfaces;
 using Infrastructure.Data;
 using Microsoft.VisualBasic;
+using System.Data;
 
 namespace Infrastructure.Repositories
 {
@@ -24,7 +25,7 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<UserEntity> GetById(int id)
+        public async Task<UserEntity?> GetById(int id)
         {
             var query = "SELECT * FROM [User] WHERE Id = @Id";
 
@@ -42,7 +43,7 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<UserEntity> Login(string email, string password)
+        public async Task<UserEntity?> Login(string email, string password)
         {
             var query = "SELECT * FROM [User] WHERE Email = @Email AND Password = @Password";
 
@@ -60,24 +61,34 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task Create (UserEntity newUser)
+        public async Task<UserEntity?> Create (UserEntity newUser)
         {
-            var query = "INSERT INTO [User] (Username, Password, Fullname, Email, IdentityCard, Salary) " +
-                        "VALUES (@Username, @Password, @Fullname, @Email, @IdentityCard, @Salary);";
+            var query = "INSERT INTO [User] (Username, Password, Fullname, Email, IdentityCard, Salary) VALUES (@Username, @Password, @Fullname, @Email, @IdentityCard, @Salary)" +
+                "SELECT CAST(SCOPE_IDENTITY() as int)";
+
+            var parameters = new DynamicParameters();
+            parameters.Add("Username", newUser.Username, DbType.String);
+            parameters.Add("Password", newUser.Password, DbType.String);
+            parameters.Add("Fullname", newUser.Fullname, DbType.String);
+            parameters.Add("Email", newUser.Email, DbType.String);
+            parameters.Add("IdentityCard", newUser.IdentityCard, DbType.Int32);
+            parameters.Add("Salary", newUser.Salary, DbType.Decimal);
+
 
             using (var connection = _context.CreateConnection())
             {
-                var parameters = new
+                var id = await connection.QuerySingleAsync<int>(query, parameters);
+
+                var createdUser = new UserEntity
                 {
-                    newUser.Username,
-                    newUser.Password,
-                    newUser.Fullname,
-                    newUser.Email,
-                    newUser.IdentityCard,
-                    newUser.Salary
+                    Id = id,
+                    Username = newUser.Username,
+                    Fullname = newUser.Fullname,
+                    Email = newUser.Email,
+                    IdentityCard = newUser.IdentityCard,
                 };
 
-                await connection.ExecuteAsync(query, parameters);
+                return createdUser;
             }
         }
     }

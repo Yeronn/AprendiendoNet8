@@ -25,9 +25,9 @@ namespace Application.Mappers
                 Fullname = registerUserDto.Fullname,
                 Email = registerUserDto.Email,
                 IdentityCard = registerUserDto.IdentityCard,
-                Salary = registerUserDto.Salary,
                 Username = registerUserDto.Username,
-                Password = registerUserDto.Password
+                Password = registerUserDto.Password,
+                Salary = 0.0m
             };
         }
     }
