@@ -1,8 +1,5 @@
-using Application.Interfaces;
-using Application.Services;
-using Domain.Interfaces;
-using Infrastructure.Data;
-using Infrastructure.Repositories;
+using Application.DependencyInjection;
+using Infrastructure.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
@@ -14,12 +11,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 // Agregar DapperContext como un servicio
-builder.Services.AddSingleton<DapperContext>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IPasswordHasherService, PasswordHasherService>();
-builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
-
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();

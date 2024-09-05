@@ -57,7 +57,7 @@ namespace Application.Services
             if (user == null)
                 return new LoginResponse(false, "La cuenta no existe");
 
-            bool checkPassword = _passwordHasher.VerifyPassword(password, user.Password);
+            bool checkPassword = _passwordHasher.VerifyPassword(password, user.Password!);
 
             if (checkPassword)
                 return new LoginResponse(checkPassword, "Inicio de sesión exitoso", GenerateJWTToken(user));
@@ -67,23 +67,26 @@ namespace Application.Services
 
         public string GenerateJWTToken(UserEntity user)
         {
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new[]
             {
-                new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim("Id", user.Id.ToString()),
-                new Claim("Email", user.Email.ToString())
+                //new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
+                //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                //new Claim("Id", user.Id.ToString()),
+                //new Claim("Email", user.Email.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Fullname!),
+                new Claim(ClaimTypes.Email, user.Email!)
                 //TODO: Falta agregar el rol
             };
 
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-            var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"],
                 claims,
                 expires: DateTime.UtcNow.AddMinutes(60),
-                signingCredentials: signIn
+                signingCredentials: credentials
                 );
             string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
             return tokenValue;

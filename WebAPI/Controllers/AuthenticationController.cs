@@ -28,7 +28,6 @@ namespace WebAPI.Controllers
             return Ok(new { message = loginResponse.Message, Token = loginResponse.token });
         }
 
-
         //[Authorize]
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] RegisterUserDto newUser)
