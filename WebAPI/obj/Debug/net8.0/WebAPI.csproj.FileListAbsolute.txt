@@ -75,3 +75,4 @@ C:\Users\Janus\yefferson\AprendidendoNet8\WebAPI\bin\Debug\net8.0\Infrastructure
 C:\Users\Janus\yefferson\AprendidendoNet8\WebAPI\bin\Debug\net8.0\Infrastructure.pdb
 C:\Users\Janus\yefferson\AprendidendoNet8\WebAPI\obj\Debug\net8.0\WebAPI.sourcelink.json
 C:\Users\Janus\yefferson\AprendidendoNet8\WebAPI\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
+C:\Users\Janus\yefferson\AprendidendoNet8\WebAPI\bin\Debug\net8.0\BCrypt.Net-Next.dll

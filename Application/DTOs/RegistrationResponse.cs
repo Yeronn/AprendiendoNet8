@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public record RegistrationResponse(bool Flag, string Message = null!);
+    public record RegistrationResponse(string Message = null!, int? Id = null, bool? internalServerError = false);
 }

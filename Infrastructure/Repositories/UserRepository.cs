@@ -2,6 +2,7 @@
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
+using Microsoft.Data.SqlClient;
 using Microsoft.VisualBasic;
 using System.Data;
 
@@ -46,6 +47,18 @@ namespace Infrastructure.Repositories
             }
         }
 
+        public async Task<bool> IsEmailUnique(string email)
+        {
+            var query = "SELECT COUNT(1) FROM [User] WHERE Email = @Email";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Email = email });
+                return count == 0; // Si es 0, el email es único
+            }
+        }
+
+
         public async Task<UserEntity?> Login(string email, string password)
         {
             var query = "SELECT * FROM [User] WHERE Email = @Email AND Password = @Password";
@@ -69,7 +82,6 @@ namespace Infrastructure.Repositories
             parameters.Add("Email", newUser.Email, DbType.String);
             parameters.Add("IdentityCard", newUser.IdentityCard, DbType.Int32);
             parameters.Add("Salary", newUser.Salary, DbType.Decimal);
-
 
             using (var connection = _context.CreateConnection())
             {

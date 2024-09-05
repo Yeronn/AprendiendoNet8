@@ -12,8 +12,5 @@ namespace Application.Interfaces
     {
         Task<IEnumerable<UserDto>> GetAll();
         Task<UserEntity?> GetById(int id);
-        Task<UserEntity?> Login(string email, string password);
-        Task<UserEntity?> Create(RegisterUserDto newUser);
-        string GenerateJWTToken(UserEntity user);
     }
 }

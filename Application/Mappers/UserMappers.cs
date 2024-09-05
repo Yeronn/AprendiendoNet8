@@ -24,7 +24,7 @@ namespace Application.Mappers
             {
                 Fullname = registerUserDto.Fullname,
                 Email = registerUserDto.Email,
-                IdentityCard = registerUserDto.IdentityCard,
+                IdentityCard = registerUserDto.IdentityCard ?? 0,
                 Username = registerUserDto.Username,
                 Password = registerUserDto.Password,
                 Salary = 0.0m

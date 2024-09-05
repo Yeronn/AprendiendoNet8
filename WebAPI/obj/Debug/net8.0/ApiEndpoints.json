@@ -1,8 +1,8 @@
 [
   {
-    "ContainingType": "WebAPI.Controllers.UserController",
+    "ContainingType": "WebAPI.Controllers.AuthenticationController",
     "Method": "CreateUser",
-    "RelativePath": "api/User",
+    "RelativePath": "api/auth",
     "HttpMethod": "POST",
     "IsController": true,
     "Order": 0,
@@ -16,9 +16,25 @@
     "ReturnTypes": []
   },
   {
+    "ContainingType": "WebAPI.Controllers.AuthenticationController",
+    "Method": "Login",
+    "RelativePath": "api/auth/login",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "loginDto",
+        "Type": "Application.DTOs.LoginDto",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
     "ContainingType": "WebAPI.Controllers.UserController",
     "Method": "GetUserById",
-    "RelativePath": "api/User/getUser/{id}",
+    "RelativePath": "api/auth/User/getUser/{id}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -35,7 +51,7 @@
   {
     "ContainingType": "WebAPI.Controllers.UserController",
     "Method": "GetUsers",
-    "RelativePath": "api/User/getUsers",
+    "RelativePath": "api/auth/User/getUsers",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
@@ -51,21 +67,5 @@
         "StatusCode": 200
       }
     ]
-  },
-  {
-    "ContainingType": "WebAPI.Controllers.UserController",
-    "Method": "Login",
-    "RelativePath": "api/User/login",
-    "HttpMethod": "POST",
-    "IsController": true,
-    "Order": 0,
-    "Parameters": [
-      {
-        "Name": "loginDto",
-        "Type": "Application.DTOs.LoginDto",
-        "IsRequired": true
-      }
-    ],
-    "ReturnTypes": []
   }
 ]
