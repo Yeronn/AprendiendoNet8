@@ -61,22 +61,27 @@ namespace Application.Services
             bool checkPassword = _passwordHasher.VerifyPassword(password, user.Password!);
 
             if (checkPassword)
-                return new LoginResponse(checkPassword, "Inicio de sesión exitoso", GenerateJWTToken(user));
+            {
+                var jti = Guid.NewGuid().ToString();
+                user.LastJti = jti;
+                await _userRepository.UpdateUserJti(user.Id, jti);
+                return new LoginResponse(checkPassword, "Inicio de sesión exitoso", GenerateJWTToken(user, jti));
+            }
             else
                 return new LoginResponse(checkPassword, "Credenciales Inválidas");
         }
 
-        public string GenerateJWTToken(UserEntity user)
+        public string GenerateJWTToken(UserEntity user, string jti)
         {
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier,
-                user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Fullname!),
                 new Claim(ClaimTypes.Email, user.Email!),
-                new Claim(ClaimTypes.Role, user.Role!)
+                new Claim(ClaimTypes.Role, user.Role!),
+                new Claim(JwtRegisteredClaimNames.Jti, jti)
             };
 
             var token = new JwtSecurityToken(
@@ -90,5 +95,27 @@ namespace Application.Services
             return tokenValue;
         }
 
+        public async Task<bool> ValidateToken(string token)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadJwtToken(token);
+
+            var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+
+            if (jti == null)
+            {
+                return false; // Token inválido
+            }
+
+            // Obtener el usuario por el jti
+            var user = await _userRepository.GetUserByJti(jti);
+            if (user == null || user.LastJti != jti)
+            {
+                return false; // Token no autorizado o ha expirado
+            }
+
+            // Token es válido
+            return true;
+        }
     }
 }

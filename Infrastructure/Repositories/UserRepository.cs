@@ -100,5 +100,24 @@ namespace Infrastructure.Repositories
                 return createdUser;
             }
         }
+
+        public async Task UpdateUserJti(int userId, string jti)
+        {
+            var query = "UPDATE [User] SET LastJti = @Jti WHERE Id = @UserId";
+            using (var connection = _context.CreateConnection())
+            {
+                await connection.ExecuteAsync(query, new { Jti = jti, UserId = userId });
+            }
+        }
+
+        public async Task<UserEntity?> GetUserByJti(string jti)
+        {
+            var query = "SELECT * FROM [User] WHERE LastJti = @Jti";
+            using (var connection = _context.CreateConnection())
+            {
+                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Jti = jti });
+            }
+        }
+
     }
 }

@@ -18,5 +18,6 @@ namespace Domain.Entities
         public int IdentityCard { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal Salary { get; set; }
+        public string? LastJti { get; set; }
     }
 }

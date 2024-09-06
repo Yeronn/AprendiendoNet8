@@ -14,5 +14,7 @@ namespace Domain.Interfaces
         Task<UserEntity?> GetByEmail(string email);
         Task<UserEntity?> Login(string email, string password);
         Task<UserEntity?> Create(UserEntity newUser);
+        Task UpdateUserJti(int userId, string jti);
+        Task<UserEntity?> GetUserByJti(string jti);
     }
 }

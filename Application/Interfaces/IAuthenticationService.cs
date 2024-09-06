@@ -12,6 +12,7 @@ namespace Application.Interfaces
     {
         Task<RegistrationResponse> RegisterUser(RegisterUserDto newUser);
         Task<LoginResponse> Login(string email, string password);
-        string GenerateJWTToken(UserEntity user);
+        string GenerateJWTToken(UserEntity user, string jti);
+        Task<bool> ValidateToken(string token);
     }
 }
