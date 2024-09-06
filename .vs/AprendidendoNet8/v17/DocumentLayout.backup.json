@@ -3,6 +3,14 @@
   "WorkspaceRootPath": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\",
   "Documents": [
     {
+      "AbsoluteMoniker": "D:0:0:{8A16B8CE-3124-431E-9077-4D412BB9FADC}|Domain\\Domain.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\domain\\entities\\userentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8A16B8CE-3124-431E-9077-4D412BB9FADC}|Domain\\Domain.csproj|solutionrelative:domain\\entities\\userentity.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{26378204-9ECA-4A9C-A70A-896003046619}|Infrastructure\\Infrastructure.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{26378204-9ECA-4A9C-A70A-896003046619}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\repositories\\userrepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{F0D4CF1A-7C6A-46FE-9A4E-952CA94D7638}|Application\\Application.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\application\\dtos\\registeruserdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F0D4CF1A-7C6A-46FE-9A4E-952CA94D7638}|Application\\Application.csproj|solutionrelative:application\\dtos\\registeruserdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
@@ -31,6 +39,32 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "UserEntity.cs",
+              "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Domain\\Entities\\UserEntity.cs",
+              "RelativeDocumentMoniker": "Domain\\Entities\\UserEntity.cs",
+              "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Domain\\Entities\\UserEntity.cs",
+              "RelativeToolTip": "Domain\\Entities\\UserEntity.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAsAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-06T20:00:38.71Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "UserRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Infrastructure\\Repositories\\UserRepository.cs",
+              "RelativeDocumentMoniker": "Infrastructure\\Repositories\\UserRepository.cs",
+              "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Infrastructure\\Repositories\\UserRepository.cs",
+              "RelativeToolTip": "Infrastructure\\Repositories\\UserRepository.cs",
+              "ViewState": "AgIAABMAAAAAAAAAAAAgwFgAAAANAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-06T19:15:56.363Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
               "Title": "RegisterUserDto.cs",
               "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Application\\DTOs\\RegisterUserDto.cs",
               "RelativeDocumentMoniker": "Application\\DTOs\\RegisterUserDto.cs",
@@ -43,7 +77,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
               "Title": "AuthenticationService.cs",
               "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Application\\Services\\AuthenticationService.cs",
               "RelativeDocumentMoniker": "Application\\Services\\AuthenticationService.cs",
@@ -51,12 +85,11 @@
               "RelativeToolTip": "Application\\Services\\AuthenticationService.cs",
               "ViewState": "AgIAADcAAAAAAAAAAAAkwFIAAAA3AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-06T18:47:52.974Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-06T18:47:52.974Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
               "Title": "ServiceCollectionExtensions.cs",
               "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\WebAPI\\Extensions\\ServiceCollectionExtensions.cs",
               "RelativeDocumentMoniker": "WebAPI\\Extensions\\ServiceCollectionExtensions.cs",
@@ -64,8 +97,7 @@
               "RelativeToolTip": "WebAPI\\Extensions\\ServiceCollectionExtensions.cs",
               "ViewState": "AgIAAAMAAAAAAAAAAAAAACQAAABUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2024-09-06T18:33:41.739Z",
-              "EditorCaption": ""
+              "WhenOpened": "2024-09-06T18:33:41.739Z"
             }
           ]
         }
