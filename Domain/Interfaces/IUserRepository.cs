@@ -11,8 +11,8 @@ namespace Domain.Interfaces
     {
         Task<IEnumerable<UserEntity>> GetAll();
         Task<UserEntity?> GetById(int id);
+        Task<bool> IsEmailUnique(string email);
         Task<UserEntity?> GetByEmail(string email);
-        Task<UserEntity?> Login(string email, string password);
         Task<UserEntity?> Create(UserEntity newUser);
         Task UpdateUserJti(int userId, string jti);
         Task<UserEntity?> GetUserByJti(string jti);

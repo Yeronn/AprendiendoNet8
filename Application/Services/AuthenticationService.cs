@@ -28,8 +28,8 @@ namespace Application.Services
 
         public async Task<RegistrationResponse> RegisterUser(RegisterUserDto newUser)
         {
-            var userExist = await _userRepository.GetByEmail(newUser.Email);
-            if (userExist != null)
+            var userExist = await _userRepository.IsEmailUnique(newUser.Email);
+            if (userExist == false)
                 return new RegistrationResponse("El email ya se encuentra registrado");
 
 

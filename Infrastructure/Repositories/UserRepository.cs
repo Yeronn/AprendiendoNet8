@@ -58,18 +58,6 @@ namespace Infrastructure.Repositories
             }
         }
 
-
-        public async Task<UserEntity?> Login(string email, string password)
-        {
-            var query = "SELECT * FROM [User] WHERE Email = @Email AND Password = @Password";
-            //TODO: Falta validar que los emails sean únicos
-            using (var connection = _context.CreateConnection())
-            {
-                var user = await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Email = email, Password = password });
-                return user;
-            }
-        }
-
         public async Task<UserEntity?> Create (UserEntity newUser)
         {
             var query = "INSERT INTO [User] (Username, Password, Fullname, Email, IdentityCard, Role, Salary) VALUES (@Username, @Password, @Fullname, @Email, @IdentityCard, @Role, @Salary)" +
