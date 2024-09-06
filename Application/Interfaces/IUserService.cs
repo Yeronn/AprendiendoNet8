@@ -10,7 +10,7 @@ namespace Application.Interfaces
 {
     public interface IUserService
     {
-        Task<IEnumerable<UserDto>> GetAll();
-        Task<UserEntity?> GetById(int id);
+        Task<IEnumerable<UsersDto>> GetAll();
+        Task<UserDto?> GetById(int id);
     }
 }

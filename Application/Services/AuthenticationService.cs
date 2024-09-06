@@ -29,9 +29,9 @@ namespace Application.Services
         public async Task<RegistrationResponse> RegisterUser(RegisterUserDto newUser)
         {
             var userExist = await _userRepository.GetByEmail(newUser.Email);
-
             if (userExist != null)
                 return new RegistrationResponse("El email ya se encuentra registrado");
+
 
             var hashedPassword = _passwordHasher.HashPassword(newUser.Password);
             var userWithHashedPassword = new RegisterUserDto
@@ -40,7 +40,8 @@ namespace Application.Services
                 IdentityCard = newUser.IdentityCard,
                 Email = newUser.Email,
                 Username = newUser.Username,
-                Password = hashedPassword
+                Password = hashedPassword,
+                Role = newUser.Role,
             };
 
             var userEntity = userWithHashedPassword.ToUserEntity();
@@ -71,14 +72,11 @@ namespace Application.Services
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
             var claims = new[]
             {
-                //new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
-                //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                //new Claim("Id", user.Id.ToString()),
-                //new Claim("Email", user.Email.ToString()),
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier,
+                user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Fullname!),
-                new Claim(ClaimTypes.Email, user.Email!)
-                //TODO: Falta agregar el rol
+                new Claim(ClaimTypes.Email, user.Email!),
+                new Claim(ClaimTypes.Role, user.Role!)
             };
 
             var token = new JwtSecurityToken(

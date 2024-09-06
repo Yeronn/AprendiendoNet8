@@ -5,16 +5,31 @@ namespace Application.Mappers
 {
     public static class UserMappers
     {
-        public static UserDto ToUserDto (this UserEntity userEntity)
+        public static UsersDto ToUsersDto (this UserEntity userEntity)
         {
-            return new UserDto
+            return new UsersDto
             {
                 Id = userEntity.Id,
                 Username = userEntity.Username,
                 Fullname = userEntity.Fullname,
                 Email = userEntity.Email,
-                //IdentityCard = userEntity.identityCard,
-                //Salary = userEntity.salary
+                //IdentityCard = userEntity.IdentityCard,
+                //Salary = userEntity.Salary,
+
+            };
+        }
+
+        public static UserDto ToUserDto(this UserEntity userEntity)
+        {
+            return new UserDto
+            {
+                Id = userEntity.Id,
+                Username = userEntity.Username!,
+                Fullname = userEntity.Fullname!,
+                Email = userEntity.Email!,
+                IdentityCard = userEntity.IdentityCard,
+                Salary = userEntity.Salary,
+                Role = userEntity.Role!
             };
         }
 
@@ -27,6 +42,7 @@ namespace Application.Mappers
                 IdentityCard = registerUserDto.IdentityCard ?? 0,
                 Username = registerUserDto.Username,
                 Password = registerUserDto.Password,
+                Role = registerUserDto.Role!,
                 Salary = 0.0m
             };
         }

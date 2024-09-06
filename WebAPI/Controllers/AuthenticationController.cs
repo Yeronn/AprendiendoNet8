@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -28,7 +29,7 @@ namespace WebAPI.Controllers
             return Ok(new { message = loginResponse.Message, Token = loginResponse.token });
         }
 
-        //[Authorize]
+        [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] RegisterUserDto newUser)
         {

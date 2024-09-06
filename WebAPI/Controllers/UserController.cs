@@ -18,7 +18,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("getUsers")]
-        public async Task<ActionResult<IEnumerable<UserDto>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UsersDto>>> GetUsers()
         {
             try
             {
@@ -37,14 +37,14 @@ namespace WebAPI.Controllers
             }
         }
 
-        [Authorize]
+        [Authorize(Roles = "User, Admin")]
         [HttpGet("getUser/{id}", Name ="getUser")]
         public async Task<ActionResult> GetUserById(int id)
         {
             var user = await _userService.GetById(id);
             if (user == null)
                 return NotFound();
-            return Ok(user.ToUserDto());
+            return Ok(user);
         }
     }
 }

@@ -22,17 +22,19 @@ namespace Application.Services
         }
 
 
-        public async Task<IEnumerable<UserDto>> GetAll()
+        public async Task<IEnumerable<UsersDto>> GetAll()
         {
             var users = await _userRepository.GetAll();
-            var usersDto = users.Select(u => u.ToUserDto());
+            var usersDto = users.Select(u => u.ToUsersDto());
             return usersDto;
         }
 
-        public async Task<UserEntity?> GetById(int id)
+        public async Task<UserDto?> GetById(int id)
         {
             var user = await _userRepository.GetById(id);
-            return user;
+            if (user == null)
+                return null;
+            return user.ToUserDto();
         }
 
     }

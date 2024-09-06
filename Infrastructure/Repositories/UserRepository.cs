@@ -72,7 +72,7 @@ namespace Infrastructure.Repositories
 
         public async Task<UserEntity?> Create (UserEntity newUser)
         {
-            var query = "INSERT INTO [User] (Username, Password, Fullname, Email, IdentityCard, Salary) VALUES (@Username, @Password, @Fullname, @Email, @IdentityCard, @Salary)" +
+            var query = "INSERT INTO [User] (Username, Password, Fullname, Email, IdentityCard, Role, Salary) VALUES (@Username, @Password, @Fullname, @Email, @IdentityCard, @Role, @Salary)" +
                 "SELECT CAST(SCOPE_IDENTITY() as int)";
 
             var parameters = new DynamicParameters();
@@ -81,6 +81,7 @@ namespace Infrastructure.Repositories
             parameters.Add("Fullname", newUser.Fullname, DbType.String);
             parameters.Add("Email", newUser.Email, DbType.String);
             parameters.Add("IdentityCard", newUser.IdentityCard, DbType.Int32);
+            parameters.Add("Role", newUser.Role, DbType.String);
             parameters.Add("Salary", newUser.Salary, DbType.Decimal);
 
             using (var connection = _context.CreateConnection())
