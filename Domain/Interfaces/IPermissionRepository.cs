@@ -14,5 +14,8 @@ namespace Domain.Interfaces
         Task<int> Create(PermissionEntity permission);
         Task<bool> Update(PermissionEntity permission);
         Task<bool> Delete(int id);
+        Task<bool> ExistById(int id);
+        Task<string?> GetName(int id);
+        Task<bool> VerifyUniqueName(string name);
     }
 }

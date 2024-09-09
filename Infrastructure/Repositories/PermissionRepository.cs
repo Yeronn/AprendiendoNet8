@@ -16,7 +16,7 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<PermissionEntity>> GetAll()
         {
-            var query = "SELECT * FROM Permissions";
+            var query = "SELECT * FROM Permission";
 
             using (var connection = _context.CreateConnection())
             {
@@ -26,7 +26,7 @@ namespace Infrastructure.Repositories
 
         public async Task<PermissionEntity?> GetById(int id)
         {
-            var query = "SELECT * FROM Permissions WHERE Id = @Id";
+            var query = "SELECT * FROM Permission WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
@@ -36,7 +36,7 @@ namespace Infrastructure.Repositories
 
         public async Task<int> Create(PermissionEntity permission)
         {
-            var query = "INSERT INTO Permissions (Name, Description) VALUES (@Name, @Description);" +
+            var query = "INSERT INTO Permission (Name, Description) VALUES (@Name, @Description);" +
                         "SELECT CAST(SCOPE_IDENTITY() as int);";
 
             using (var connection = _context.CreateConnection())
@@ -47,7 +47,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> Update(PermissionEntity permission)
         {
-            var query = "UPDATE Permissions SET Name = @Name, Description = @Description WHERE Id = @Id";
+            var query = "UPDATE Permission SET Name = @Name, Description = @Description WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
@@ -58,12 +58,45 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> Delete(int id)
         {
-            var query = "DELETE FROM Permissions WHERE Id = @Id";
+            var query = "DELETE FROM Permission WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
                 var affectedRows = await connection.ExecuteAsync(query, new { Id = id });
                 return affectedRows > 0;
+            }
+        }
+
+        public async Task<bool> ExistById(int id)
+        {
+            var query = "SELECT COUNT(1) FROM Permission WHERE Id = @Id";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Id = id });
+                return count > 0;
+            }
+        }
+
+        public async Task<bool> VerifyUniqueName(string name)
+        {
+            var query = "SELECT COUNT(1) FROM Permission WHERE Name = @Name";
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Name = name });
+                bool nameIsUnique = count == 0;
+                return nameIsUnique;
+            }
+        }
+
+        public async Task<string?> GetName(int id)
+        {
+            var query = "SELECT Name FROM Permission WHERE Id = @Id";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var permissionName = await connection.QuerySingleOrDefaultAsync<string>(query, new { Id = id });
+                return permissionName!;
             }
         }
     }

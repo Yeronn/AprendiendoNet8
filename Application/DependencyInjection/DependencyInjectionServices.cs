@@ -11,6 +11,7 @@ namespace Application.DependencyInjection
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IPasswordHasherService, PasswordHasherService>();
             services.AddScoped<IAuthenticationService, AuthenticationService>();
+            services.AddScoped<IPermissionService, PermissionService>();
             return services;
         }
     }

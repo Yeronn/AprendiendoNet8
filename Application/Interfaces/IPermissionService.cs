@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.DTOs.Permission;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
@@ -12,8 +13,8 @@ namespace Application.Interfaces
     {
         Task<IEnumerable<PermissionEntity>> GetAll();
         Task<PermissionEntity?> GetById(int id);
-        Task<int> Create(PermissionDto permissionDto);
-        Task<bool> Update(int id, PermissionDto permissionDto);
+        Task<RegistrationResponse> Create(PermissionDto permissionDto);
+        Task<UpdateResponse> Update(int id, PermissionDto permissionDto);
         Task<bool> Delete(int id);
     }
 }

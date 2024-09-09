@@ -6,5 +6,5 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public record RegistrationResponse(string Message = null!, int? Id = null);
+    public record UpdateResponse (string Message = null!, string Name = null!);
 }

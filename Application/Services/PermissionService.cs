@@ -1,12 +1,9 @@
 ﻿using Application.DTOs;
+using Application.DTOs.Permission;
 using Application.Interfaces;
+using Application.Mappers;
 using Domain.Entities;
 using Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -29,27 +26,31 @@ namespace Application.Services
             return await _permissionRepository.GetById(id);
         }
 
-        public async Task<int> Create(PermissionDto permissionDto)
+        public async Task<RegistrationResponse> Create(PermissionDto permissionDto)
         {
-            var permission = new PermissionEntity
-            {
-                Name = permissionDto.Name,
-                Description = permissionDto.Description
-            };
+            bool nameAvalible = await _permissionRepository.VerifyUniqueName(permissionDto.Name);
+            if (nameAvalible == false)
+                return new RegistrationResponse("El nombre del permiso ya se encuentra en uso");
 
-            return await _permissionRepository.Create(permission);
+            PermissionEntity permission = permissionDto.ToEntity();
+            int idCreatedPermission = await _permissionRepository.Create(permission);
+            return new RegistrationResponse("El permiso se creo correctamente", idCreatedPermission);
         }
 
-        public async Task<bool> Update(int id, PermissionDto permissionDto)
+        public async Task<UpdateResponse> Update(int id, PermissionDto permissionDto)
         {
-            var permission = new PermissionEntity
-            {
-                Id = id,
-                Name = permissionDto.Name,
-                Description = permissionDto.Description
-            };
+            var permissionExist = await _permissionRepository.ExistById(id);
+            if (permissionExist == false)
+                return new UpdateResponse("El permiso no existe");
 
-            return await _permissionRepository.Update(permission);
+            permissionDto.Id = id;
+            var permission = permissionDto.ToEntity();
+
+            var updatedPermission = await _permissionRepository.Update(permission);
+            if (updatedPermission == false)
+                return new UpdateResponse("El permiso no se pudo actualizar");
+
+            return new UpdateResponse("El permiso se actualizó correctamente", permission.Name!);
         }
 
         public async Task<bool> Delete(int id)

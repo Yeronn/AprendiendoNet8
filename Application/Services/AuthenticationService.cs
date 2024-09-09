@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Mappers;
 using Domain.Entities;
@@ -48,7 +49,7 @@ namespace Application.Services
             var createdUser = await _userRepository.Create(userEntity);
 
             if (createdUser == null)
-                return new RegistrationResponse("Hubo un error en el servidor al crear al usuario", internalServerError: true);
+                return new RegistrationResponse("Hubo un error en el servidor al crear al usuario");
             return new RegistrationResponse("El usuario se creó correctamente", createdUser.Id);
         }
 
