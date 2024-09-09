@@ -17,6 +17,7 @@ namespace Infrastructure.DependencyInjection
             services.AddSingleton<DapperContext>();
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IPermissionRepository, PermissionRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
             return services;
         }
     }

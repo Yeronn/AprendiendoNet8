@@ -1,4 +1,4 @@
-﻿using Application.DTOs.Permission;
+﻿using Application.DTOs;
 using Domain.Entities;
 using System;
 using System.Collections.Generic;
