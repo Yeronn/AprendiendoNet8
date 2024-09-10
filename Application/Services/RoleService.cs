@@ -21,7 +21,11 @@ namespace Application.Services
             _permissionService = permissionService;
         }
 
-        public async Task<RoleResponse> Create(RoleDto roleDto)
+        public async Task<RoleEntity?> GetRoleByIdAsync(int id) => await _roleRepository.GetRoleByIdAsync(id);
+
+        public async Task<IEnumerable<RoleEntity>?> GetAllRolesAsync() => await _roleRepository.GetAllRolesAsync(); //TODO: Hacer un DTO para que no muestre los permisos
+
+        public async Task<RoleResponse> CreateRoleAsync(RoleDto roleDto)
         {
             var roleEntity = new RoleEntity
             {
@@ -29,15 +33,15 @@ namespace Application.Services
                 Permissions = roleDto.PermissionIds.Select(id => new PermissionEntity { Id = id }).ToList()
             };
 
-            var success = await _roleRepository.Create(roleEntity);
+            var success = await _roleRepository.CreateRoleAsync(roleEntity);
             return success
                 ? new RoleResponse(true, "Rol creado exitosamente.", roleEntity)
                 : new RoleResponse(false, "Error al crear el rol.");
         }
 
-        public async Task<RoleResponse> Update(int id, RoleDto roleDto)
+        public async Task<RoleResponse> UpdateRoleAsync(int id, RoleDto roleDto)
         {
-            var existingRole = await _roleRepository.GetById(id);
+            var existingRole = await _roleRepository.GetRoleByIdAsync(id);
             if (existingRole == null)
             {
                 return new RoleResponse(false, "El rol no existe.");
@@ -46,27 +50,24 @@ namespace Application.Services
             existingRole.Name = roleDto.Name;
             existingRole.Permissions = roleDto.PermissionIds.Select(id => new PermissionEntity { Id = id }).ToList();
 
-            var success = await _roleRepository.Update(existingRole);
+            var success = await _roleRepository.UpdateRoleAsync(existingRole);
             return success
                 ? new RoleResponse(true, "Rol actualizado exitosamente.", existingRole)
                 : new RoleResponse(false, "Error al actualizar el rol.");
         }
 
-        public async Task<RoleResponse> Delete(int id)
+        public async Task<RoleResponse> DeleteRoleAsync(int id)
         {
-            var success = await _roleRepository.Delete(id);
+            var success = await _roleRepository.DeleteRoleAsync(id);
             return success
                 ? new RoleResponse(true, "Rol eliminado exitosamente.")
                 : new RoleResponse(false, "Error al eliminar el rol.");
         }
 
-        public async Task<RoleEntity?> GetById(int id) => await _roleRepository.GetById(id);
 
-        public async Task<IEnumerable<RoleEntity>> GetAll() => await _roleRepository.GetAll(); //TODO: Hacer un DTO para que no muestre los permisos
-
-        public async Task<IEnumerable<RoleEntity>> GetAllRolesWithTheirPermissionsAsync()
+        public async Task<IEnumerable<RoleEntity>?> GetAllRolesWithTheirPermissionsAsync()
         {
-            var roles = await _roleRepository.GetAll(); //TODO: Si realizo validaciones en el servicio que obtengo todos los roles, toca cambiar esta linea y en lugar de usar el repo use la funcion de este servicio
+            var roles = await _roleRepository.GetAllRolesAsync(); //TODO: Si realizo validaciones en el servicio que obtengo todos los roles, toca cambiar esta linea y en lugar de usar el repo use la funcion de este servicio
 
             if (roles == null)
                 return null; //No obtuvo los roles

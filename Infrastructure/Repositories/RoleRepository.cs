@@ -19,7 +19,7 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<RoleEntity?> GetById(int id)
+        public async Task<RoleEntity?> GetRoleByIdAsync(int id)
         {
             var query = "SELECT * FROM Role WHERE Id = @Id";
             using (var connection = _context.CreateConnection())
@@ -35,7 +35,7 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<IEnumerable<RoleEntity>> GetAll()
+        public async Task<IEnumerable<RoleEntity>> GetAllRolesAsync()
         {
             var query = "SELECT * FROM Role";
             using (var connection = _context.CreateConnection())
@@ -51,7 +51,7 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<bool> Create(RoleEntity role)
+        public async Task<bool> CreateRoleAsync(RoleEntity role)
         {
             var query = "INSERT INTO Role (Name) VALUES (@Name); SELECT CAST(SCOPE_IDENTITY() as int);";
             using (var connection = _context.CreateConnection())
@@ -71,7 +71,7 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<bool> Update(RoleEntity role)
+        public async Task<bool> UpdateRoleAsync(RoleEntity role)
         {
             var query = "UPDATE Role SET Name = @Name WHERE Id = @Id";
             using (var connection = _context.CreateConnection())
@@ -93,7 +93,7 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeleteRoleAsync(int id)
         {
             var query = "DELETE FROM Role WHERE Id = @Id";
             using (var connection = _context.CreateConnection())

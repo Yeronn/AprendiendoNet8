@@ -18,7 +18,7 @@ namespace WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] RoleDto roleDto)
         {
-            var result = await _roleService.Create(roleDto);
+            var result = await _roleService.CreateRoleAsync(roleDto);
             if (result.Success)
                 return Ok(result);
             return BadRequest(result.Message);
@@ -27,7 +27,7 @@ namespace WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> Update(int id, [FromBody] RoleDto roleDto)
         {
-            var result = await _roleService.Update(id, roleDto);
+            var result = await _roleService.UpdateRoleAsync(id, roleDto);
             if (result.Success)
                 return Ok(result);
             return BadRequest(result.Message);
@@ -36,7 +36,7 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var result = await _roleService.Delete(id);
+            var result = await _roleService.DeleteRoleAsync(id);
             if (result.Success)
                 return Ok(result);
             return NotFound(result.Message);
@@ -45,7 +45,7 @@ namespace WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(int id)
         {
-            var role = await _roleService.GetById(id);
+            var role = await _roleService.GetRoleByIdAsync(id);
             if (role == null)
                 return NotFound("Rol no encontrado.");
             return Ok(role);
@@ -54,7 +54,7 @@ namespace WebAPI.Controllers
         [HttpGet("roles")]
         public async Task<IActionResult> GetAll()
         {
-            var roles = await _roleService.GetAll();
+            var roles = await _roleService.GetAllRolesAsync();
             return Ok(roles);
         }
 

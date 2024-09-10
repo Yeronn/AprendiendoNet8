@@ -9,11 +9,11 @@ namespace Domain.Interfaces
 {
     public interface IRoleRepository
     {
-        Task<RoleEntity?> GetById(int id);
-        Task<IEnumerable<RoleEntity>> GetAll();
-        Task<bool> Create(RoleEntity role);
-        Task<bool> Update(RoleEntity role);
-        Task<bool> Delete(int id);
+        Task<RoleEntity?> GetRoleByIdAsync(int id);
+        Task<IEnumerable<RoleEntity>> GetAllRolesAsync();
+        Task<bool> CreateRoleAsync(RoleEntity role);
+        Task<bool> UpdateRoleAsync(RoleEntity role);
+        Task<bool> DeleteRoleAsync(int id);
     }
 
 }
