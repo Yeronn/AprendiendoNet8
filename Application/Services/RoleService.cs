@@ -13,10 +13,12 @@ namespace Application.Services
     public class RoleService : IRoleService
     {
         private readonly IRoleRepository _roleRepository;
+        private readonly IPermissionService _permissionService;
 
-        public RoleService(IRoleRepository roleRepository)
+        public RoleService(IRoleRepository roleRepository, IPermissionService permissionService)
         {
             _roleRepository = roleRepository;
+            _permissionService = permissionService;
         }
 
         public async Task<RoleResponse> Create(RoleDto roleDto)
@@ -60,7 +62,23 @@ namespace Application.Services
 
         public async Task<RoleEntity?> GetById(int id) => await _roleRepository.GetById(id);
 
-        public async Task<IEnumerable<RoleEntity>> GetAll() => await _roleRepository.GetAll();
+        public async Task<IEnumerable<RoleEntity>> GetAll() => await _roleRepository.GetAll(); //TODO: Hacer un DTO para que no muestre los permisos
+
+        public async Task<IEnumerable<RoleEntity>> GetAllRolesWithTheirPermissionsAsync()
+        {
+            var roles = await _roleRepository.GetAll(); //TODO: Si realizo validaciones en el servicio que obtengo todos los roles, toca cambiar esta linea y en lugar de usar el repo use la funcion de este servicio
+
+            if (roles == null)
+                return null; //No obtuvo los roles
+
+            foreach (var role in roles)
+            {
+                var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync(role.Id);
+                role.Permissions = permissions.ToList();
+            }
+            return roles;
+
+        }
     }
 
 }

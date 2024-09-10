@@ -15,6 +15,7 @@ namespace Application.Interfaces
         Task<RoleResponse> Delete(int id);
         Task<RoleEntity?> GetById(int id);
         Task<IEnumerable<RoleEntity>> GetAll();
+        Task<IEnumerable<RoleEntity>> GetAllRolesWithTheirPermissionsAsync();
     }
 
 }

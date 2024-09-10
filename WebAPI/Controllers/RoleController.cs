@@ -51,11 +51,18 @@ namespace WebAPI.Controllers
             return Ok(role);
         }
 
-        [HttpGet]
+        [HttpGet("roles")]
         public async Task<IActionResult> GetAll()
         {
             var roles = await _roleService.GetAll();
-            return Ok();
+            return Ok(roles);
+        }
+
+        [HttpGet("rolesAndPermissions")]
+        public async Task<IActionResult> GetAllRolesWithTheirPermissions()
+        {
+            var roles = await _roleService.GetAllRolesWithTheirPermissionsAsync();
+            return Ok(roles);
         }
     }
 }

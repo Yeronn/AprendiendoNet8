@@ -15,46 +15,57 @@ namespace Application.Services
             _permissionRepository = permissionRepository;
         }
 
-        public async Task<IEnumerable<PermissionEntity>> GetAll()
+        public async Task<IEnumerable<PermissionEntity>?> GetAllPermissionsAsync()
         {
-            return await _permissionRepository.GetAll();
+            var permissions = await _permissionRepository.GetAllPermissionsAsync();
+            if (!permissions.Any())
+                return null;
+            return permissions.ToList();
         }
 
-        public async Task<PermissionEntity?> GetById(int id)
+        public async Task<PermissionEntity?> GetPermissionByIdAsync(int id)
         {
-            return await _permissionRepository.GetById(id);
+            return await _permissionRepository.GetPermissionByIdAsync(id);
         }
 
-        public async Task<RegistrationResponse> Create(PermissionDto permissionDto)
+        public async Task<RegistrationResponse> CreatePermissionAsync(PermissionDto permissionDto)
         {
-            bool nameAvalible = await _permissionRepository.VerifyUniqueName(permissionDto.Name);
+            bool nameAvalible = await _permissionRepository.VerifyUniquePermissionNameAsync(permissionDto.Name);
             if (nameAvalible == false)
                 return new RegistrationResponse("El nombre del permiso ya se encuentra en uso");
 
             PermissionEntity permission = permissionDto.ToEntity();
-            int idCreatedPermission = await _permissionRepository.Create(permission);
+            int idCreatedPermission = await _permissionRepository.CreatePermissionAsync(permission);
             return new RegistrationResponse("El permiso se creo correctamente", idCreatedPermission);
         }
 
-        public async Task<UpdateResponse> Update(int id, PermissionDto permissionDto)
+        public async Task<UpdateResponse> UpdatePermissionAsync(int id, PermissionDto permissionDto)
         {
-            var permissionExist = await _permissionRepository.ExistById(id);
+            var permissionExist = await _permissionRepository.ExistPermissionByIdAsync(id);
             if (permissionExist == false)
                 return new UpdateResponse("El permiso no existe");
 
             permissionDto.Id = id;
             var permission = permissionDto.ToEntity();
 
-            var updatedPermission = await _permissionRepository.Update(permission);
+            var updatedPermission = await _permissionRepository.UpdatePermissionAsync(permission);
             if (updatedPermission == false)
                 return new UpdateResponse("El permiso no se pudo actualizar");
 
             return new UpdateResponse("El permiso se actualizó correctamente", permission.Name!);
         }
 
-        public async Task<bool> Delete(int id)
+        public async Task<bool> DeletePermissionAsync(int id)
         {
-            return await _permissionRepository.Delete(id);
+            return await _permissionRepository.DeletePermissionAsync(id);
+        }
+
+        public async Task<IEnumerable<PermissionEntity>?> GetAllPermissionsByRoleIdAsync(int roleId)
+        {
+            var permissionByRol = await _permissionRepository.GetAllPermissionsByRoleIdAsync(roleId);
+            if (!permissionByRol.Any())
+                return null;
+            return permissionByRol.ToList();
         }
     }
 }

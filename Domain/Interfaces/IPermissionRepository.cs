@@ -9,13 +9,14 @@ namespace Domain.Interfaces
 {
     public interface IPermissionRepository
     {
-        Task<IEnumerable<PermissionEntity>> GetAll();
-        Task<PermissionEntity?> GetById(int id);
-        Task<int> Create(PermissionEntity permission);
-        Task<bool> Update(PermissionEntity permission);
-        Task<bool> Delete(int id);
-        Task<bool> ExistById(int id);
-        Task<string?> GetName(int id);
-        Task<bool> VerifyUniqueName(string name);
+        Task<IEnumerable<PermissionEntity>> GetAllPermissionsAsync();
+        Task<PermissionEntity?> GetPermissionByIdAsync(int id);
+        Task<int> CreatePermissionAsync(PermissionEntity permission);
+        Task<bool> UpdatePermissionAsync(PermissionEntity permission);
+        Task<bool> DeletePermissionAsync(int id);
+        Task<bool> ExistPermissionByIdAsync(int id);
+        Task<bool> VerifyUniquePermissionNameAsync(string name);
+        Task<string?> GetPermissionNameAsync(int id);
+        Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId);
     }
 }

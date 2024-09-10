@@ -18,16 +18,18 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllPermissions()
         {
-            var permissions = await _permissionService.GetAll();
+            var permissions = await _permissionService.GetAllPermissionsAsync();
+            if (permissions == null)
+                return NotFound("No hay permisos creados");
             return Ok(permissions);
         }
 
         [HttpGet("{id}", Name = "GetPermissionById")]
         public async Task<IActionResult> GetPermissionById(int id)
         {
-            var permission = await _permissionService.GetById(id);
+            var permission = await _permissionService.GetPermissionByIdAsync(id);
             if (permission == null)
-                return NotFound($"El usuario con id {id} no se encuentra en el sistema");
+                return NotFound($"El permiso con id {id} no se encuentra en el sistema");
 
             return Ok(permission);
         }
@@ -40,18 +42,26 @@ namespace WebAPI.Controllers
                 return BadRequest("Datos inválidos: " + ModelState);
             }
 
-            var newPermission = await _permissionService.Create(permissionDto);
+            var newPermission = await _permissionService.CreatePermissionAsync(permissionDto);
+            if (newPermission.Id == null)
+                return BadRequest(newPermission.Message);
             return CreatedAtAction(nameof(GetPermissionById), new { id = newPermission.Id }, newPermission);
         }
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePermission(int id, [FromBody] PermissionDto permissionDto)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid) //TODO: Investigar porque cuando se hace una peticion con datos faltantes no entra al controlador si no que de una da error
             {
-                return BadRequest("Datos inválidos: " + ModelState);
+                var errorMessages = ModelState.Values
+                                    .SelectMany(v => v.Errors)
+                                    .Select(e => e.ErrorMessage);
+
+                var fullErrorMessage = "Datos inválidos: " + string.Join("; ", errorMessages);
+
+                return BadRequest(fullErrorMessage);
             }
-            var updatedPermission = await _permissionService.Update(id, permissionDto);
+            var updatedPermission = await _permissionService.UpdatePermissionAsync(id, permissionDto);
             if (updatedPermission.Name == null)
                 return NotFound(updatedPermission.Message);
 
@@ -61,11 +71,20 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePermission(int id)
         {
-            var deleted = await _permissionService.Delete(id);
+            var deleted = await _permissionService.DeletePermissionAsync(id);
             if (!deleted)
                 return NotFound($"El permiso con id {id} no se encuentra en el sistema");
 
             return NoContent();
+        }
+
+        [HttpGet("permissionsByRol/{roleId}")]
+        public async Task<IActionResult> GetPermissionsByRoleId(int roleId)
+        {
+            var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
+            if (permissions == null)
+                return NotFound($"El rol con el id {roleId} no existe");
+            return Ok(permissions);
         }
     }
 }

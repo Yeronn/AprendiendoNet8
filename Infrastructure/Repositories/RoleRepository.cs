@@ -25,12 +25,12 @@ namespace Infrastructure.Repositories
             using (var connection = _context.CreateConnection())
             {
                 var role = await connection.QuerySingleOrDefaultAsync<RoleEntity>(query, new { Id = id });
-                if (role != null)
-                {
-                    var permissionQuery = "SELECT p.* FROM Permission p JOIN RolePermission rp ON p.Id = rp.PermissionId WHERE rp.RoleId = @RoleId";
-                    var permissions = await connection.QueryAsync<PermissionEntity>(permissionQuery, new { RoleId = role.Id });
-                    role.Permissions = permissions.ToList();
-                }
+                //if (role != null)
+                //{
+                //    var permissionQuery = "SELECT p.* FROM Permission p JOIN RolePermission rp ON p.Id = rp.PermissionId WHERE rp.RoleId = @RoleId";
+                //    var permissions = await connection.QueryAsync<PermissionEntity>(permissionQuery, new { RoleId = role.Id });
+                //    role.Permissions = permissions.ToList();
+                //}
                 return role;
             }
         }
@@ -41,12 +41,12 @@ namespace Infrastructure.Repositories
             using (var connection = _context.CreateConnection())
             {
                 var roles = await connection.QueryAsync<RoleEntity>(query);
-                foreach (var role in roles)
-                {
-                    var permissionQuery = "SELECT p.* FROM Permission p JOIN RolePermission rp ON p.Id = rp.PermissionId WHERE rp.RoleId = @RoleId";
-                    var permissions = await connection.QueryAsync<PermissionEntity>(permissionQuery, new { RoleId = role.Id });
-                    role.Permissions = permissions.ToList();
-                }
+                //foreach (var role in roles)
+                //{
+                //    var permissionQuery = "SELECT p.* FROM Permission p JOIN RolePermission rp ON p.Id = rp.PermissionId WHERE rp.RoleId = @RoleId";
+                //    var permissions = await connection.QueryAsync<PermissionEntity>(permissionQuery, new { RoleId = role.Id });
+                //    role.Permissions = permissions.ToList();
+                //}
                 return roles;
             }
         }
