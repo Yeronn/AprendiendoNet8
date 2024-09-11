@@ -173,8 +173,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "roleDto",
-        "Type": "Application.DTOs.RoleDto",
+        "Name": "role",
+        "Type": "Application.DTOs.RoleWithoutPermissionsDto",
         "IsRequired": true
       }
     ],

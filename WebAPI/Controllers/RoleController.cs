@@ -16,9 +16,13 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] RoleDto roleDto)
+        public async Task<IActionResult> Create([FromBody] RoleWithoutPermissionsDto role)
         {
-            var result = await _roleService.CreateRoleAsync(roleDto);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Datos inválidos: " + ModelState);
+            }
+            var result = await _roleService.CreateRoleAsync(role);
             if (result.Success)
                 return Ok(result);
             return BadRequest(result.Message);
@@ -64,5 +68,7 @@ namespace WebAPI.Controllers
             var roles = await _roleService.GetAllRolesWithTheirPermissionsAsync();
             return Ok(roles);
         }
+
+        //TODO: Hacer un controlador que obtenga un rol con sus permisos por id
     }
 }

@@ -2,11 +2,6 @@
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Infrastructure.Repositories
 {
@@ -53,18 +48,13 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> CreateRoleAsync(RoleEntity role)
         {
-            var query = "INSERT INTO Role (Name) VALUES (@Name); SELECT CAST(SCOPE_IDENTITY() as int);";
+            var query = "INSERT INTO Role (Name, Description) VALUES (@Name, @Description); SELECT CAST(SCOPE_IDENTITY() as int);";
             using (var connection = _context.CreateConnection())
             {
-                var id = await connection.ExecuteScalarAsync<int>(query, new { role.Name });
+                var id = await connection.ExecuteScalarAsync<int>(query, new { role.Name, role.Description });
                 if (id > 0)
                 {
                     role.Id = id;
-                    var insertPermissionsQuery = "INSERT INTO RolePermission (RoleId, PermissionId) VALUES (@RoleId, @PermissionId)";
-                    foreach (var permission in role.Permissions)
-                    {
-                        await connection.ExecuteAsync(insertPermissionsQuery, new { RoleId = role.Id, PermissionId = permission.Id });
-                    }
                     return true;
                 }
                 return false;
@@ -73,20 +63,20 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> UpdateRoleAsync(RoleEntity role)
         {
-            var query = "UPDATE Role SET Name = @Name WHERE Id = @Id";
+            var query = "UPDATE Role SET Name = @Name, Description = @Description WHERE Id = @Id";
             using (var connection = _context.CreateConnection())
             {
                 var affectedRows = await connection.ExecuteAsync(query, role);
                 if (affectedRows > 0)
                 {
-                    var deletePermissionsQuery = "DELETE FROM RolePermission WHERE RoleId = @RoleId";
-                    await connection.ExecuteAsync(deletePermissionsQuery, new { RoleId = role.Id });
+                    //var deletePermissionsQuery = "DELETE FROM RolePermission WHERE RoleId = @RoleId";
+                    //await connection.ExecuteAsync(deletePermissionsQuery, new { RoleId = role.Id });
 
-                    var insertPermissionsQuery = "INSERT INTO RolePermission (RoleId, PermissionId) VALUES (@RoleId, @PermissionId)";
-                    foreach (var permission in role.Permissions)
-                    {
-                        await connection.ExecuteAsync(insertPermissionsQuery, new { RoleId = role.Id, PermissionId = permission.Id });
-                    }
+                    //var insertPermissionsQuery = "INSERT INTO RolePermission (RoleId, PermissionId) VALUES (@RoleId, @PermissionId)";
+                    //foreach (var permission in role.Permissions)
+                    //{
+                    //    await connection.ExecuteAsync(insertPermissionsQuery, new { RoleId = role.Id, PermissionId = permission.Id });
+                    //}
                     return true;
                 }
                 return false;
@@ -102,5 +92,18 @@ namespace Infrastructure.Repositories
                 return affectedRows > 0;
             }
         }
+
+        public async Task<bool> ExistRoleByIdAsync(int id)
+        {
+            var query = "SELECT COUNT(1) FROM Role WHERE Id = @Id";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Id = id });
+                return count > 0;
+            }
+        }
+
+
     }
 }

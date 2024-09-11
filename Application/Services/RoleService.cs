@@ -1,5 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
+using Application.Mappers;
 using Domain.Entities;
 using Domain.Interfaces;
 using System;
@@ -21,38 +22,42 @@ namespace Application.Services
             _permissionService = permissionService;
         }
 
-        public async Task<RoleEntity?> GetRoleByIdAsync(int id) => await _roleRepository.GetRoleByIdAsync(id);
+        public async Task<RoleEntity?> GetRoleByIdAsync(int id)
+        {
+            var role = await _roleRepository.GetRoleByIdAsync(id);
+            if (role == null)
+                return null;
+
+
+            return role;
+        }
 
         public async Task<IEnumerable<RoleEntity>?> GetAllRolesAsync() => await _roleRepository.GetAllRolesAsync(); //TODO: Hacer un DTO para que no muestre los permisos
 
-        public async Task<RoleResponse> CreateRoleAsync(RoleDto roleDto)
+        public async Task<RoleResponse> CreateRoleAsync(RoleWithoutPermissionsDto role)
         {
-            var roleEntity = new RoleEntity
-            {
-                Name = roleDto.Name,
-                Permissions = roleDto.PermissionIds.Select(id => new PermissionEntity { Id = id }).ToList()
-            };
-
+            var roleEntity = role.ToRoleEntity();
             var success = await _roleRepository.CreateRoleAsync(roleEntity);
+
             return success
-                ? new RoleResponse(true, "Rol creado exitosamente.", roleEntity)
+                ? new RoleResponse(true, "Rol creado exitosamente.", roleEntity.ToRoleWithoutPermissions())
                 : new RoleResponse(false, "Error al crear el rol.");
         }
 
-        public async Task<RoleResponse> UpdateRoleAsync(int id, RoleDto roleDto)
+        public async Task<RoleResponse> UpdateRoleAsync(int id, RoleWithoutPermissionsDto role)
         {
-            var existingRole = await _roleRepository.GetRoleByIdAsync(id);
-            if (existingRole == null)
+            var roleExist = await _roleRepository.ExistRoleByIdAsync(id);
+            if (roleExist == false)
             {
                 return new RoleResponse(false, "El rol no existe.");
             }
 
-            existingRole.Name = roleDto.Name;
-            existingRole.Permissions = roleDto.PermissionIds.Select(id => new PermissionEntity { Id = id }).ToList();
+            role.Id = id;
 
-            var success = await _roleRepository.UpdateRoleAsync(existingRole);
+            var roleEntity = role.ToRoleEntity();
+            var success = await _roleRepository.UpdateRoleAsync(roleEntity);
             return success
-                ? new RoleResponse(true, "Rol actualizado exitosamente.", existingRole)
+                ? new RoleResponse(true, "Rol actualizado exitosamente.", roleEntity.ToRoleWithoutPermissions())
                 : new RoleResponse(false, "Error al actualizar el rol.");
         }
 
