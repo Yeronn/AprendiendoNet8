@@ -59,16 +59,28 @@ namespace Application.Services
             if (!roleExist.Success)
                 return roleExist;
 
-            var validName = await ValidateRoleNameAsync(updateRole.Name!);
-            if (!validName.Success)
-                return validName;
-
+            var currentRole = await _roleRepository.GetRoleByIdAsync(id);
             var roleEntity = updateRole.ToRoleEntity();
 
-            var success = await _roleRepository.UpdateRoleAsync(roleEntity);
-            return success
-                ? new RoleResponse(true, "Rol actualizado exitosamente.", roleEntity.ToRoleWithoutPermissionsResponse())
-                : new RoleResponse(false, "Error al actualizar el rol.");
+            if (!string.IsNullOrEmpty(roleEntity.Name) && roleEntity.Name != currentRole!.Name)
+            {
+                var validName = await ValidateRoleNameAsync(roleEntity.Name);
+                if (!validName.Success)
+                    return validName;
+
+                await _roleRepository.UpdateRoleNameAsync(id, roleEntity.Name);
+            }
+            else
+                roleEntity.Name = currentRole!.Name;
+
+            if (!string.IsNullOrEmpty(roleEntity.Description) && roleEntity.Description != currentRole?.Description)
+            {
+                await _roleRepository.UpdateRoleDescriptionAsync(id, roleEntity.Description);
+            }
+            else
+                roleEntity.Description = currentRole?.Description;
+
+            return new RoleResponse(true, "Rol actualizado exitosamente.", roleEntity.ToRoleWithoutPermissionsResponse());
         }
 
         public async Task<RoleResponse> DeleteRoleAsync(int id)

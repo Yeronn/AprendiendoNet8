@@ -3,20 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{75345BF1-9E5E-49B0-B12C-BBFFC39F238A}|WebAPI\\WebAPI.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\webapi\\controllers\\rolecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{75345BF1-9E5E-49B0-B12C-BBFFC39F238A}|WebAPI\\WebAPI.csproj|solutionrelative:webapi\\controllers\\rolecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{F0D4CF1A-7C6A-46FE-9A4E-952CA94D7638}|Application\\Application.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\application\\services\\roleservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{F0D4CF1A-7C6A-46FE-9A4E-952CA94D7638}|Application\\Application.csproj|solutionrelative:application\\services\\roleservice.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{F0D4CF1A-7C6A-46FE-9A4E-952CA94D7638}|Application\\Application.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\application\\dtos\\updateroldto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{F0D4CF1A-7C6A-46FE-9A4E-952CA94D7638}|Application\\Application.csproj|solutionrelative:application\\dtos\\updateroldto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{75345BF1-9E5E-49B0-B12C-BBFFC39F238A}|WebAPI\\WebAPI.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\webapi\\controllers\\rolecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{75345BF1-9E5E-49B0-B12C-BBFFC39F238A}|WebAPI\\WebAPI.csproj|solutionrelative:webapi\\controllers\\rolecontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{26378204-9ECA-4A9C-A70A-896003046619}|Infrastructure\\Infrastructure.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\infrastructure\\repositories\\rolerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{26378204-9ECA-4A9C-A70A-896003046619}|Infrastructure\\Infrastructure.csproj|solutionrelative:infrastructure\\repositories\\rolerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{F0D4CF1A-7C6A-46FE-9A4E-952CA94D7638}|Application\\Application.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\application\\dtos\\updateroldto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{F0D4CF1A-7C6A-46FE-9A4E-952CA94D7638}|Application\\Application.csproj|solutionrelative:application\\dtos\\updateroldto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{8A16B8CE-3124-431E-9077-4D412BB9FADC}|Domain\\Domain.csproj|c:\\users\\janus\\yefferson\\aprendidendonet8\\domain\\interfaces\\irolerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{8A16B8CE-3124-431E-9077-4D412BB9FADC}|Domain\\Domain.csproj|solutionrelative:domain\\interfaces\\irolerepository.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -36,43 +40,43 @@
         },
         {
           "DockedWidth": 206,
-          "SelectedChildIndex": 1,
+          "SelectedChildIndex": 2,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "UpdateRolDto.cs",
               "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Application\\DTOs\\UpdateRolDto.cs",
               "RelativeDocumentMoniker": "Application\\DTOs\\UpdateRolDto.cs",
               "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Application\\DTOs\\UpdateRolDto.cs",
               "RelativeToolTip": "Application\\DTOs\\UpdateRolDto.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAsAAAAUAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAqwAwAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-12T17:00:09.738Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 2,
               "Title": "RoleController.cs",
               "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\WebAPI\\Controllers\\RoleController.cs",
               "RelativeDocumentMoniker": "WebAPI\\Controllers\\RoleController.cs",
               "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\WebAPI\\Controllers\\RoleController.cs",
               "RelativeToolTip": "WebAPI\\Controllers\\RoleController.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAAxwDwAAAA3AAAAAAAAAA==",
+              "ViewState": "AgIAABsAAAAAAAAAAAAowDkAAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-10T19:33:06.738Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 0,
               "Title": "RoleService.cs",
               "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Application\\Services\\RoleService.cs",
               "RelativeDocumentMoniker": "Application\\Services\\RoleService.cs",
               "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Application\\Services\\RoleService.cs",
               "RelativeToolTip": "Application\\Services\\RoleService.cs",
-              "ViewState": "AgIAAD8AAAAAAAAAAAApwE0AAAAhAAAAAAAAAA==",
+              "ViewState": "AgIAACIAAAAAAAAAAAAWwD8AAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-10T19:33:24.138Z",
               "EditorCaption": ""
@@ -81,17 +85,30 @@
         },
         {
           "DockedWidth": 194,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 4,
+              "Title": "IRoleRepository.cs",
+              "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Domain\\Interfaces\\IRoleRepository.cs",
+              "RelativeDocumentMoniker": "Domain\\Interfaces\\IRoleRepository.cs",
+              "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Domain\\Interfaces\\IRoleRepository.cs",
+              "RelativeToolTip": "Domain\\Interfaces\\IRoleRepository.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAABKAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2024-09-12T20:04:13.253Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "RoleRepository.cs",
               "DocumentMoniker": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Infrastructure\\Repositories\\RoleRepository.cs",
               "RelativeDocumentMoniker": "Infrastructure\\Repositories\\RoleRepository.cs",
               "ToolTip": "C:\\Users\\Janus\\yefferson\\AprendidendoNet8\\Infrastructure\\Repositories\\RoleRepository.cs",
               "RelativeToolTip": "Infrastructure\\Repositories\\RoleRepository.cs",
-              "ViewState": "AgIAABAAAAAAAAAAAAAgwAwAAAAJAAAAAAAAAA==",
+              "ViewState": "AgIAAA0AAAAAAAAAAAAgwEkAAAAkAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2024-09-10T19:46:09.458Z",
               "EditorCaption": ""

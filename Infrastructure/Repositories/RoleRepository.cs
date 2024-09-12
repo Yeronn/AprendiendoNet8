@@ -67,10 +67,31 @@ namespace Infrastructure.Repositories
             using (var connection = _context.CreateConnection())
             {
                 var affectedRows = await connection.ExecuteAsync(query, role);
-                if (affectedRows > 0)
-                    return true;
-                
-                return false;
+                return affectedRows > 0;
+            }
+        }
+
+        public async Task<bool> UpdateRoleNameAsync(int id, string name)
+        {
+            var query = "UPDATE Role SET Name = @Name WHERE Id = @Id";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = new { Id = id, Name = name };
+                var affectedRows = await connection.ExecuteAsync(query, parameters);
+                return affectedRows > 0;
+            }
+        }
+
+        public async Task<bool> UpdateRoleDescriptionAsync(int id, string description)
+        {
+            var query = "UPDATE Role SET Description = @Description WHERE Id = @Id";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = new { Id = id, Description = description };
+                var affectedRows = await connection.ExecuteAsync(query, parameters);
+                return affectedRows > 0;
             }
         }
 
