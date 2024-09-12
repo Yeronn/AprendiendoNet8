@@ -38,9 +38,9 @@ namespace Application.Services
         {
             var roleEntity = createRol.ToRoleEntity();
 
-            var existingRoleName = await ValidateRoleNameAsync(createRol.Name!);
-            if (!existingRoleName.Success)
-                return existingRoleName;
+            var validName = await ValidateRoleNameAsync(createRol.Name!);
+            if (!validName.Success)
+                return validName;
 
             var success = await _roleRepository.CreateRoleAsync(roleEntity);
             return success
@@ -59,9 +59,9 @@ namespace Application.Services
             if (existingRole == false)
                 return new RoleResponse(false, "El rol no existe.");
 
-            var existingRoleName = await ValidateRoleNameAsync(updateRole.Name!);
-            if (!existingRoleName.Success)
-                return existingRoleName;
+            var validName = await ValidateRoleNameAsync(updateRole.Name!);
+            if (!validName.Success)
+                return validName;
 
             //TODO: El usuario depronto solo quiera actualizar el nombre o la descripción, entonces toca tomar esto en cuenta
             var roleEntity = updateRole.ToRoleEntity();
