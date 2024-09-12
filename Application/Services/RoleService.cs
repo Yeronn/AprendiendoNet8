@@ -34,17 +34,17 @@ namespace Application.Services
 
         public async Task<IEnumerable<RoleEntity>?> GetAllRolesAsync() => await _roleRepository.GetAllRolesAsync(); //TODO: Hacer un DTO para que no muestre los permisos
 
-        public async Task<RoleResponse> CreateRoleAsync(RoleWithoutPermissionsDto role)
+        public async Task<RoleResponse> CreateRoleAsync(CreateRolDto createRol)
         {
-            var roleEntity = role.ToRoleEntity();
+            var roleEntity = createRol.ToRoleEntity();
             var success = await _roleRepository.CreateRoleAsync(roleEntity);
 
             return success
-                ? new RoleResponse(true, "Rol creado exitosamente.", roleEntity.ToRoleWithoutPermissions())
+                ? new RoleResponse(true, "Rol creado exitosamente.", roleEntity.ToRoleWithoutPermissionsResponse())
                 : new RoleResponse(false, "Error al crear el rol.");
         }
 
-        public async Task<RoleResponse> UpdateRoleAsync(int id, RoleWithoutPermissionsDto role)
+        public async Task<RoleResponse> UpdateRoleAsync(int id, UpdateRolDto updateRole)
         {
             var roleExist = await _roleRepository.ExistRoleByIdAsync(id);
             if (roleExist == false)
@@ -52,12 +52,12 @@ namespace Application.Services
                 return new RoleResponse(false, "El rol no existe.");
             }
 
-            role.Id = id;
+            updateRole.Id = id;
 
-            var roleEntity = role.ToRoleEntity();
+            var roleEntity = updateRole.ToRoleEntity();
             var success = await _roleRepository.UpdateRoleAsync(roleEntity);
             return success
-                ? new RoleResponse(true, "Rol actualizado exitosamente.", roleEntity.ToRoleWithoutPermissions())
+                ? new RoleResponse(true, "Rol actualizado exitosamente.", roleEntity.ToRoleWithoutPermissionsResponse())
                 : new RoleResponse(false, "Error al actualizar el rol.");
         }
 

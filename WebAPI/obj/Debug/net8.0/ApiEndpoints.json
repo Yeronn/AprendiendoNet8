@@ -173,8 +173,8 @@
     "Order": 0,
     "Parameters": [
       {
-        "Name": "role",
-        "Type": "Application.DTOs.RoleWithoutPermissionsDto",
+        "Name": "createRole",
+        "Type": "Application.DTOs.CreateRolDto",
         "IsRequired": true
       }
     ],
@@ -194,8 +194,8 @@
         "IsRequired": true
       },
       {
-        "Name": "roleDto",
-        "Type": "Application.DTOs.RoleDto",
+        "Name": "updateRole",
+        "Type": "Application.DTOs.UpdateRolDto",
         "IsRequired": true
       }
     ],
