@@ -10,16 +10,6 @@ namespace Application.Mappers
 {
     public static class RoleMappers
     {
-        public static RoleEntity ToRoleEntity(this UpdateRolDto role)
-        {
-            return new RoleEntity
-            {
-                Id = role.Id,
-                Name = role.Name,
-                Description = role.Description
-            };
-        }
-
         public static RoleEntity ToRoleEntity(this CreateRolDto createRol)
         {
             return new RoleEntity
@@ -28,6 +18,17 @@ namespace Application.Mappers
                 Description = createRol.Description,
             };
         }
+
+        public static RoleEntity ToRoleEntity(this UpdateRolDto role)
+        {
+            return new RoleEntity
+            {
+                Id = role.Id ?? 0,
+                Name = role.Name,
+                Description = role.Description
+            };
+        }
+
 
         public static RoleWithoutPermissionsResponseDto ToRoleWithoutPermissionsResponse(this RoleEntity roleEntity)
         {

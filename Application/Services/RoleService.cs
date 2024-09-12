@@ -50,16 +50,21 @@ namespace Application.Services
 
         public async Task<RoleResponse> UpdateRoleAsync(int id, UpdateRolDto updateRole)
         {
+            if (updateRole.Id == null)
+                updateRole.Id = id;
+            else if (updateRole.Id != id)
+                return new RoleResponse(false, "El Id de la URL y del cuerpo no son iguales");
+
             var roleExist = await _roleRepository.ExistRoleByIdAsync(id);
             if (roleExist == false)
             {
                 return new RoleResponse(false, "El rol no existe.");
             }
-            //TODO: El usuario depronto solo quiera actualizar el nombre o la descripción, entonces toca tomar esto en cuenta
-            //TODO: Verificar que el id que viene en el cuerpo de la peticion y el que se manda por parámetro sea el mismo
-            updateRole.Id = id;
 
+            //TODO: El usuario depronto solo quiera actualizar el nombre o la descripción, entonces toca tomar esto en cuenta
             var roleEntity = updateRole.ToRoleEntity();
+
+
             var success = await _roleRepository.UpdateRoleAsync(roleEntity);
             return success
                 ? new RoleResponse(true, "Rol actualizado exitosamente.", roleEntity.ToRoleWithoutPermissionsResponse())
