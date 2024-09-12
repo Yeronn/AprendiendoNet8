@@ -38,9 +38,9 @@ namespace Application.Services
         {
             var roleEntity = createRol.ToRoleEntity();
 
-            bool existingRole = await _roleRepository.ExistRoleByNameAsync(createRol.Name!);
-            if (existingRole)
-                return new RoleResponse(false, "El Rol ya existe en el sistema", IsConflict: true);
+            var existingRoleName = await ValidateRoleNameAsync(createRol.Name!);
+            if (!existingRoleName.Success)
+                return existingRoleName;
 
             var success = await _roleRepository.CreateRoleAsync(roleEntity);
             return success
@@ -50,20 +50,21 @@ namespace Application.Services
 
         public async Task<RoleResponse> UpdateRoleAsync(int id, UpdateRolDto updateRole)
         {
-            if (updateRole.Id == null)
+            if (updateRole.Id == null || updateRole.Id == 0)
                 updateRole.Id = id;
             else if (updateRole.Id != id)
                 return new RoleResponse(false, "El Id de la URL y del cuerpo no son iguales");
 
-            var roleExist = await _roleRepository.ExistRoleByIdAsync(id);
-            if (roleExist == false)
-            {
+            bool existingRole = await _roleRepository.ExistRoleByIdAsync(id);
+            if (existingRole == false)
                 return new RoleResponse(false, "El rol no existe.");
-            }
+
+            var existingRoleName = await ValidateRoleNameAsync(updateRole.Name!);
+            if (!existingRoleName.Success)
+                return existingRoleName;
 
             //TODO: El usuario depronto solo quiera actualizar el nombre o la descripción, entonces toca tomar esto en cuenta
             var roleEntity = updateRole.ToRoleEntity();
-
 
             var success = await _roleRepository.UpdateRoleAsync(roleEntity);
             return success
@@ -94,6 +95,17 @@ namespace Application.Services
             }
             return roles;
 
+        }
+
+        private async Task<RoleResponse> ValidateRoleNameAsync(string roleName)
+        {
+            bool existingRoleName = await _roleRepository.ExistRoleByNameAsync(roleName);
+            if (existingRoleName)
+            {
+                return new RoleResponse(false, "El Rol ya existe en el sistema", IsConflict: true);
+            }
+
+            return new RoleResponse(true, "Rol válido.");
         }
     }
 

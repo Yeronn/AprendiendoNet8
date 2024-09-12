@@ -39,7 +39,10 @@ namespace WebAPI.Controllers
             var result = await _roleService.UpdateRoleAsync(id, updateRole);
             if (result.Success)
                 return Ok(result);
-            return BadRequest(result.Message);
+            else if (result.IsConflict)
+                return Conflict(result.Message);
+            else
+                return BadRequest(result.Message);
         }
 
         [HttpDelete("{id}")]
