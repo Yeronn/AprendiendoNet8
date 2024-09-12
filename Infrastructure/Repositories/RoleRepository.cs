@@ -68,17 +68,8 @@ namespace Infrastructure.Repositories
             {
                 var affectedRows = await connection.ExecuteAsync(query, role);
                 if (affectedRows > 0)
-                {
-                    //var deletePermissionsQuery = "DELETE FROM RolePermission WHERE RoleId = @RoleId";
-                    //await connection.ExecuteAsync(deletePermissionsQuery, new { RoleId = role.Id });
-
-                    //var insertPermissionsQuery = "INSERT INTO RolePermission (RoleId, PermissionId) VALUES (@RoleId, @PermissionId)";
-                    //foreach (var permission in role.Permissions)
-                    //{
-                    //    await connection.ExecuteAsync(insertPermissionsQuery, new { RoleId = role.Id, PermissionId = permission.Id });
-                    //}
                     return true;
-                }
+                
                 return false;
             }
         }
@@ -104,6 +95,16 @@ namespace Infrastructure.Repositories
             }
         }
 
+        public async Task<bool> ExistRoleByNameAsync(string name)
+        {
+            var query = "SELECT COUNT(1) FROM Role WHERE Name = @Name";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Name = name });
+                return count > 0;
+            }
+        }
 
     }
 }

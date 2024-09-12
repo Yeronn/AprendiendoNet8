@@ -15,6 +15,7 @@ namespace Domain.Interfaces
         Task<bool> UpdateRoleAsync(RoleEntity role);
         Task<bool> DeleteRoleAsync(int id);
         Task<bool> ExistRoleByIdAsync(int id);
+        Task<bool> ExistRoleByNameAsync(string name);
     }
 
 }

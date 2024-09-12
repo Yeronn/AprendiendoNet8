@@ -166,7 +166,7 @@
   },
   {
     "ContainingType": "WebAPI.Controllers.RoleController",
-    "Method": "Create",
+    "Method": "CreateRol",
     "RelativePath": "api/Role",
     "HttpMethod": "POST",
     "IsController": true,
@@ -182,7 +182,7 @@
   },
   {
     "ContainingType": "WebAPI.Controllers.RoleController",
-    "Method": "Update",
+    "Method": "UpdateRol",
     "RelativePath": "api/Role/{id}",
     "HttpMethod": "PUT",
     "IsController": true,

@@ -16,20 +16,25 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateRolDto createRole)
+        public async Task<IActionResult> CreateRol([FromBody] CreateRolDto createRole)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest("Datos inválidos: " + ModelState);
             }
             var result = await _roleService.CreateRoleAsync(createRole);
+
             if (result.Success)
                 return Ok(result);
-            return BadRequest(result.Message);
+            else if (result.IsConflict)
+                return Conflict(result.Message);
+            else
+                return BadRequest(result.Message);
+            
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] UpdateRolDto updateRole)
+        public async Task<IActionResult> UpdateRol(int id, [FromBody] UpdateRolDto updateRole)
         {
             var result = await _roleService.UpdateRoleAsync(id, updateRole);
             if (result.Success)

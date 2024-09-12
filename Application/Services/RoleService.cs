@@ -37,8 +37,12 @@ namespace Application.Services
         public async Task<RoleResponse> CreateRoleAsync(CreateRolDto createRol)
         {
             var roleEntity = createRol.ToRoleEntity();
-            var success = await _roleRepository.CreateRoleAsync(roleEntity);
 
+            bool existingRole = await _roleRepository.ExistRoleByNameAsync(createRol.Name!);
+            if (existingRole)
+                return new RoleResponse(false, "El Rol ya existe en el sistema", IsConflict: true);
+
+            var success = await _roleRepository.CreateRoleAsync(roleEntity);
             return success
                 ? new RoleResponse(true, "Rol creado exitosamente.", roleEntity.ToRoleWithoutPermissionsResponse())
                 : new RoleResponse(false, "Error al crear el rol.");
@@ -51,7 +55,8 @@ namespace Application.Services
             {
                 return new RoleResponse(false, "El rol no existe.");
             }
-
+            //TODO: El usuario depronto solo quiera actualizar el nombre o la descripción, entonces toca tomar esto en cuenta
+            //TODO: Verificar que el id que viene en el cuerpo de la peticion y el que se manda por parámetro sea el mismo
             updateRole.Id = id;
 
             var roleEntity = updateRole.ToRoleEntity();
