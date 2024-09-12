@@ -55,15 +55,14 @@ namespace Application.Services
             else if (updateRole.Id != id)
                 return new RoleResponse(false, "El Id de la URL y del cuerpo no son iguales");
 
-            bool existingRole = await _roleRepository.ExistRoleByIdAsync(id);
-            if (existingRole == false)
-                return new RoleResponse(false, "El rol no existe.");
+            var roleExist = await ValidateRoleExistsByIdAsync(id);
+            if (!roleExist.Success)
+                return roleExist;
 
             var validName = await ValidateRoleNameAsync(updateRole.Name!);
             if (!validName.Success)
                 return validName;
 
-            //TODO: El usuario depronto solo quiera actualizar el nombre o la descripción, entonces toca tomar esto en cuenta
             var roleEntity = updateRole.ToRoleEntity();
 
             var success = await _roleRepository.UpdateRoleAsync(roleEntity);
@@ -74,6 +73,9 @@ namespace Application.Services
 
         public async Task<RoleResponse> DeleteRoleAsync(int id)
         {
+            var roleExist = await ValidateRoleExistsByIdAsync(id);
+            if (!roleExist.Success)
+                return roleExist;
             var success = await _roleRepository.DeleteRoleAsync(id);
             return success
                 ? new RoleResponse(true, "Rol eliminado exitosamente.")
@@ -97,13 +99,22 @@ namespace Application.Services
 
         }
 
+        private async Task<RoleResponse> ValidateRoleExistsByIdAsync(int id)
+        {
+            bool existingRole = await _roleRepository.ExistRoleByIdAsync(id);
+            if (!existingRole)
+            {
+                return new RoleResponse(false, "El rol no existe.", IsNotFound: true);
+            }
+
+            return new RoleResponse(true, "El rol existe.");
+        }
+
         private async Task<RoleResponse> ValidateRoleNameAsync(string roleName)
         {
             bool existingRoleName = await _roleRepository.ExistRoleByNameAsync(roleName);
             if (existingRoleName)
-            {
                 return new RoleResponse(false, "El Rol ya existe en el sistema", IsConflict: true);
-            }
 
             return new RoleResponse(true, "Rol válido.");
         }

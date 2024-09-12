@@ -25,7 +25,12 @@ namespace WebAPI.Controllers
             var result = await _roleService.CreateRoleAsync(createRole);
 
             if (result.Success)
-                return Ok(result);
+                return Ok(new
+                {
+                    result.Success,
+                    result.Message,
+                    result.Role
+                });
             else if (result.IsConflict)
                 return Conflict(result.Message);
             else
@@ -38,9 +43,16 @@ namespace WebAPI.Controllers
         {
             var result = await _roleService.UpdateRoleAsync(id, updateRole);
             if (result.Success)
-                return Ok(result);
+                return Ok(new
+                {
+                    result.Success,
+                    result.Message,
+                    result.Role
+                });
             else if (result.IsConflict)
                 return Conflict(result.Message);
+            else if (result.IsNotFound)
+                return NotFound(result.Message);
             else
                 return BadRequest(result.Message);
         }
@@ -50,8 +62,10 @@ namespace WebAPI.Controllers
         {
             var result = await _roleService.DeleteRoleAsync(id);
             if (result.Success)
-                return Ok(result);
-            return NotFound(result.Message);
+                return NoContent();
+            else if (result.IsNotFound) 
+                return NotFound();
+            return BadRequest(result.Message);
         }
 
         [HttpGet("{id}")]

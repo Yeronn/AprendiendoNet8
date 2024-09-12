@@ -7,6 +7,6 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public record RoleResponse(bool Success, string Message, RoleWithoutPermissionsResponseDto? Role = null, bool IsConflict = false);
+    public record RoleResponse(bool Success, string Message, RoleWithoutPermissionsResponseDto? Role = null, bool IsConflict = false, bool IsNotFound = false);
 
 }
