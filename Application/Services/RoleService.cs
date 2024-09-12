@@ -34,11 +34,11 @@ namespace Application.Services
 
         public async Task<IEnumerable<RoleEntity>?> GetAllRolesAsync() => await _roleRepository.GetAllRolesAsync(); //TODO: Hacer un DTO para que no muestre los permisos
 
-        public async Task<RoleResponse> CreateRoleAsync(CreateRolDto createRol)
+        public async Task<RoleResponse> CreateRoleAsync(CreateRolDto createRole)
         {
-            var roleEntity = createRol.ToRoleEntity();
+            var roleEntity = createRole.ToRoleEntity();
 
-            var validName = await ValidateRoleNameAsync(createRol.Name!);
+            var validName = await ValidateRoleNameAsync(createRole.Name!);
             if (!validName.Success)
                 return validName;
 
