@@ -39,5 +39,15 @@ namespace Application.Mappers
                 Description = roleEntity.Description
             };
         }
+
+        public static RoleDto ToRoleDto(this RoleEntity roleEntity)
+        {
+            return new RoleDto
+            {
+                Id = roleEntity.Id,
+                Name = roleEntity.Name,
+                Description = roleEntity.Description,
+            };
+        }
     }
 }

@@ -22,17 +22,6 @@ namespace Application.Services
             _permissionService = permissionService;
         }
 
-        public async Task<RoleEntity?> GetRoleByIdAsync(int id)
-        {
-            var role = await _roleRepository.GetRoleByIdAsync(id);
-            if (role == null)
-                return null;
-
-
-            return role;
-        }
-
-        public async Task<IEnumerable<RoleEntity>?> GetAllRolesAsync() => await _roleRepository.GetAllRolesAsync(); //TODO: Hacer un DTO para que no muestre los permisos
 
         public async Task<RoleResponse> CreateRoleAsync(CreateRolDto createRole)
         {
@@ -50,10 +39,11 @@ namespace Application.Services
 
         public async Task<RoleResponse> UpdateRoleAsync(int id, UpdateRolDto updateRole)
         {
-            if (updateRole.Id == null || updateRole.Id == 0)
+            var validateId = ValidateUrlIdWithBodyId(id, updateRole.Id);
+            if (!validateId.Success)
+                return validateId;
+            else
                 updateRole.Id = id;
-            else if (updateRole.Id != id)
-                return new RoleResponse(false, "El Id de la URL y del cuerpo no son iguales");
 
             var roleExist = await ValidateRoleExistsByIdAsync(id);
             if (!roleExist.Success)
@@ -94,13 +84,29 @@ namespace Application.Services
                 : new RoleResponse(false, "Error al eliminar el rol.");
         }
 
+        public async Task<IEnumerable<RoleDto>?> GetAllRolesAsync()
+        {
+            var roles = await _roleRepository.GetAllRolesAsync();
+            if (!roles.Any())
+                return null;
+            var rolesDto = roles.Select(role => role.ToRoleDto()).ToList();
+            return rolesDto;
+        }
+
+        public async Task<RoleDto?> GetRoleByIdAsync(int id)
+        {
+            var role = await _roleRepository.GetRoleByIdAsync(id);
+            if (role == null)
+                return null;
+            return role.ToRoleDto();
+        }
 
         public async Task<IEnumerable<RoleEntity>?> GetAllRolesWithTheirPermissionsAsync()
         {
             var roles = await _roleRepository.GetAllRolesAsync(); //TODO: Si realizo validaciones en el servicio que obtengo todos los roles, toca cambiar esta linea y en lugar de usar el repo use la funcion de este servicio
 
-            if (roles == null)
-                return null; //No obtuvo los roles
+            if (!roles.Any())
+                return null;
 
             foreach (var role in roles)
             {
@@ -110,6 +116,7 @@ namespace Application.Services
             return roles;
 
         }
+
 
         private async Task<RoleResponse> ValidateRoleExistsByIdAsync(int id)
         {
@@ -130,6 +137,18 @@ namespace Application.Services
 
             return new RoleResponse(true, "Rol válido.");
         }
+
+        private RoleResponse ValidateUrlIdWithBodyId(int urlId, int? bodyId)
+        {
+            if (bodyId == null || bodyId == 0)
+                return new RoleResponse(true, "Asignar ID de la URL al objeto del body");
+
+            if (bodyId != urlId)
+                return new RoleResponse(false, "El Id de la URL y del cuerpo no coinciden.");
+
+            return new RoleResponse(true, "Los Id son iguales");
+        }
+
     }
 
 }

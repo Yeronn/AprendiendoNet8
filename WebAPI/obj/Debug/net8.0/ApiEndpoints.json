@@ -235,7 +235,7 @@
   },
   {
     "ContainingType": "WebAPI.Controllers.RoleController",
-    "Method": "GetAll",
+    "Method": "GetAllRoles",
     "RelativePath": "api/Role/roles",
     "HttpMethod": "GET",
     "IsController": true,
