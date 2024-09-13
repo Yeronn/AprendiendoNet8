@@ -65,5 +65,14 @@ namespace Application.Services
             var permissionByRol = await _permissionRepository.GetAllPermissionsByRoleIdAsync(roleId);
             return permissionByRol;
         }
+
+        //TODO: Implementar este metodo en los demas metodos
+        public async Task<bool> ValidatePermissionExistsByIdAsync(int id)
+        {
+            bool existingRole = await _permissionRepository.ExistPermissionByIdAsync(id);
+            if (!existingRole)
+                return false;
+            return true;
+        }
     }
 }

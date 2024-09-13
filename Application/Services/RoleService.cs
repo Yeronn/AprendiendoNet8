@@ -121,7 +121,29 @@ namespace Application.Services
             return roles.Select(role => role.ToRoleDto());
         }
 
+        public async Task<RoleResponse> AddPermissionsToRoleAsync(int roleId, List<int> permissionIds)
+        {
+            var roleExists = await ValidateRoleExistsByIdAsync(roleId);
+            if (!roleExists.Success)
+                return roleExists;
 
+            // Obtener los permisos que no existen
+            var invalidPermissions = new List<int>();
+            foreach (var permissionId in permissionIds)
+            {
+                if (!await _permissionService.ValidatePermissionExistsByIdAsync(permissionId))
+                    invalidPermissions.Add(permissionId);
+            }
+
+            if (invalidPermissions.Any())
+                return new RoleResponse(false, $"Los siguientes permisos no existen: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
+
+            // Añadir permisos al rol
+            var success = await _roleRepository.AddPermissionsToRoleAsync(roleId, permissionIds);
+            return success
+                ? new RoleResponse(true, "Permisos añadidos correctamente al rol.")
+                : new RoleResponse(false, "Error al añadir permisos al rol.");
+        }
 
 
 
@@ -129,9 +151,7 @@ namespace Application.Services
         {
             bool existingRole = await _roleRepository.ExistRoleByIdAsync(id);
             if (!existingRole)
-            {
                 return new RoleResponse(false, "El rol no existe.", IsNotFound: true);
-            }
 
             return new RoleResponse(true, "El rol existe.");
         }

@@ -115,5 +115,17 @@ namespace Infrastructure.Repositories
             }
         }
 
+        public async Task<bool> AddPermissionsToRoleAsync(int roleId, List<int> permissionIds)
+        {
+            var query = "INSERT INTO RolePermission (RoleId, PermissionId) VALUES (@RoleId, @PermissionId)";
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = permissionIds.Select(permissionId => new { RoleId = roleId, PermissionId = permissionId }).ToList();
+
+                await connection.ExecuteAsync(query, parameters);
+            }
+
+            return true;
+        }
     }
 }

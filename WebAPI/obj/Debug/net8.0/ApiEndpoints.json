@@ -235,6 +235,27 @@
   },
   {
     "ContainingType": "WebAPI.Controllers.RoleController",
+    "Method": "AddPermissionsToRole",
+    "RelativePath": "api/Role/{roleId}/permissions",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "roleId",
+        "Type": "System.Int32",
+        "IsRequired": true
+      },
+      {
+        "Name": "permissionIds",
+        "Type": "System.Collections.Generic.List\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WebAPI.Controllers.RoleController",
     "Method": "GetRoleWithTheirPermissions",
     "RelativePath": "api/Role/roleAndPermissions/{id}",
     "HttpMethod": "GET",

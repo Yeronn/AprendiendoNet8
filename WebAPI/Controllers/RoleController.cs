@@ -104,6 +104,24 @@ namespace WebAPI.Controllers
             return Ok(role);
         }
 
-        //TODO: Hacer un controlador que obtenga un rol con sus permisos por id
+        [HttpPost("{roleId}/permissions")]
+        public async Task<IActionResult> AddPermissionsToRole(int roleId, [FromBody] List<int> permissionIds)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Datos inválidos.");
+            }
+
+            var result = await _roleService.AddPermissionsToRoleAsync(roleId, permissionIds);
+
+            if (result.Success)
+                return Ok(result);
+            else if (result.IsNotFound)
+                return NotFound(result.Message);
+            else if (result.IsBadRequest)
+                return BadRequest(result.Message);
+
+            return StatusCode(500, result.Message);
+        }
     }
 }

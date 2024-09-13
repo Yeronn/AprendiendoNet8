@@ -18,6 +18,7 @@ namespace Domain.Interfaces
         Task<bool> ExistRoleByNameAsync(string name);
         Task<bool> UpdateRoleNameAsync(int id, string name);
         Task<bool> UpdateRoleDescriptionAsync(int id, string description);
+        Task<bool> AddPermissionsToRoleAsync(int roleId, List<int> permissionIds);
     }
 
 }

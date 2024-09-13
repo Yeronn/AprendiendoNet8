@@ -17,6 +17,7 @@ namespace Application.Interfaces
         Task<RoleDto?> GetRoleWithTheirPermissionsByIdAsync(int id);
         Task<IEnumerable<RoleWithoutPermissionsResponseDto>?> GetAllRolesAsync();
         Task<IEnumerable<RoleDto>?> GetAllRolesWithTheirPermissionsAsync();
+        Task<RoleResponse> AddPermissionsToRoleAsync(int roleId, List<int> permissionIds);
     }
 
 }
