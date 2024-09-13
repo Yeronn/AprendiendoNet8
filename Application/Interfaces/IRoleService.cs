@@ -13,9 +13,10 @@ namespace Application.Interfaces
         Task<RoleResponse> CreateRoleAsync(CreateRolDto createRole);
         Task<RoleResponse> UpdateRoleAsync(int id, UpdateRolDto updateRole);
         Task<RoleResponse> DeleteRoleAsync(int id);
-        Task<RoleDto?> GetRoleByIdAsync(int id);
-        Task<IEnumerable<RoleDto>?> GetAllRolesAsync();
-        Task<IEnumerable<RoleEntity>?> GetAllRolesWithTheirPermissionsAsync();
+        Task<RoleWithoutPermissionsResponseDto?> GetRoleByIdAsync(int id);
+        Task<RoleDto?> GetRoleWithTheirPermissionsByIdAsync(int id);
+        Task<IEnumerable<RoleWithoutPermissionsResponseDto>?> GetAllRolesAsync();
+        Task<IEnumerable<RoleDto>?> GetAllRolesWithTheirPermissionsAsync();
     }
 
 }

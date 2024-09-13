@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> DeleteRol(int id)
         {
             var result = await _roleService.DeleteRoleAsync(id);
             if (result.Success)
@@ -69,7 +69,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<IActionResult> GetRolById(int id)
         {
             var role = await _roleService.GetRoleByIdAsync(id);
             if (role == null)
@@ -90,7 +90,18 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> GetAllRolesWithTheirPermissions()
         {
             var roles = await _roleService.GetAllRolesWithTheirPermissionsAsync();
+            if (roles == null)
+                return NotFound("No hay roles en el sistema");
             return Ok(roles);
+        }
+
+        [HttpGet("roleAndPermissions/{id}")]
+        public async Task<IActionResult> GetRoleWithTheirPermissions(int id)
+        {
+            var role = await _roleService.GetRoleWithTheirPermissionsByIdAsync(id);
+            if (role == null)
+                return NotFound("El rol no existe en el sistema");
+            return Ok(role);
         }
 
         //TODO: Hacer un controlador que obtenga un rol con sus permisos por id

@@ -3,11 +3,6 @@ using Application.Interfaces;
 using Application.Mappers;
 using Domain.Entities;
 using Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Application.Services
 {
@@ -83,28 +78,38 @@ namespace Application.Services
                 ? new RoleResponse(true, "Rol eliminado exitosamente.")
                 : new RoleResponse(false, "Error al eliminar el rol.");
         }
-
-        public async Task<IEnumerable<RoleDto>?> GetAllRolesAsync()
-        {
-            var roles = await _roleRepository.GetAllRolesAsync();
-            if (!roles.Any())
-                return null;
-            var rolesDto = roles.Select(role => role.ToRoleDto()).ToList();
-            return rolesDto;
-        }
-
-        public async Task<RoleDto?> GetRoleByIdAsync(int id)
+     
+        public async Task<RoleWithoutPermissionsResponseDto?> GetRoleByIdAsync(int id)
         {
             var role = await _roleRepository.GetRoleByIdAsync(id);
             if (role == null)
                 return null;
-            return role.ToRoleDto();
+            return role.ToRoleWithoutPermissionsResponse();
         }
 
-        public async Task<IEnumerable<RoleEntity>?> GetAllRolesWithTheirPermissionsAsync()
+        public async Task<IEnumerable<RoleWithoutPermissionsResponseDto>?> GetAllRolesAsync()
         {
-            var roles = await _roleRepository.GetAllRolesAsync(); //TODO: Si realizo validaciones en el servicio que obtengo todos los roles, toca cambiar esta linea y en lugar de usar el repo use la funcion de este servicio
+            var roles = await _roleRepository.GetAllRolesAsync();
+            if (!roles.Any())
+                return null;
+            var rolesDto = roles.Select(role => role.ToRoleWithoutPermissionsResponse()).ToList();
+            return rolesDto;
+        }
 
+        public async Task<RoleDto?> GetRoleWithTheirPermissionsByIdAsync(int id)
+        {
+            var role = await GetRoleByIdAsync(id);
+            if (role == null)
+                return null;
+            var roleDto = role.ToRoleDto();
+            var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync(role.Id);
+            roleDto.Permissions = permissions.ToList();
+            return roleDto;
+        }
+
+        public async Task<IEnumerable<RoleDto>?> GetAllRolesWithTheirPermissionsAsync()
+        {
+            var roles = await _roleRepository.GetAllRolesAsync();
             if (!roles.Any())
                 return null;
 
@@ -113,9 +118,11 @@ namespace Application.Services
                 var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync(role.Id);
                 role.Permissions = permissions.ToList();
             }
-            return roles;
-
+            return roles.Select(role => role.ToRoleDto());
         }
+
+
+
 
 
         private async Task<RoleResponse> ValidateRoleExistsByIdAsync(int id)

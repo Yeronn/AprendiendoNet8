@@ -47,6 +47,17 @@ namespace Application.Mappers
                 Id = roleEntity.Id,
                 Name = roleEntity.Name,
                 Description = roleEntity.Description,
+                Permissions = roleEntity.Permissions
+            };
+        }
+
+        public static RoleDto ToRoleDto(this RoleWithoutPermissionsResponseDto roleWithoutPermissionsResponseDto)
+        {
+            return new RoleDto
+            {
+                Id = roleWithoutPermissionsResponseDto.Id,
+                Name = roleWithoutPermissionsResponseDto.Name,
+                Description = roleWithoutPermissionsResponseDto.Description
             };
         }
     }

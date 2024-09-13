@@ -60,12 +60,10 @@ namespace Application.Services
             return await _permissionRepository.DeletePermissionAsync(id);
         }
 
-        public async Task<IEnumerable<PermissionEntity>?> GetAllPermissionsByRoleIdAsync(int roleId)
+        public async Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId)
         {
             var permissionByRol = await _permissionRepository.GetAllPermissionsByRoleIdAsync(roleId);
-            if (!permissionByRol.Any())
-                return null;
-            return permissionByRol.ToList();
+            return permissionByRol;
         }
     }
 }

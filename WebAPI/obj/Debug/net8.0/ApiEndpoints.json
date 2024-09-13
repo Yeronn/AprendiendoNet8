@@ -203,7 +203,7 @@
   },
   {
     "ContainingType": "WebAPI.Controllers.RoleController",
-    "Method": "Delete",
+    "Method": "DeleteRol",
     "RelativePath": "api/Role/{id}",
     "HttpMethod": "DELETE",
     "IsController": true,
@@ -219,8 +219,24 @@
   },
   {
     "ContainingType": "WebAPI.Controllers.RoleController",
-    "Method": "GetById",
+    "Method": "GetRolById",
     "RelativePath": "api/Role/{id}",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.Int32",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "WebAPI.Controllers.RoleController",
+    "Method": "GetRoleWithTheirPermissions",
+    "RelativePath": "api/Role/roleAndPermissions/{id}",
     "HttpMethod": "GET",
     "IsController": true,
     "Order": 0,
