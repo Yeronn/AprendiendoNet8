@@ -30,9 +30,9 @@ namespace Application.Mappers
         }
 
 
-        public static RoleWithoutPermissionsResponseDto ToRoleWithoutPermissionsResponse(this RoleEntity roleEntity)
+        public static RoleWithoutPermissionsDto ToRoleWithoutPermissionsResponse(this RoleEntity roleEntity)
         {
-            return new RoleWithoutPermissionsResponseDto
+            return new RoleWithoutPermissionsDto
             {
                 Id = roleEntity.Id,
                 Name = roleEntity.Name,
@@ -51,7 +51,7 @@ namespace Application.Mappers
             };
         }
 
-        public static RoleDto ToRoleDto(this RoleWithoutPermissionsResponseDto roleWithoutPermissionsResponseDto)
+        public static RoleDto ToRoleDto(this RoleWithoutPermissionsDto roleWithoutPermissionsResponseDto)
         {
             return new RoleDto
             {

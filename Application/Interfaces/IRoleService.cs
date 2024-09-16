@@ -10,14 +10,14 @@ namespace Application.Interfaces
 {
     public interface IRoleService
     {
-        Task<RoleResponse> CreateRoleAsync(CreateRolDto createRole);
-        Task<RoleResponse> UpdateRoleAsync(int id, UpdateRolDto updateRole);
-        Task<RoleResponse> DeleteRoleAsync(int id);
-        Task<RoleWithoutPermissionsResponseDto?> GetRoleByIdAsync(int id);
-        Task<RoleDto?> GetRoleWithTheirPermissionsByIdAsync(int id);
-        Task<IEnumerable<RoleWithoutPermissionsResponseDto>?> GetAllRolesAsync();
-        Task<IEnumerable<RoleDto>?> GetAllRolesWithTheirPermissionsAsync();
-        Task<RoleResponse> AddPermissionsToRoleAsync(int roleId, List<int> permissionIds);
+        Task<RoleResponseDto> CreateRoleAsync(CreateRolDto createRole);
+        Task<RoleResponseDto> UpdateRoleAsync(int id, UpdateRolDto updateRole);
+        Task<RoleResponseDto> DeleteRoleAsync(int id);
+        Task<RoleWithoutPermissionsDto?> GetRoleByIdAsync(int id);
+        Task<RoleDto?> GetRoleWithPermissionsByIdAsync(int id);
+        Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesAsync();
+        Task<IEnumerable<RoleDto>?> GetAllRolesWithPermissionsAsync();
+        Task<RoleResponseDto> AssignPermissionsToRoleAsync(int roleId, List<int> permissionIds);
     }
 
 }

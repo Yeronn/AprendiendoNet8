@@ -89,7 +89,7 @@ namespace WebAPI.Controllers
         [HttpGet("rolesAndPermissions")]
         public async Task<IActionResult> GetAllRolesWithTheirPermissions()
         {
-            var roles = await _roleService.GetAllRolesWithTheirPermissionsAsync();
+            var roles = await _roleService.GetAllRolesWithPermissionsAsync();
             if (roles == null)
                 return NotFound("No hay roles en el sistema");
             return Ok(roles);
@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
         [HttpGet("roleAndPermissions/{id}")]
         public async Task<IActionResult> GetRoleWithTheirPermissions(int id)
         {
-            var role = await _roleService.GetRoleWithTheirPermissionsByIdAsync(id);
+            var role = await _roleService.GetRoleWithPermissionsByIdAsync(id);
             if (role == null)
                 return NotFound("El rol no existe en el sistema");
             return Ok(role);
@@ -112,7 +112,7 @@ namespace WebAPI.Controllers
                 return BadRequest("Datos inválidos.");
             }
 
-            var result = await _roleService.AddPermissionsToRoleAsync(roleId, permissionIds);
+            var result = await _roleService.AssignPermissionsToRoleAsync(roleId, permissionIds);
 
             if (result.Success)
                 return Ok(result);

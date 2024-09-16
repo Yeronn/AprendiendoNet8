@@ -483,71 +483,13 @@ $RECYCLE.BIN/
 # Vim temporary swap files
 *.swp
 
+# Build directories (all subprojects)
+**/bin/
+**/obj/
 
-
-# Compiled source files
-*.dll
-*.exe
-*.so
-*.dylib
-*.class
-
-# User-specific files
-*.csproj.user
-*.suo
-*.user
-*.userosscache
-*.sln.docstates
-
-# Logs
-*.log
-*.tlog
-
-# Build directories
-bin/
-obj/
-
-# NuGet packages
-*.nupkg
-# NuGet packages cache
-**/packages/*
-# If using the old MSBuild-Integrated Package Restore, uncomment this:
-#!**/packages/build/
-#!**/packages/repositories.config
-
-# Visual Studio Code specific
+# Visual Studio specific
 .vscode/
-.vscode/*
-
-# Mac specific files
-.DS_Store
-
-# Rider specific
 .idea/
 
-# Resharper files
-*.DotSettings.user
-*.ReSharper
-
-# Windows image file caches
-Thumbs.db
-ehthumbs.db
-
-# Image file caches
-*.DS_Store
-*.stackdump
-
-# Web-specific (if using Blazor or other web projects)
-wwwroot/
-node_modules/
-
-# Publishing specific files
-.publish/
-
-# .NET Core/ASP.NET Core specific
-project.lock.json
-project.fragment.lock.json
-artifacts/
-
-# Entity Framework Migrations
-Migrations/
+# NuGet packages
+**/packages/
