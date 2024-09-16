@@ -78,6 +78,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+    //TODO: Cambiar el nombre al metodo debido a que no verifica que el nombre sea unico, lo que hace es verificar que el nombre no se encuentre en el sistema
         public async Task<bool> VerifyUniquePermissionNameAsync(string name)
         {
             var query = "SELECT COUNT(1) FROM Permission WHERE Name = @Name";

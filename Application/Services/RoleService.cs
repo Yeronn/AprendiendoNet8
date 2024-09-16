@@ -1,7 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using Application.Mappers;
-using Domain.Entities;
 using Domain.Interfaces;
 
 namespace Application.Services
@@ -28,7 +27,7 @@ namespace Application.Services
 
             var success = await _roleRepository.CreateRoleAsync(roleEntity);
             return success
-                ? new RoleResponseDto(true, "Rol creado exitosamente.", roleEntity.ToRoleWithoutPermissionsResponse())
+                ? new RoleResponseDto(true, "Rol creado exitosamente.", roleEntity.ToRoleWithoutPermissionsDto())
                 : new RoleResponseDto(false, "Error al crear el rol.");
         }
 
@@ -45,27 +44,27 @@ namespace Application.Services
                 return roleExist;
 
             var currentRole = await _roleRepository.GetRoleByIdAsync(id);
-            var roleEntity = updateRole.ToRoleEntity();
+            var updateRoleEntity = updateRole.ToRoleEntity();
 
-            if (!string.IsNullOrEmpty(roleEntity.Name) && roleEntity.Name != currentRole!.Name)
+            if (!string.IsNullOrEmpty(updateRoleEntity.Name) && updateRoleEntity.Name != currentRole!.Name)
             {
-                var validName = await CheckRoleNameAvailabilityAsync(roleEntity.Name);
-                if (!validName.Success)
-                    return validName;
+                var availableName = await CheckRoleNameAvailabilityAsync(updateRoleEntity.Name);
+                if (!availableName.Success)
+                    return availableName;
 
-                await _roleRepository.UpdateRoleNameAsync(id, roleEntity.Name);
+                await _roleRepository.UpdateRoleNameAsync(id, updateRoleEntity.Name);
             }
             else
-                roleEntity.Name = currentRole!.Name;
+                updateRoleEntity.Name = currentRole!.Name;
 
-            if (!string.IsNullOrEmpty(roleEntity.Description) && roleEntity.Description != currentRole?.Description)
+            if (!string.IsNullOrEmpty(updateRoleEntity.Description) && updateRoleEntity.Description != currentRole?.Description)
             {
-                await _roleRepository.UpdateRoleDescriptionAsync(id, roleEntity.Description);
+                await _roleRepository.UpdateRoleDescriptionAsync(id, updateRoleEntity.Description);
             }
             else
-                roleEntity.Description = currentRole?.Description;
+                updateRoleEntity.Description = currentRole?.Description;
 
-            return new RoleResponseDto(true, "Rol actualizado exitosamente.", roleEntity.ToRoleWithoutPermissionsResponse());
+            return new RoleResponseDto(true, "Rol actualizado exitosamente.", updateRoleEntity.ToRoleWithoutPermissionsDto());
         }
 
         public async Task<RoleResponseDto> DeleteRoleAsync(int id)
@@ -84,7 +83,7 @@ namespace Application.Services
             var role = await _roleRepository.GetRoleByIdAsync(id);
             if (role == null)
                 return null;
-            return role.ToRoleWithoutPermissionsResponse();
+            return role.ToRoleWithoutPermissionsDto();
         }
 
         public async Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesAsync()
@@ -92,7 +91,7 @@ namespace Application.Services
             var roles = await _roleRepository.GetAllRolesAsync();
             if (!roles.Any())
                 return null;
-            var rolesDto = roles.Select(role => role.ToRoleWithoutPermissionsResponse()).ToList();
+            var rolesDto = roles.Select(role => role.ToRoleWithoutPermissionsDto()).ToList();
             return rolesDto;
         }
 
@@ -131,15 +130,24 @@ namespace Application.Services
             var invalidPermissions = new List<int>();
             foreach (var permissionId in permissionIds)
             {
-                if (!await _permissionService.ValidatePermissionExistsByIdAsync(permissionId))
+                bool permissionExists = await _permissionService.ValidatePermissionExistsByIdAsync(permissionId);
+                if (!permissionExists)
                     invalidPermissions.Add(permissionId);
             }
-
             if (invalidPermissions.Any())
                 return new RoleResponseDto(false, $"Los siguientes permisos no existen: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
 
+            // Permisos que ya tiene el rol
+            var existingPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
+            var newPermissions = permissionIds.Except(existingPermissions.Select(p => p.Id)).ToList();
+
+            if (!newPermissions.Any())
+            {
+                return new RoleResponseDto(false, "Todos los permisos ya están asignados al rol.");
+            }
+
             // Añadir permisos al rol
-            var success = await _roleRepository.AddPermissionsToRoleAsync(roleId, permissionIds);
+            var success = await _roleRepository.AddPermissionsToRoleAsync(roleId, newPermissions);
             return success
                 ? new RoleResponseDto(true, "Permisos añadidos correctamente al rol.")
                 : new RoleResponseDto(false, "Error al añadir permisos al rol.");
