@@ -127,20 +127,11 @@ namespace Application.Services
                 return roleExists;
 
             // Obtener los permisos que no existen
-            var invalidPermissions = new List<int>();
-            foreach (var permissionId in permissionIds)
-            {
-                bool permissionExists = await _permissionService.ValidatePermissionExistsByIdAsync(permissionId);
-                if (!permissionExists)
-                    invalidPermissions.Add(permissionId);
-            }
+            var invalidPermissions = await GetInvalidPermissionsAsync(permissionIds);
             if (invalidPermissions.Any())
                 return new RoleResponseDto(false, $"Los siguientes permisos no existen: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
 
-            // Permisos que ya tiene el rol
-            var existingPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
-            var newPermissions = permissionIds.Except(existingPermissions.Select(p => p.Id)).ToList();
-
+            var newPermissions = await GetNewPermissionsForRoleAsync(roleId, permissionIds);
             if (!newPermissions.Any())
             {
                 return new RoleResponseDto(false, "Todos los permisos ya están asignados al rol.");
@@ -174,6 +165,7 @@ namespace Application.Services
         }
 
         private RoleResponseDto ValidateIdsMatch(int urlId, int? bodyId)
+
         {
             if (bodyId == null || bodyId == 0)
                 return new RoleResponseDto(true, "Asignar ID de la URL al objeto del body");
@@ -184,6 +176,23 @@ namespace Application.Services
             return new RoleResponseDto(true, "Los Id son iguales");
         }
 
+        private async Task<List<int>> GetInvalidPermissionsAsync(List<int> permissionIds)
+        {
+            var invalidPermissions = new List<int>();
+            foreach (var permissionId in permissionIds)
+            {
+                bool permissionExists = await _permissionService.ValidatePermissionExistsByIdAsync(permissionId);
+                if (!permissionExists)
+                    invalidPermissions.Add(permissionId);
+            }
+            return invalidPermissions;
+        }
+
+        private async Task<List<int>> GetNewPermissionsForRoleAsync(int roleId, List<int> permissionIds)
+        {
+            var existingPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
+            return permissionIds.Except(existingPermissions.Select(p => p.Id)).ToList();
+        }  
     }
 
 }
