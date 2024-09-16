@@ -551,7 +551,3 @@ artifacts/
 
 # Entity Framework Migrations
 Migrations/
-
-# Generated files
-*.generated.cs
-Application/obj/Debug/net8.0/Application.dll
