@@ -19,11 +19,11 @@ namespace Application.Services
 
         public async Task<RoleResponseDto> CreateRoleAsync(CreateRolDto createRole)
         {
-            var roleEntity = createRole.ToRoleEntity();
-
             var validName = await CheckRoleNameAvailabilityAsync(createRole.Name!);
             if (!validName.Success)
                 return validName;
+         
+            var roleEntity = createRole.ToRoleEntity();
 
             var success = await _roleRepository.CreateRoleAsync(roleEntity);
             return success

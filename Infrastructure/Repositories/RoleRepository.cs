@@ -14,16 +14,6 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<RoleEntity?> GetRoleByIdAsync(int id)
-        {
-            var query = "SELECT * FROM Role WHERE Id = @Id";
-            using (var connection = _context.CreateConnection())
-            {
-                var role = await connection.QuerySingleOrDefaultAsync<RoleEntity>(query, new { Id = id });
-                return role;
-            }
-        }
-
         public async Task<IEnumerable<RoleEntity>> GetAllRolesAsync()
         {
             var query = "SELECT * FROM Role";
@@ -31,6 +21,16 @@ namespace Infrastructure.Repositories
             {
                 var roles = await connection.QueryAsync<RoleEntity>(query);
                 return roles;
+            }
+        }
+
+        public async Task<RoleEntity?> GetRoleByIdAsync(int id)
+        {
+            var query = "SELECT * FROM Role WHERE Id = @Id";
+            using (var connection = _context.CreateConnection())
+            {
+                var role = await connection.QuerySingleOrDefaultAsync<RoleEntity>(query, new { Id = id });
+                return role;
             }
         }
 

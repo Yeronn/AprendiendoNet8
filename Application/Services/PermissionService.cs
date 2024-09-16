@@ -15,12 +15,13 @@ namespace Application.Services
             _permissionRepository = permissionRepository;
         }
 
-        public async Task<IEnumerable<PermissionEntity>?> GetAllPermissionsAsync()
+        public async Task<IEnumerable<PermissionDto>?> GetAllPermissionsAsync()
         {
             var permissions = await _permissionRepository.GetAllPermissionsAsync();
             if (!permissions.Any())
                 return null;
-            return permissions.ToList();
+            var permissionsDto = permissions.Select(permission => permission.ToPermissionDto());
+            return permissionsDto.ToList();
         }
 
         public async Task<PermissionEntity?> GetPermissionByIdAsync(int id)
@@ -28,25 +29,54 @@ namespace Application.Services
             return await _permissionRepository.GetPermissionByIdAsync(id);
         }
 
-        public async Task<RegistrationResponse> CreatePermissionAsync(PermissionDto permissionDto)
+        public async Task<PermissionResponseDto> CreatePermissionAsync(CreatePermissionDto createPermission)
         {
-            bool nameAvalible = await _permissionRepository.VerifyUniquePermissionNameAsync(permissionDto.Name);
-            if (nameAvalible == false)
-                return new RegistrationResponse("El nombre del permiso ya se encuentra en uso");
+            var nameAvalible = await CheckPermissionNameAvailabilityAsync(createPermission.Name!);
+            if (!nameAvalible.Success)
+                return nameAvalible;
 
-            PermissionEntity permission = permissionDto.ToEntity();
-            int idCreatedPermission = await _permissionRepository.CreatePermissionAsync(permission);
-            return new RegistrationResponse("El permiso se creo correctamente", idCreatedPermission);
+            PermissionEntity permissionEntity = createPermission.ToEntity();
+
+            bool success = await _permissionRepository.CreatePermissionAsync(permissionEntity);
+            return success
+                    ? new PermissionResponseDto(true, "Permiso creado exitosamente.", permissionEntity.ToPermissionDto())
+                    : new PermissionResponseDto(false, "Error al crear el permiso");
         }
 
-        public async Task<UpdateResponse> UpdatePermissionAsync(int id, PermissionDto permissionDto)
+        public async Task<PermissionResponseDto> UpdatePermissionAsync(int id, UpdatePermissionDto updatePermission)
         {
-            var permissionExist = await _permissionRepository.ExistPermissionByIdAsync(id);
-            if (permissionExist == false)
-                return new UpdateResponse("El permiso no existe");
+            var validateId = ValidateIdsMatch(id, updatePermission.Id);
+            if (!validateId.Success)
+                return validateId;
+            else
+                updatePermission.Id = id;
 
-            permissionDto.Id = id;
-            var permission = permissionDto.ToEntity();
+            var permissionExist = await ValidatePermissionExistsByIdAsync(id);
+            if (!permissionExist.Success)
+                return permissionExist;
+
+            var currentPermission = await _permissionRepository.GetPermissionByIdAsync(id);
+            var updatePermissionEntity = updatePermission.ToPermissionEntity();
+
+
+            if (!string.IsNullOrEmpty(updatePermissionEntity.Name) && updatePermissionEntity.Name != currentRole!.Name)
+            {
+                var availableName = await CheckPermissionNameAvailabilityAsync(updatePermissionEntity.Name);
+                if (!availableName.Success)
+                    return availableName;
+                //TODO: Terminar de hacer este metodo
+                await _permissionRepository.UpdatePermissionAsync(id, updatePermissionEntity.Name);
+            }
+            else
+                updateRoleEntity.Name = currentRole!.Name;
+
+            if (!string.IsNullOrEmpty(updateRoleEntity.Description) && updateRoleEntity.Description != currentRole?.Description)
+            {
+                await _roleRepository.UpdateRoleDescriptionAsync(id, updateRoleEntity.Description);
+            }
+            else
+                updateRoleEntity.Description = currentRole?.Description;
+
 
             var updatedPermission = await _permissionRepository.UpdatePermissionAsync(permission);
             if (updatedPermission == false)
@@ -67,12 +97,35 @@ namespace Application.Services
         }
 
         //TODO: Implementar este metodo en los demas metodos
-        public async Task<bool> ValidatePermissionExistsByIdAsync(int id)
+        public async Task<PermissionResponseDto> ValidatePermissionExistsByIdAsync(int id)
         {
-            bool existingRole = await _permissionRepository.ExistPermissionByIdAsync(id);
-            if (!existingRole)
-                return false;
-            return true;
+            bool existingPermission = await _permissionRepository.ExistPermissionByIdAsync(id);
+            if (!existingPermission)
+                return new PermissionResponseDto(false, "El permiso no existe.", IsNotFound: true);
+
+            return new PermissionResponseDto(true, "El permiso existe.");
         }
+
+        private async Task<PermissionResponseDto> CheckPermissionNameAvailabilityAsync(string permissionName)
+        {
+            bool existingPermissionName = await _permissionRepository.ExistPermissionByNameAsync(permissionName);
+            if (existingPermissionName)
+                return new PermissionResponseDto(false, "El Permiso ya existe en el sistema", IsConflict: true);
+
+            return new PermissionResponseDto(true, "Permiso válido.");
+        }
+
+        private PermissionResponseDto ValidateIdsMatch(int urlId, int? bodyId)
+        {
+            if (bodyId == null || bodyId == 0)
+                return new PermissionResponseDto(true, "Asignar ID de la URL al objeto del body");
+
+            if (bodyId != urlId)
+                return new PermissionResponseDto(false, "El Id de la URL y del cuerpo no coinciden.");
+
+            return new PermissionResponseDto(true, "Los Id son iguales");
+        }
+
+
     }
 }

@@ -35,17 +35,26 @@ namespace WebAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreatePermission([FromBody] PermissionDto permissionDto)
+        public async Task<IActionResult> CreatePermission([FromBody] CreatePermissionDto createPermission)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest("Datos inválidos: " + ModelState);
             }
 
-            var newPermission = await _permissionService.CreatePermissionAsync(permissionDto);
-            if (newPermission.Id == null)
-                return BadRequest(newPermission.Message);
-            return CreatedAtAction(nameof(GetPermissionById), new { id = newPermission.Id }, newPermission);
+            var result = await _permissionService.CreatePermissionAsync(createPermission);
+            
+            if (result.Success)
+                return Ok(new
+                {
+                    result.Success,
+                    result.Message,
+                    result.Role
+                });
+            else if (result.IsConflict)
+                return Conflict(result.Message);
+            else
+                return BadRequest(result.Message);
         }
 
         [HttpPut("{id}")]

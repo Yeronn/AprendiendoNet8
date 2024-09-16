@@ -34,14 +34,20 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<int> CreatePermissionAsync(PermissionEntity permission)
+        public async Task<bool> CreatePermissionAsync(PermissionEntity permission)
         {
             var query = "INSERT INTO Permission (Name, Description) VALUES (@Name, @Description);" +
                         "SELECT CAST(SCOPE_IDENTITY() as int);";
 
             using (var connection = _context.CreateConnection())
             {
-                return await connection.QuerySingleAsync<int>(query, permission);
+                var id = await connection.QuerySingleAsync<int>(query, permission);
+                if (id > 0)
+                {
+                    permission.Id = id;
+                    return true;
+                }
+                return false;
             }
         }
 
@@ -78,15 +84,13 @@ namespace Infrastructure.Repositories
             }
         }
 
-    //TODO: Cambiar el nombre al metodo debido a que no verifica que el nombre sea unico, lo que hace es verificar que el nombre no se encuentre en el sistema
-        public async Task<bool> VerifyUniquePermissionNameAsync(string name)
+        public async Task<bool> ExistPermissionByNameAsync(string name)
         {
             var query = "SELECT COUNT(1) FROM Permission WHERE Name = @Name";
             using (var connection = _context.CreateConnection())
             {
                 var count = await connection.ExecuteScalarAsync<int>(query, new { Name = name });
-                bool nameIsUnique = count == 0;
-                return nameIsUnique;
+                return count > 0;
             }
         }
 
