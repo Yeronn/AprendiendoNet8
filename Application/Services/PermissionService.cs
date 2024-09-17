@@ -78,11 +78,17 @@ namespace Application.Services
             return new PermissionResponseDto(true, "Permiso actualizado exitosamente.", updatePermissionEntity.ToPermissionDto());
         }
 
-        public async Task<bool> DeletePermissionAsync(int id)
+        public async Task<PermissionResponseDto> DeletePermissionAsync(int id)
         {
-            //TODO: Validar que el id exista
-            //TODO: Eliminar permisos antes de eliminar el permiso
-            return await _permissionRepository.DeletePermissionAsync(id);
+            var permissionExist = await ValidateRoleExistsByIdAsync(id);
+            if (!permissionExist.Success)
+                return permissionExist;
+
+            //TODO: Eliminar registros en RolePermission donde se está usando el permiso antes de eliminarlo
+            bool success = await _permissionRepository.DeletePermissionAsync(id);
+            return success
+                ? new PermissionResponseDto(true, "Permiso eliminado exitosamente.")
+                : new PermissionResponseDto(false, "Error al eliminar el rol.");
         }
 
         public async Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId)
@@ -99,6 +105,10 @@ namespace Application.Services
 
             return new PermissionResponseDto(true, "El permiso existe.");
         }
+
+
+
+
 
         private async Task<PermissionResponseDto> CheckPermissionNameAvailabilityAsync(string permissionName)
         {
@@ -118,6 +128,15 @@ namespace Application.Services
                 return new PermissionResponseDto(false, "El Id de la URL y del cuerpo no coinciden.");
 
             return new PermissionResponseDto(true, "Los Id son iguales");
+        }
+
+        private async Task<PermissionResponseDto> ValidateRoleExistsByIdAsync(int id)
+        {
+            bool roleExists = await _permissionRepository.ExistPermissionByIdAsync(id);
+            if (!roleExists)
+                return new PermissionResponseDto(false, "El permiso no existe.", IsNotFound: true);
+
+            return new PermissionResponseDto(true, "El permiso existe.");
         }
     }
 }

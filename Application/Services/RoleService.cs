@@ -92,7 +92,7 @@ namespace Application.Services
                 ? new RoleResponseDto(true, "Rol eliminado exitosamente.")
                 : new RoleResponseDto(false, "Error al eliminar el rol.");
         }
-     
+
 
         public async Task<RoleWithoutPermissionsDto?> GetRoleByIdAsync(int id)
         {

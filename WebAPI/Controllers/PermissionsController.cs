@@ -91,11 +91,12 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePermission(int id)
         {
-            var deleted = await _permissionService.DeletePermissionAsync(id);
-            if (!deleted)
-                return NotFound($"El permiso con id {id} no se encuentra en el sistema");
-
-            return NoContent();
+            var result = await _permissionService.DeletePermissionAsync(id);
+            if (result.Success)
+                return NoContent();
+            else if (result.IsNotFound) 
+                return NotFound();
+            return BadRequest(result.Message);
         }
 
         [HttpGet("permissionsByRol/{roleId}")]
