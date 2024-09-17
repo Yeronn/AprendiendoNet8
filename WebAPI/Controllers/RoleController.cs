@@ -15,6 +15,7 @@ namespace WebAPI.Controllers
             _roleService = roleService;
         }
 
+
         [HttpPost]
         public async Task<IActionResult> CreateRol([FromBody] CreateRolDto createRole)
         {
@@ -38,6 +39,7 @@ namespace WebAPI.Controllers
             
         }
 
+
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRol(int id, [FromBody] UpdateRolDto updateRole)
         {
@@ -57,6 +59,7 @@ namespace WebAPI.Controllers
                 return BadRequest(result.Message);
         }
 
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRol(int id)
         {
@@ -68,6 +71,7 @@ namespace WebAPI.Controllers
             return BadRequest(result.Message);
         }
 
+
         [HttpGet("{id}")]
         public async Task<IActionResult> GetRolById(int id)
         {
@@ -76,6 +80,7 @@ namespace WebAPI.Controllers
                 return NotFound("Rol no encontrado.");
             return Ok(role);
         }
+
 
         [HttpGet("roles")]
         public async Task<IActionResult> GetAllRoles()
@@ -86,6 +91,7 @@ namespace WebAPI.Controllers
             return Ok(roles);
         }
 
+
         [HttpGet("rolesAndPermissions")]
         public async Task<IActionResult> GetAllRolesWithTheirPermissions()
         {
@@ -95,6 +101,7 @@ namespace WebAPI.Controllers
             return Ok(roles);
         }
 
+
         [HttpGet("roleAndPermissions/{id}")]
         public async Task<IActionResult> GetRoleWithTheirPermissions(int id)
         {
@@ -103,6 +110,7 @@ namespace WebAPI.Controllers
                 return NotFound("El rol no existe en el sistema");
             return Ok(role);
         }
+
 
         [HttpPost("{roleId}/permissions")]
         public async Task<IActionResult> AddPermissionsToRole(int roleId, [FromBody] List<int> permissionIds)
@@ -127,6 +135,7 @@ namespace WebAPI.Controllers
 
             return StatusCode(500, result.Message);
         }
+
 
         [HttpDelete("{roleId}/permissions")]
         public async Task<IActionResult> RemovePermissionsFromRole(int roleId, [FromBody] List<int> permissionIds)

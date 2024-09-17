@@ -14,6 +14,7 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
+
         public async Task<IEnumerable<RoleEntity>> GetAllRolesAsync()
         {
             var query = "SELECT * FROM Role";
@@ -24,6 +25,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<RoleEntity?> GetRoleByIdAsync(int id)
         {
             var query = "SELECT * FROM Role WHERE Id = @Id";
@@ -33,6 +35,7 @@ namespace Infrastructure.Repositories
                 return role;
             }
         }
+
 
         public async Task<bool> CreateRoleAsync(RoleEntity role)
         {
@@ -49,6 +52,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<bool> UpdateRoleAsync(RoleEntity role)
         {
             var query = "UPDATE Role SET Name = @Name, Description = @Description WHERE Id = @Id";
@@ -58,6 +62,7 @@ namespace Infrastructure.Repositories
                 return affectedRows > 0;
             }
         }
+
 
         public async Task<bool> UpdateRoleNameAsync(int id, string name)
         {
@@ -71,6 +76,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<bool> UpdateRoleDescriptionAsync(int id, string description)
         {
             var query = "UPDATE Role SET Description = @Description WHERE Id = @Id";
@@ -83,6 +89,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<bool> DeleteRoleAsync(int id)
         {
             var query = "DELETE FROM Role WHERE Id = @Id";
@@ -92,6 +99,7 @@ namespace Infrastructure.Repositories
                 return affectedRows > 0;
             }
         }
+
 
         public async Task<bool> ExistRoleByIdAsync(int id)
         {
@@ -104,6 +112,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<bool> ExistRoleByNameAsync(string name)
         {
             var query = "SELECT COUNT(1) FROM Role WHERE Name = @Name";
@@ -114,6 +123,7 @@ namespace Infrastructure.Repositories
                 return count > 0;
             }
         }
+
 
         public async Task<bool> AddPermissionsToRoleAsync(int roleId, List<int> permissionIds)
         {
@@ -127,6 +137,7 @@ namespace Infrastructure.Repositories
 
             return true;
         }
+
 
         public async Task<bool> RemovePermissionsFromRoleAsync(int roleId, List<int> permissionIds)
         {

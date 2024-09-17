@@ -31,6 +31,7 @@ namespace Application.Services
                 : new RoleResponseDto(false, "Error al crear el rol.");
         }
 
+
         public async Task<RoleResponseDto> UpdateRoleAsync(int id, UpdateRolDto updateRole)
         {
             var validateId = ValidateIdsMatch(id, updateRole.Id);
@@ -67,18 +68,32 @@ namespace Application.Services
             return new RoleResponseDto(true, "Rol actualizado exitosamente.", updateRoleEntity.ToRoleWithoutPermissionsDto());
         }
 
-        public async Task<RoleResponseDto> DeleteRoleAsync(int id)
+
+        public async Task<RoleResponseDto> DeleteRoleAsync(int roleId)
         {
-            var roleExist = await ValidateRoleExistsByIdAsync(id);
+            var roleExist = await ValidateRoleExistsByIdAsync(roleId);
             if (!roleExist.Success)
                 return roleExist;
-            //TODO: Quitar los permisos al rol antes de aliminarlo
-            var success = await _roleRepository.DeleteRoleAsync(id);
+            
+            var rolePermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
+
+            if (rolePermissions.Any())
+            {
+                List<int> rolePermissionsIds = rolePermissions.Select(rolePermission => rolePermission.Id).ToList();
+
+                var removedPermissions = await RemovePermissionsFromRoleAsync(roleId, rolePermissionsIds);
+
+                if (!removedPermissions.Success)
+                    return removedPermissions;
+            }
+
+            var success = await _roleRepository.DeleteRoleAsync(roleId);
             return success
                 ? new RoleResponseDto(true, "Rol eliminado exitosamente.")
                 : new RoleResponseDto(false, "Error al eliminar el rol.");
         }
      
+
         public async Task<RoleWithoutPermissionsDto?> GetRoleByIdAsync(int id)
         {
             var role = await _roleRepository.GetRoleByIdAsync(id);
@@ -86,6 +101,7 @@ namespace Application.Services
                 return null;
             return role.ToRoleWithoutPermissionsDto();
         }
+
 
         public async Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesAsync()
         {
@@ -95,6 +111,7 @@ namespace Application.Services
             var rolesDto = roles.Select(role => role.ToRoleWithoutPermissionsDto()).ToList();
             return rolesDto;
         }
+
 
         public async Task<RoleDto?> GetRoleWithPermissionsByRolIdAsync(int id)
         {
@@ -106,6 +123,7 @@ namespace Application.Services
             roleDto.Permissions = permissions.ToList();
             return roleDto;
         }
+
 
         public async Task<IEnumerable<RoleDto>?> GetAllRolesWithPermissionsAsync()
         {
@@ -120,6 +138,7 @@ namespace Application.Services
             }
             return roles.Select(role => role.ToRoleDto());
         }
+
 
         public async Task<RoleResponseDto> AssignPermissionsToRoleAsync(int roleId, List<int> permissionIds)
         {
@@ -148,6 +167,7 @@ namespace Application.Services
                 : new RoleResponseDto(false, "Error al añadir permisos al rol.");
         }
 
+
         public async Task<RoleResponseDto> RemovePermissionsFromRoleAsync(int roleId, List<int> permissionIds)
         {
             // Validar que el rol exista
@@ -173,7 +193,9 @@ namespace Application.Services
                 ? new RoleResponseDto(true, "Permisos eliminados correctamente del rol.")
                 : new RoleResponseDto(false, "Error al eliminar permisos del rol.");
         }
-        
+
+
+
 
         private async Task<RoleResponseDto> ValidateRoleExistsByIdAsync(int id)
         {
