@@ -13,6 +13,8 @@ namespace Domain.Interfaces
         Task<PermissionEntity?> GetPermissionByIdAsync(int id);
         Task<bool> CreatePermissionAsync(PermissionEntity permission);
         Task<bool> UpdatePermissionAsync(PermissionEntity permission);
+        Task<bool> UpdatePermissionNameAsync(int id, string name);
+        Task<bool> UpdatePermissionDescriptionAsync(int id, string description);
         Task<bool> DeletePermissionAsync(int id);
         Task<bool> ExistPermissionByIdAsync(int id);
         Task<bool> ExistPermissionByNameAsync(string name);

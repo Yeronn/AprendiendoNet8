@@ -62,6 +62,30 @@ namespace Infrastructure.Repositories
             }
         }
 
+        public async Task<bool> UpdatePermissionNameAsync(int id, string name)
+        {
+            var query = "UPDATE Permission SET Name = @Name WHERE Id = @Id";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = new { Id = id, Name = name };
+                var affectedRows = await connection.ExecuteAsync(query, parameters);
+                return affectedRows > 0;
+            }
+        }
+
+        public async Task<bool> UpdatePermissionDescriptionAsync(int id, string description)
+        {
+            var query = "UPDATE Permission SET Description = @Description WHERE Id = @Id";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = new { Id = id, Description = description };
+                var affectedRows = await connection.ExecuteAsync(query, parameters);
+                return affectedRows > 0;
+            }
+        }
+
         public async Task<bool> DeletePermissionAsync(int id)
         {
             var query = "DELETE FROM Permission WHERE Id = @Id";

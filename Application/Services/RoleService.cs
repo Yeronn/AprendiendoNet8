@@ -181,8 +181,8 @@ namespace Application.Services
             var invalidPermissions = new List<int>();
             foreach (var permissionId in permissionIds)
             {
-                bool permissionExists = await _permissionService.ValidatePermissionExistsByIdAsync(permissionId);
-                if (!permissionExists)
+                var permissionExists = await _permissionService.ValidatePermissionExistsByIdAsync(permissionId);
+                if (!permissionExists.Success)
                     invalidPermissions.Add(permissionId);
             }
             return invalidPermissions;

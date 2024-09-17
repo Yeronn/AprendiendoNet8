@@ -13,9 +13,9 @@ namespace Application.Interfaces
         Task<IEnumerable<PermissionDto>?> GetAllPermissionsAsync();
         Task<PermissionEntity?> GetPermissionByIdAsync(int id);
         Task<PermissionResponseDto> CreatePermissionAsync(CreatePermissionDto permissionDto);
-        Task<UpdateResponse> UpdatePermissionAsync(int id, PermissionDto permissionDto);
+        Task<PermissionResponseDto> UpdatePermissionAsync(int id, UpdatePermissionDto updatePermission);
         Task<bool> DeletePermissionAsync(int id);
         Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId);
-        Task<bool> ValidatePermissionExistsByIdAsync(int id);
+        Task<PermissionResponseDto> ValidatePermissionExistsByIdAsync(int id);
     }
 }

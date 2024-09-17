@@ -58,31 +58,24 @@ namespace Application.Services
             var currentPermission = await _permissionRepository.GetPermissionByIdAsync(id);
             var updatePermissionEntity = updatePermission.ToPermissionEntity();
 
-
-            if (!string.IsNullOrEmpty(updatePermissionEntity.Name) && updatePermissionEntity.Name != currentRole!.Name)
+            if (!string.IsNullOrEmpty(updatePermissionEntity.Name) && updatePermissionEntity.Name != currentPermission!.Name)
             {
                 var availableName = await CheckPermissionNameAvailabilityAsync(updatePermissionEntity.Name);
                 if (!availableName.Success)
                     return availableName;
-                //TODO: Terminar de hacer este metodo
-                await _permissionRepository.UpdatePermissionAsync(id, updatePermissionEntity.Name);
+                await _permissionRepository.UpdatePermissionNameAsync(id, updatePermissionEntity.Name);
             }
             else
-                updateRoleEntity.Name = currentRole!.Name;
+                updatePermissionEntity.Name = currentPermission!.Name;
 
-            if (!string.IsNullOrEmpty(updateRoleEntity.Description) && updateRoleEntity.Description != currentRole?.Description)
+            if (!string.IsNullOrEmpty(updatePermissionEntity.Description) && updatePermissionEntity.Description != currentPermission?.Description)
             {
-                await _roleRepository.UpdateRoleDescriptionAsync(id, updateRoleEntity.Description);
+                await _permissionRepository.UpdatePermissionDescriptionAsync(id, updatePermissionEntity.Description);
             }
             else
-                updateRoleEntity.Description = currentRole?.Description;
-
-
-            var updatedPermission = await _permissionRepository.UpdatePermissionAsync(permission);
-            if (updatedPermission == false)
-                return new UpdateResponse("El permiso no se pudo actualizar");
-
-            return new UpdateResponse("El permiso se actualizó correctamente", permission.Name!);
+                updatePermissionEntity.Description = currentPermission?.Description;
+            
+            return new PermissionResponseDto(true, "Permiso actualizado exitosamente.", updatePermissionEntity.ToPermissionDto());
         }
 
         public async Task<bool> DeletePermissionAsync(int id)
@@ -96,7 +89,6 @@ namespace Application.Services
             return permissionByRol;
         }
 
-        //TODO: Implementar este metodo en los demas metodos
         public async Task<PermissionResponseDto> ValidatePermissionExistsByIdAsync(int id)
         {
             bool existingPermission = await _permissionRepository.ExistPermissionByIdAsync(id);
@@ -125,7 +117,5 @@ namespace Application.Services
 
             return new PermissionResponseDto(true, "Los Id son iguales");
         }
-
-
     }
 }

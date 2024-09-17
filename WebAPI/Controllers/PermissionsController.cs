@@ -49,7 +49,7 @@ namespace WebAPI.Controllers
                 {
                     result.Success,
                     result.Message,
-                    result.Role
+                    result.Permission
                 });
             else if (result.IsConflict)
                 return Conflict(result.Message);
@@ -58,7 +58,7 @@ namespace WebAPI.Controllers
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePermission(int id, [FromBody] PermissionDto permissionDto)
+        public async Task<IActionResult> UpdatePermission(int id, [FromBody] UpdatePermissionDto permissionDto)
         {
             if (!ModelState.IsValid) //TODO: Investigar porque cuando se hace una peticion con datos faltantes no entra al controlador si no que de una da error
             {
@@ -70,11 +70,22 @@ namespace WebAPI.Controllers
 
                 return BadRequest(fullErrorMessage);
             }
+            
             var updatedPermission = await _permissionService.UpdatePermissionAsync(id, permissionDto);
-            if (updatedPermission.Name == null)
+            
+            if (updatedPermission.Success)
+                return Ok(new
+                {
+                    updatedPermission.Success,
+                    updatedPermission.Message,
+                    updatedPermission.Permission
+                });
+            else if (updatedPermission.IsConflict)
+                return Conflict(updatedPermission.Message);
+            else if (updatedPermission.IsNotFound)
                 return NotFound(updatedPermission.Message);
-
-            return Ok(new { message = updatedPermission.Message, permmisionName = updatedPermission.Name } );
+            else
+                return BadRequest(updatedPermission.Message);
         }
 
         [HttpDelete("{id}")]
