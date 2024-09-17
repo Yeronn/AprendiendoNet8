@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpPut("{id}")]
+        [HttpPut("updateRole/{id}")]
         public async Task<IActionResult> UpdateRol(int id, [FromBody] UpdateRolDto updateRole)
         {
             var result = await _roleService.UpdateRoleAsync(id, updateRole);
@@ -60,7 +60,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpDelete("{id}")]
+        [HttpDelete("deleteRole/{id}")]
         public async Task<IActionResult> DeleteRol(int id)
         {
             var result = await _roleService.DeleteRoleAsync(id);
@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("{id}")]
+        [HttpGet("showRole/{id}")]
         public async Task<IActionResult> GetRolById(int id)
         {
             var role = await _roleService.GetRoleByIdAsync(id);
@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("roles")]
+        [HttpGet("showRoles")]
         public async Task<IActionResult> GetAllRoles()
         {
             var roles = await _roleService.GetAllRolesAsync();
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("rolesAndPermissions")]
+        [HttpGet("showRolesAndPermissions")]
         public async Task<IActionResult> GetAllRolesWithTheirPermissions()
         {
             var roles = await _roleService.GetAllRolesWithPermissionsAsync();
@@ -102,7 +102,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("roleAndPermissions/{id}")]
+        [HttpGet("showRoleAndPermissions/{id}")]
         public async Task<IActionResult> GetRoleWithTheirPermissions(int id)
         {
             var role = await _roleService.GetRoleWithPermissionsByRolIdAsync(id);
@@ -112,7 +112,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpPost("{roleId}/permissions")]
+        [HttpPost("{roleId}/addPermissionsToRole")]
         public async Task<IActionResult> AddPermissionsToRole(int roleId, [FromBody] List<int> permissionIds)
         {
             if (!ModelState.IsValid)
@@ -137,7 +137,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpDelete("{roleId}/permissions")]
+        [HttpDelete("{roleId}/removePermissionsFromRole")]
         public async Task<IActionResult> RemovePermissionsFromRole(int roleId, [FromBody] List<int> permissionIds)
         {
             var result = await _roleService.RemovePermissionsFromRoleAsync(roleId, permissionIds);
