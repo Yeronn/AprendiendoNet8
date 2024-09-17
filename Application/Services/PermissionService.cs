@@ -80,6 +80,8 @@ namespace Application.Services
 
         public async Task<bool> DeletePermissionAsync(int id)
         {
+            //TODO: Validar que el id exista
+            //TODO: Eliminar permisos antes de eliminar el permiso
             return await _permissionRepository.DeletePermissionAsync(id);
         }
 

@@ -14,10 +14,11 @@ namespace Application.Interfaces
         Task<RoleResponseDto> UpdateRoleAsync(int id, UpdateRolDto updateRole);
         Task<RoleResponseDto> DeleteRoleAsync(int id);
         Task<RoleWithoutPermissionsDto?> GetRoleByIdAsync(int id);
-        Task<RoleDto?> GetRoleWithPermissionsByIdAsync(int id);
+        Task<RoleDto?> GetRoleWithPermissionsByRolIdAsync(int id);
         Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesAsync();
         Task<IEnumerable<RoleDto>?> GetAllRolesWithPermissionsAsync();
         Task<RoleResponseDto> AssignPermissionsToRoleAsync(int roleId, List<int> permissionIds);
+        Task<RoleResponseDto> RemovePermissionsFromRoleAsync(int roleId, List<int> permissionIds);
     }
 
 }

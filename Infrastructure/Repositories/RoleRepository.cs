@@ -127,5 +127,22 @@ namespace Infrastructure.Repositories
 
             return true;
         }
+
+        public async Task<bool> RemovePermissionsFromRoleAsync(int roleId, List<int> permissionIds)
+        {
+            var query = "DELETE FROM RolePermission WHERE RoleId = @RoleId AND PermissionId IN @PermissionIds";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = new 
+                { 
+                    RoleId = roleId, 
+                    PermissionIds = permissionIds 
+                };
+
+                var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                return rowsAffected > 0;
+            }
+        }
     }
 }

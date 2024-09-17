@@ -98,7 +98,7 @@ namespace WebAPI.Controllers
         [HttpGet("roleAndPermissions/{id}")]
         public async Task<IActionResult> GetRoleWithTheirPermissions(int id)
         {
-            var role = await _roleService.GetRoleWithPermissionsByIdAsync(id);
+            var role = await _roleService.GetRoleWithPermissionsByRolIdAsync(id);
             if (role == null)
                 return NotFound("El rol no existe en el sistema");
             return Ok(role);
@@ -115,7 +115,30 @@ namespace WebAPI.Controllers
             var result = await _roleService.AssignPermissionsToRoleAsync(roleId, permissionIds);
 
             if (result.Success)
-                return Ok(result);
+                return Ok(new
+                {
+                    result.Success,
+                    result.Message,
+                });
+            else if (result.IsNotFound)
+                return NotFound(result.Message);
+            else if (result.IsBadRequest)
+                return BadRequest(result.Message);
+
+            return StatusCode(500, result.Message);
+        }
+
+        [HttpDelete("{roleId}/permissions")]
+        public async Task<IActionResult> RemovePermissionsFromRole(int roleId, [FromBody] List<int> permissionIds)
+        {
+            var result = await _roleService.RemovePermissionsFromRoleAsync(roleId, permissionIds);
+
+            if (result.Success)
+                return Ok(new
+                {
+                    result.Success,
+                    result.Message,
+                });
             else if (result.IsNotFound)
                 return NotFound(result.Message);
             else if (result.IsBadRequest)

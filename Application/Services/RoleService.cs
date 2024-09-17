@@ -72,6 +72,7 @@ namespace Application.Services
             var roleExist = await ValidateRoleExistsByIdAsync(id);
             if (!roleExist.Success)
                 return roleExist;
+            //TODO: Quitar los permisos al rol antes de aliminarlo
             var success = await _roleRepository.DeleteRoleAsync(id);
             return success
                 ? new RoleResponseDto(true, "Rol eliminado exitosamente.")
@@ -95,7 +96,7 @@ namespace Application.Services
             return rolesDto;
         }
 
-        public async Task<RoleDto?> GetRoleWithPermissionsByIdAsync(int id)
+        public async Task<RoleDto?> GetRoleWithPermissionsByRolIdAsync(int id)
         {
             var role = await GetRoleByIdAsync(id);
             if (role == null)
@@ -126,6 +127,9 @@ namespace Application.Services
             if (!roleExists.Success)
                 return roleExists;
 
+            if(!permissionIds.Any())
+                return new RoleResponseDto(false, "Está tratando de añadir permisos al rol, pero no envió los permisos", IsBadRequest: true);
+            
             // Obtener los permisos que no existen
             var invalidPermissions = await GetInvalidPermissionsAsync(permissionIds);
             if (invalidPermissions.Any())
@@ -134,7 +138,7 @@ namespace Application.Services
             var newPermissions = await GetNewPermissionsForRoleAsync(roleId, permissionIds);
             if (!newPermissions.Any())
             {
-                return new RoleResponseDto(false, "Todos los permisos ya están asignados al rol.");
+                return new RoleResponseDto(false, "Todos los permisos ya están asignados al rol.", IsBadRequest: true);
             }
 
             // Añadir permisos al rol
@@ -144,12 +148,37 @@ namespace Application.Services
                 : new RoleResponseDto(false, "Error al añadir permisos al rol.");
         }
 
+        public async Task<RoleResponseDto> RemovePermissionsFromRoleAsync(int roleId, List<int> permissionIds)
+        {
+            // Validar que el rol exista
+            var roleExists = await ValidateRoleExistsByIdAsync(roleId);
+            if (!roleExists.Success)
+                return roleExists;
 
+            if(!permissionIds.Any())
+                return new RoleResponseDto(false, "Está tratando de eliminar permisos del rol, pero no envió los permisos", IsBadRequest: true);
+            
+            var currentPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
+
+            // Comparar permisos que el usuario quiere eliminar con los permisos que tiene el rol
+            var invalidPermissions = permissionIds.Except(currentPermissions.Select(p => p.Id)).ToList();
+            if (invalidPermissions.Any())
+            {
+                return new RoleResponseDto(false, $"El rol no tiene los siguientes permisos: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
+            }
+
+            // Eliminar los permisos del rol
+            var success = await _roleRepository.RemovePermissionsFromRoleAsync(roleId, permissionIds);
+            return success
+                ? new RoleResponseDto(true, "Permisos eliminados correctamente del rol.")
+                : new RoleResponseDto(false, "Error al eliminar permisos del rol.");
+        }
+        
 
         private async Task<RoleResponseDto> ValidateRoleExistsByIdAsync(int id)
         {
-            bool existingRole = await _roleRepository.ExistRoleByIdAsync(id);
-            if (!existingRole)
+            bool roleExists = await _roleRepository.ExistRoleByIdAsync(id);
+            if (!roleExists)
                 return new RoleResponseDto(false, "El rol no existe.", IsNotFound: true);
 
             return new RoleResponseDto(true, "El rol existe.");
@@ -192,7 +221,8 @@ namespace Application.Services
         {
             var existingPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
             return permissionIds.Except(existingPermissions.Select(p => p.Id)).ToList();
-        }  
+        }
+
     }
 
 }
