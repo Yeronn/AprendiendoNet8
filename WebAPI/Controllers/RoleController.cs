@@ -67,7 +67,7 @@ namespace WebAPI.Controllers
             if (result.Success)
                 return NoContent();
             else if (result.IsNotFound) 
-                return NotFound();
+                return NotFound(result.Message);
             return BadRequest(result.Message);
         }
 
@@ -154,6 +154,16 @@ namespace WebAPI.Controllers
                 return BadRequest(result.Message);
 
             return StatusCode(500, result.Message);
+        }
+
+
+        [HttpGet("rolesByPermission/{permissionId}")]
+        public async Task<IActionResult> GetRolesByPermissionId(int permissionId)
+        {
+            var roles = await _roleService.GetAllRolesByPermissionIdAsync(permissionId);
+            if (roles == null)
+                return NotFound($"El rol con el id {permissionId} no existe");
+            return Ok(roles);
         }
     }
 }

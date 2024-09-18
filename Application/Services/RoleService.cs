@@ -195,6 +195,17 @@ namespace Application.Services
         }
 
 
+        public async Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesByPermissionIdAsync(int permissionId)
+        {
+            var permissionExists = await _permissionService.ValidatePermissionExistsByIdAsync(permissionId);
+            if(!permissionExists.Success)
+                return null;
+            var rolesByPermission = await _roleRepository.GetAllRolesByPermissionIdAsync(permissionId);
+            var rolesByPermissionDto = rolesByPermission.Select(role => role.ToRoleWithoutPermissionsDto());
+            return rolesByPermissionDto;
+        }
+
+
 
 
         private async Task<RoleResponseDto> ValidateRoleExistsByIdAsync(int id)

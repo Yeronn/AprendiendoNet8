@@ -155,5 +155,20 @@ namespace Infrastructure.Repositories
                 return rowsAffected > 0;
             }
         }
+    
+
+        public async Task<IEnumerable<RoleEntity>> GetAllRolesByPermissionIdAsync(int permissionId) 
+        {
+            var query = @"SELECT r.* FROM Role r
+                         JOIN RolePermission rp ON r.Id = rp.RoleId
+                         WHERE rp.PermissionId = @PermissionId";
+            
+            using (var connection = _context.CreateConnection())
+            {
+                var roles = await connection.QueryAsync<RoleEntity>(query, new { PermissionId = permissionId});
+                return roles;
+            }
+        }
+
     }
 }
