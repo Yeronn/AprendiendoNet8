@@ -15,6 +15,7 @@ namespace WebAPI.Controllers
             _permissionService = permissionService;
         }
 
+
         [HttpGet]
         public async Task<IActionResult> GetAllPermissions()
         {
@@ -23,6 +24,7 @@ namespace WebAPI.Controllers
                 return NotFound("No hay permisos creados");
             return Ok(permissions);
         }
+
 
         [HttpGet("{id}", Name = "GetPermissionById")]
         public async Task<IActionResult> GetPermissionById(int id)
@@ -33,6 +35,7 @@ namespace WebAPI.Controllers
 
             return Ok(permission);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CreatePermission([FromBody] CreatePermissionDto createPermission)
@@ -56,6 +59,7 @@ namespace WebAPI.Controllers
             else
                 return BadRequest(result.Message);
         }
+
 
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePermission(int id, [FromBody] UpdatePermissionDto permissionDto)
@@ -88,16 +92,20 @@ namespace WebAPI.Controllers
                 return BadRequest(updatedPermission.Message);
         }
 
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeletePermission(int id)
         {
             var result = await _permissionService.DeletePermissionAsync(id);
             if (result.Success)
                 return NoContent();
+            else if (result.IsConflict) 
+                return Conflict(result.Message);
             else if (result.IsNotFound) 
-                return NotFound();
+                return NotFound(result.Message);
             return BadRequest(result.Message);
         }
+
 
         [HttpGet("permissionsByRol/{roleId}")]
         public async Task<IActionResult> GetPermissionsByRoleId(int roleId)

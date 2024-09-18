@@ -24,6 +24,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<PermissionEntity?> GetPermissionByIdAsync(int id)
         {
             var query = "SELECT * FROM Permission WHERE Id = @Id";
@@ -33,6 +34,7 @@ namespace Infrastructure.Repositories
                 return await connection.QuerySingleOrDefaultAsync<PermissionEntity>(query, new { Id = id });
             }
         }
+
 
         public async Task<bool> CreatePermissionAsync(PermissionEntity permission)
         {
@@ -51,6 +53,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<bool> UpdatePermissionAsync(PermissionEntity permission)
         {
             var query = "UPDATE Permission SET Name = @Name, Description = @Description WHERE Id = @Id";
@@ -61,6 +64,7 @@ namespace Infrastructure.Repositories
                 return affectedRows > 0;
             }
         }
+
 
         public async Task<bool> UpdatePermissionNameAsync(int id, string name)
         {
@@ -74,6 +78,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<bool> UpdatePermissionDescriptionAsync(int id, string description)
         {
             var query = "UPDATE Permission SET Description = @Description WHERE Id = @Id";
@@ -86,6 +91,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<bool> DeletePermissionAsync(int id)
         {
             var query = "DELETE FROM Permission WHERE Id = @Id";
@@ -96,6 +102,7 @@ namespace Infrastructure.Repositories
                 return affectedRows > 0;
             }
         }
+
 
         public async Task<bool> ExistPermissionByIdAsync(int id)
         {
@@ -108,6 +115,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<bool> ExistPermissionByNameAsync(string name)
         {
             var query = "SELECT COUNT(1) FROM Permission WHERE Name = @Name";
@@ -117,6 +125,7 @@ namespace Infrastructure.Repositories
                 return count > 0;
             }
         }
+
 
         public async Task<string?> GetPermissionNameAsync(int id)
         {
@@ -128,6 +137,7 @@ namespace Infrastructure.Repositories
                 return permissionName!;
             }
         }
+
 
         public async Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId)
         {
@@ -141,5 +151,19 @@ namespace Infrastructure.Repositories
                 return permissions;
             }
         }
+
+
+        public async Task<bool> IsPermissionNotAssignedToAnyRoleAsync(int permissionId)
+        {
+            var query = "SELECT COUNT(1) FROM RolePermission WHERE PermissionId = @PermissionId";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { PermissionId = permissionId });
+                return count == 0;
+            }
+        }
+
+
     }
 }

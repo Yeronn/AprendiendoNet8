@@ -15,6 +15,7 @@ namespace Application.Services
             _permissionRepository = permissionRepository;
         }
 
+
         public async Task<IEnumerable<PermissionDto>?> GetAllPermissionsAsync()
         {
             var permissions = await _permissionRepository.GetAllPermissionsAsync();
@@ -24,10 +25,12 @@ namespace Application.Services
             return permissionsDto.ToList();
         }
 
+
         public async Task<PermissionEntity?> GetPermissionByIdAsync(int id)
         {
             return await _permissionRepository.GetPermissionByIdAsync(id);
         }
+
 
         public async Task<PermissionResponseDto> CreatePermissionAsync(CreatePermissionDto createPermission)
         {
@@ -42,6 +45,7 @@ namespace Application.Services
                     ? new PermissionResponseDto(true, "Permiso creado exitosamente.", permissionEntity.ToPermissionDto())
                     : new PermissionResponseDto(false, "Error al crear el permiso");
         }
+
 
         public async Task<PermissionResponseDto> UpdatePermissionAsync(int id, UpdatePermissionDto updatePermission)
         {
@@ -78,24 +82,32 @@ namespace Application.Services
             return new PermissionResponseDto(true, "Permiso actualizado exitosamente.", updatePermissionEntity.ToPermissionDto());
         }
 
-        public async Task<PermissionResponseDto> DeletePermissionAsync(int id)
+
+        public async Task<PermissionResponseDto> DeletePermissionAsync(int permissionId)
         {
-            var permissionExist = await ValidateRoleExistsByIdAsync(id);
+            var permissionExist = await ValidatePermissionExistsByIdAsync(permissionId);
             if (!permissionExist.Success)
                 return permissionExist;
 
-            //TODO: Eliminar registros en RolePermission donde se está usando el permiso antes de eliminarlo
-            bool success = await _permissionRepository.DeletePermissionAsync(id);
+            // * Permission does not have to be assigned to a role 
+            var isNotAssignedRole = await ValidatePermissionNotAssignedToAnyRoleAsync(permissionId);
+            if (!isNotAssignedRole.Success)
+                return isNotAssignedRole;
+
+            bool success = await _permissionRepository.DeletePermissionAsync(permissionId);
             return success
                 ? new PermissionResponseDto(true, "Permiso eliminado exitosamente.")
                 : new PermissionResponseDto(false, "Error al eliminar el rol.");
         }
 
+
         public async Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId)
         {
-            var permissionByRol = await _permissionRepository.GetAllPermissionsByRoleIdAsync(roleId);
-            return permissionByRol;
+            //TODO: Validar que el rol exista
+            var permissionsByRol = await _permissionRepository.GetAllPermissionsByRoleIdAsync(roleId);
+            return permissionsByRol;
         }
+
 
         public async Task<PermissionResponseDto> ValidatePermissionExistsByIdAsync(int id)
         {
@@ -109,7 +121,6 @@ namespace Application.Services
 
 
 
-
         private async Task<PermissionResponseDto> CheckPermissionNameAvailabilityAsync(string permissionName)
         {
             bool existingPermissionName = await _permissionRepository.ExistPermissionByNameAsync(permissionName);
@@ -118,6 +129,7 @@ namespace Application.Services
 
             return new PermissionResponseDto(true, "Permiso válido.");
         }
+
 
         private PermissionResponseDto ValidateIdsMatch(int urlId, int? bodyId)
         {
@@ -130,13 +142,17 @@ namespace Application.Services
             return new PermissionResponseDto(true, "Los Id son iguales");
         }
 
-        private async Task<PermissionResponseDto> ValidateRoleExistsByIdAsync(int id)
-        {
-            bool roleExists = await _permissionRepository.ExistPermissionByIdAsync(id);
-            if (!roleExists)
-                return new PermissionResponseDto(false, "El permiso no existe.", IsNotFound: true);
 
-            return new PermissionResponseDto(true, "El permiso existe.");
+        private async Task<PermissionResponseDto> ValidatePermissionNotAssignedToAnyRoleAsync(int permissionId)
+        {
+            var isNotAssigned = await _permissionRepository.IsPermissionNotAssignedToAnyRoleAsync(permissionId);
+
+            if (isNotAssigned)
+                return new PermissionResponseDto(true, "El permiso no está asociado a ningún rol");
+            else
+                return new PermissionResponseDto(false, "El permiso está asociado a algún rol", IsConflict: true);
         }
+
+
     }
 }

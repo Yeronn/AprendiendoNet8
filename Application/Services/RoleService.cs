@@ -75,16 +75,17 @@ namespace Application.Services
             if (!roleExist.Success)
                 return roleExist;
             
+            // * Get role permissions to delete records in RolePermission table
             var rolePermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
 
             if (rolePermissions.Any())
             {
                 List<int> rolePermissionsIds = rolePermissions.Select(rolePermission => rolePermission.Id).ToList();
 
-                var removedPermissions = await RemovePermissionsFromRoleAsync(roleId, rolePermissionsIds);
+                var removedRolePermissionRecords = await RemovePermissionsFromRoleAsync(roleId, rolePermissionsIds);
 
-                if (!removedPermissions.Success)
-                    return removedPermissions;
+                if (!removedRolePermissionRecords.Success)
+                    return removedRolePermissionRecords;
             }
 
             var success = await _roleRepository.DeleteRoleAsync(roleId);
