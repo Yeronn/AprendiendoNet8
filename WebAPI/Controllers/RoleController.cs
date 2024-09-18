@@ -91,6 +91,15 @@ namespace WebAPI.Controllers
             return Ok(roles);
         }
 
+        [HttpGet("showRoleAndPermissions/{id}")]
+        public async Task<IActionResult> GetRoleWithTheirPermissions(int id)
+        {
+            var role = await _roleService.GetRoleWithPermissionsByRolIdAsync(id);
+            if (role == null)
+                return NotFound("El rol no existe en el sistema");
+            return Ok(role);
+        }
+
 
         [HttpGet("showRolesAndPermissions")]
         public async Task<IActionResult> GetAllRolesWithTheirPermissions()
@@ -99,16 +108,6 @@ namespace WebAPI.Controllers
             if (roles == null)
                 return NotFound("No hay roles en el sistema");
             return Ok(roles);
-        }
-
-
-        [HttpGet("showRoleAndPermissions/{id}")]
-        public async Task<IActionResult> GetRoleWithTheirPermissions(int id)
-        {
-            var role = await _roleService.GetRoleWithPermissionsByRolIdAsync(id);
-            if (role == null)
-                return NotFound("El rol no existe en el sistema");
-            return Ok(role);
         }
 
 

@@ -19,9 +19,9 @@ namespace Application.Services
 
         public async Task<RoleResponseDto> CreateRoleAsync(CreateRolDto createRole)
         {
-            var validName = await CheckRoleNameAvailabilityAsync(createRole.Name!);
-            if (!validName.Success)
-                return validName;
+            var nameAvalible = await CheckRoleNameAvailabilityAsync(createRole.Name!);
+            if (!nameAvalible.Success)
+                return nameAvalible;
          
             var roleEntity = createRole.ToRoleEntity();
 
@@ -34,15 +34,15 @@ namespace Application.Services
 
         public async Task<RoleResponseDto> UpdateRoleAsync(int id, UpdateRolDto updateRole)
         {
-            var validateId = ValidateIdsMatch(id, updateRole.Id);
-            if (!validateId.Success)
-                return validateId;
+            var validatedId = ValidateIdsMatch(id, updateRole.Id);
+            if (!validatedId.Success)
+                return validatedId;
             else
                 updateRole.Id = id;
 
-            var roleExist = await ValidateRoleExistsByIdAsync(id);
-            if (!roleExist.Success)
-                return roleExist;
+            var roleExists = await ValidateRoleExistsByIdAsync(id);
+            if (!roleExists.Success)
+                return roleExists;
 
             var currentRole = await _roleRepository.GetRoleByIdAsync(id);
             var updateRoleEntity = updateRole.ToRoleEntity();
@@ -71,9 +71,9 @@ namespace Application.Services
 
         public async Task<RoleResponseDto> DeleteRoleAsync(int roleId)
         {
-            var roleExist = await ValidateRoleExistsByIdAsync(roleId);
-            if (!roleExist.Success)
-                return roleExist;
+            var roleExists = await ValidateRoleExistsByIdAsync(roleId);
+            if (!roleExists.Success)
+                return roleExists;
             
             // * Get role permissions to delete records in RolePermission table
             var rolePermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
@@ -157,11 +157,8 @@ namespace Application.Services
 
             var newPermissions = await GetNewPermissionsForRoleAsync(roleId, permissionIds);
             if (!newPermissions.Any())
-            {
                 return new RoleResponseDto(false, "Todos los permisos ya están asignados al rol.", IsBadRequest: true);
-            }
 
-            // Añadir permisos al rol
             var success = await _roleRepository.AddPermissionsToRoleAsync(roleId, newPermissions);
             return success
                 ? new RoleResponseDto(true, "Permisos añadidos correctamente al rol.")
@@ -171,7 +168,6 @@ namespace Application.Services
 
         public async Task<RoleResponseDto> RemovePermissionsFromRoleAsync(int roleId, List<int> permissionIds)
         {
-            // Validar que el rol exista
             var roleExists = await ValidateRoleExistsByIdAsync(roleId);
             if (!roleExists.Success)
                 return roleExists;
@@ -181,14 +177,13 @@ namespace Application.Services
             
             var currentPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
 
-            // Comparar permisos que el usuario quiere eliminar con los permisos que tiene el rol
+            // * Verify that role have the permissions to delete
             var invalidPermissions = permissionIds.Except(currentPermissions.Select(p => p.Id)).ToList();
             if (invalidPermissions.Any())
             {
                 return new RoleResponseDto(false, $"El rol no tiene los siguientes permisos: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
             }
 
-            // Eliminar los permisos del rol
             var success = await _roleRepository.RemovePermissionsFromRoleAsync(roleId, permissionIds);
             return success
                 ? new RoleResponseDto(true, "Permisos eliminados correctamente del rol.")
@@ -218,6 +213,7 @@ namespace Application.Services
             return new RoleResponseDto(true, "El rol existe.");
         }
 
+
         private async Task<RoleResponseDto> CheckRoleNameAvailabilityAsync(string roleName)
         {
             bool existingRoleName = await _roleRepository.ExistRoleByNameAsync(roleName);
@@ -226,6 +222,7 @@ namespace Application.Services
 
             return new RoleResponseDto(true, "Rol válido.");
         }
+
 
         private RoleResponseDto ValidateIdsMatch(int urlId, int? bodyId)
 
@@ -239,6 +236,7 @@ namespace Application.Services
             return new RoleResponseDto(true, "Los Id son iguales");
         }
 
+
         private async Task<List<int>> GetInvalidPermissionsAsync(List<int> permissionIds)
         {
             var invalidPermissions = new List<int>();
@@ -251,11 +249,13 @@ namespace Application.Services
             return invalidPermissions;
         }
 
+
         private async Task<List<int>> GetNewPermissionsForRoleAsync(int roleId, List<int> permissionIds)
         {
             var existingPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
             return permissionIds.Except(existingPermissions.Select(p => p.Id)).ToList();
         }
+
 
     }
 

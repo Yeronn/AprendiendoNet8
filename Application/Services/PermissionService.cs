@@ -73,9 +73,7 @@ namespace Application.Services
                 updatePermissionEntity.Name = currentPermission!.Name;
 
             if (!string.IsNullOrEmpty(updatePermissionEntity.Description) && updatePermissionEntity.Description != currentPermission?.Description)
-            {
                 await _permissionRepository.UpdatePermissionDescriptionAsync(id, updatePermissionEntity.Description);
-            }
             else
                 updatePermissionEntity.Description = currentPermission?.Description;
             
@@ -103,7 +101,6 @@ namespace Application.Services
 
         public async Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId)
         {
-            //TODO: Validar que el rol exista
             var permissionsByRol = await _permissionRepository.GetAllPermissionsByRoleIdAsync(roleId);
             return permissionsByRol;
         }
