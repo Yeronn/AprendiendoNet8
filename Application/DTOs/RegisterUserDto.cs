@@ -13,15 +13,6 @@ namespace Application.DTOs.User
         [Required]
         public string Fullname { get; set; } = string.Empty;
         [Required]
-        public int? IdentityCard { get; set; }
-        [Required]
-        [EmailAddress]
-        [RegularExpression(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", ErrorMessage = "El correo electrónico no es válido.")]
-        public string Email { get; set; } = string.Empty;
-        [Required]
-        [RegularExpression("^(Admin|User)$", ErrorMessage = "El rol debe ser 'Admin' o 'User'.")]
-        public string Role { get; set; } = string.Empty;
-        [Required]
         public string Username { get; set; } = string.Empty;
         [Required]
         public string Password { get; set; } = string.Empty;

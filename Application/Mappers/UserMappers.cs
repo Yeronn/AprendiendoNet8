@@ -10,12 +10,8 @@ namespace Application.Mappers
             return new UsersDto
             {
                 Id = userEntity.Id,
-                Username = userEntity.Username,
-                Fullname = userEntity.Fullname,
-                Email = userEntity.Email,
-                //IdentityCard = userEntity.IdentityCard,
-                //Salary = userEntity.Salary,
-
+                Username = userEntity.Username!,
+                Fullname = userEntity.Fullname!,
             };
         }
 
@@ -26,10 +22,6 @@ namespace Application.Mappers
                 Id = userEntity.Id,
                 Username = userEntity.Username!,
                 Fullname = userEntity.Fullname!,
-                Email = userEntity.Email!,
-                IdentityCard = userEntity.IdentityCard,
-                Salary = userEntity.Salary,
-                Role = userEntity.Role!
             };
         }
 
@@ -38,12 +30,9 @@ namespace Application.Mappers
             return new UserEntity
             {
                 Fullname = registerUserDto.Fullname,
-                Email = registerUserDto.Email,
-                IdentityCard = registerUserDto.IdentityCard ?? 0,
                 Username = registerUserDto.Username,
                 Password = registerUserDto.Password,
-                Role = registerUserDto.Role!,
-                Salary = 0.0m
+                // Role = registerUserDto.Role!,
             };
         }
     }

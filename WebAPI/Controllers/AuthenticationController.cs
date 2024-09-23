@@ -24,17 +24,18 @@ namespace WebAPI.Controllers
                 return BadRequest("Datos inválidos: " + ModelState);
             }
 
-            var loginResponse = await _authService.Login(loginDto.Email, loginDto.Password);
+            var loginResponse = await _authService.Login(loginDto.Username, loginDto.Password);
 
-            if (loginResponse.token == null)
-            {
-                return Unauthorized(new { message = loginResponse.Message });
-            }
+            if (loginResponse.IsNotFound)
+                return NotFound(new { message = loginResponse.Message });
+            else if (loginResponse.IsBadRequest)
+                return BadRequest(loginResponse.Message);
 
             return Ok(new { message = loginResponse.Message, Token = loginResponse.token });
         }
 
-        [Authorize(Roles = "Admin")]
+
+        // [Authorize(Roles = "Admin")]
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] RegisterUserDto newUser)
         {

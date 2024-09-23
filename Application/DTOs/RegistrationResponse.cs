@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Application.DTOs
+﻿namespace Application.DTOs
 {
-    public record RegistrationResponse(string Message = null!, int? Id = null);
+    public record RegistrationResponse(bool Success, string Message = null!, int? Id = null);
 }

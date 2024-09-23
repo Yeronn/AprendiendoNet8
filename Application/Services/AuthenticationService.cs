@@ -27,50 +27,47 @@ namespace Application.Services
             _configuration = configuration;
         }
 
+
         public async Task<RegistrationResponse> RegisterUser(RegisterUserDto newUser)
         {
-            var userExist = await _userRepository.IsEmailUnique(newUser.Email);
-            if (userExist == false)
-                return new RegistrationResponse("El email ya se encuentra registrado");
-
+            var usernameIsUnique = await _userRepository.IsUsernameUniqueAsync(newUser.Username);
+            if (!usernameIsUnique)
+                return new RegistrationResponse(false, "El username ya se encuentra registrado");
+            
+            bool fullnameIsUnique = await _userRepository.IsFullnameUniqueAsync(newUser.Fullname);
+            if (!fullnameIsUnique)
+                return new RegistrationResponse(false, "El nombre ya está en uso.");
 
             var hashedPassword = _passwordHasher.HashPassword(newUser.Password);
-            var userWithHashedPassword = new RegisterUserDto
-            {
-                Fullname = newUser.Fullname,
-                IdentityCard = newUser.IdentityCard,
-                Email = newUser.Email,
-                Username = newUser.Username,
-                Password = hashedPassword,
-                Role = newUser.Role,
-            };
+            newUser.Password = hashedPassword;
 
-            var userEntity = userWithHashedPassword.ToUserEntity();
+            var userEntity = newUser.ToUserEntity();
             var createdUser = await _userRepository.Create(userEntity);
 
             if (createdUser == null)
-                return new RegistrationResponse("Hubo un error en el servidor al crear al usuario");
-            return new RegistrationResponse("El usuario se creó correctamente", createdUser.Id);
+                return new RegistrationResponse(false, "Hubo un error en el servidor al crear al usuario");
+            return new RegistrationResponse(true, "El usuario se creó correctamente", createdUser.Id);
         }
 
-        public async Task<LoginResponse> Login(string email, string password)
+        public async Task<LoginResponse> Login(string username, string password)
         {
-            var user = await _userRepository.GetByEmail(email);
+            var user = await _userRepository.GetByUsername(username);
             if (user == null)
-                return new LoginResponse(false, "La cuenta no existe");
+                return new LoginResponse(false, "La cuenta no existe", IsNotFound: true);
 
             bool checkPassword = _passwordHasher.VerifyPassword(password, user.Password!);
 
             if (checkPassword)
             {
-                var jti = Guid.NewGuid().ToString();
-                user.LastJti = jti;
-                await _userRepository.UpdateUserJti(user.Id, jti);
-                return new LoginResponse(checkPassword, "Inicio de sesión exitoso", GenerateJWTToken(user, jti));
+                var newJti = Guid.NewGuid().ToString();
+                user.LastJti = newJti;
+                await _userRepository.UpdateUserJti(user.Id, newJti);
+                return new LoginResponse(checkPassword, "Inicio de sesión exitoso", GenerateJWTToken(user, newJti));
             }
             else
-                return new LoginResponse(checkPassword, "Credenciales Inválidas");
+                return new LoginResponse(checkPassword, "Credenciales Inválidas", IsBadRequest: true);
         }
+
 
         public string GenerateJWTToken(UserEntity user, string jti)
         {
@@ -80,8 +77,8 @@ namespace Application.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.Fullname!),
-                new Claim(ClaimTypes.Email, user.Email!),
-                new Claim(ClaimTypes.Role, user.Role!),
+                new Claim(ClaimTypes.Email, user.Username!),
+                // new Claim(ClaimTypes.Role, user.Role!),
                 new Claim(JwtRegisteredClaimNames.Jti, jti)
             };
 
@@ -118,5 +115,7 @@ namespace Application.Services
             // Token es válido
             return true;
         }
+
+
     }
 }

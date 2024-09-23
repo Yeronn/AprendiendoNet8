@@ -13,8 +13,11 @@ namespace Domain.Interfaces
         Task<UserEntity?> GetById(int id);
         Task<bool> IsEmailUnique(string email);
         Task<UserEntity?> GetByEmail(string email);
+        Task<UserEntity?> GetByUsername(string username);
         Task<UserEntity?> Create(UserEntity newUser);
         Task UpdateUserJti(int userId, string jti);
         Task<UserEntity?> GetUserByJti(string jti);
+        Task<bool> IsFullnameUniqueAsync(string fullname);
+        Task<bool> IsUsernameUniqueAsync(string username);
     }
 }

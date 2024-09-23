@@ -17,6 +17,7 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
+
         public async Task<IEnumerable<UserEntity>> GetAll()
         {
             var query = "SELECT * FROM [User]";
@@ -26,6 +27,7 @@ namespace Infrastructure.Repositories
                 return users;
             }
         }
+
 
         public async Task<UserEntity?> GetById(int id)
         {
@@ -37,6 +39,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<UserEntity?> GetByEmail(string email)
         {
             var query = "SELECT * FROM [User] WHERE Email = @Email";
@@ -46,6 +49,18 @@ namespace Infrastructure.Repositories
                 return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Email = email });
             }
         }
+
+
+        public async Task<UserEntity?> GetByUsername(string username)
+        {
+            var query = "SELECT * FROM [User] WHERE Username = @Username";
+
+            using (var connection = _context.CreateConnection())
+            {
+                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Username = username });
+            }
+        }
+
 
         public async Task<bool> IsEmailUnique(string email)
         {
@@ -58,19 +73,16 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<UserEntity?> Create (UserEntity newUser)
         {
-            var query = "INSERT INTO [User] (Username, Password, Fullname, Email, IdentityCard, Role, Salary) VALUES (@Username, @Password, @Fullname, @Email, @IdentityCard, @Role, @Salary)" +
+            var query = "INSERT INTO [User] (Username, Password, Fullname) VALUES (@Username, @Password, @Fullname)" +
                 "SELECT CAST(SCOPE_IDENTITY() as int)";
 
             var parameters = new DynamicParameters();
             parameters.Add("Username", newUser.Username, DbType.String);
             parameters.Add("Password", newUser.Password, DbType.String);
             parameters.Add("Fullname", newUser.Fullname, DbType.String);
-            parameters.Add("Email", newUser.Email, DbType.String);
-            parameters.Add("IdentityCard", newUser.IdentityCard, DbType.Int32);
-            parameters.Add("Role", newUser.Role, DbType.String);
-            parameters.Add("Salary", newUser.Salary, DbType.Decimal);
 
             using (var connection = _context.CreateConnection())
             {
@@ -81,13 +93,12 @@ namespace Infrastructure.Repositories
                     Id = id,
                     Username = newUser.Username,
                     Fullname = newUser.Fullname,
-                    Email = newUser.Email,
-                    IdentityCard = newUser.IdentityCard,
                 };
 
                 return createdUser;
             }
         }
+
 
         public async Task UpdateUserJti(int userId, string jti)
         {
@@ -98,6 +109,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<UserEntity?> GetUserByJti(string jti)
         {
             var query = "SELECT * FROM [User] WHERE LastJti = @Jti";
@@ -106,6 +118,30 @@ namespace Infrastructure.Repositories
                 return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Jti = jti });
             }
         }
+
+    
+        public async Task<bool> IsFullnameUniqueAsync(string fullname)
+        {
+            var query = "SELECT COUNT(1) FROM [User] WHERE Fullname = @Fullname";
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Fullname = fullname });
+                return count == 0;
+            }
+        }
+
+
+        public async Task<bool> IsUsernameUniqueAsync(string username)
+        {
+            var query = "SELECT COUNT(1) FROM [User] WHERE Username = @Username";
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Username = username });
+                return count == 0;
+            }
+        }
+
+
 
     }
 }
