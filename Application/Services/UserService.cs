@@ -16,7 +16,7 @@ namespace Application.Services
         }
 
 
-        
+
 
 
         public async Task<IEnumerable<UsersDto>> GetAllUsersAsync()
@@ -34,6 +34,15 @@ namespace Application.Services
                 return null;
             return user.ToUserDto();
         }
+
+
+        //TODO: Hacer endpoints para
+        //TODO: Obtener un usuario con sus roles
+        //TODO: Obtener todos los usuarios con sus roles
+        //TODO: Asignar roles al usuario
+        //TODO: Remover roles del usuario
+        //TODO: Remover los roles del usuario para eliminarlo
+        //TODO: Obtener todos los usuarios de un rol
 
     }
 }
