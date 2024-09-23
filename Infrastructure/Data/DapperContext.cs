@@ -13,7 +13,7 @@ namespace Infrastructure.Data
         public DapperContext(IConfiguration configuration)
         {
             _configuration = configuration;
-            _connectionString = _configuration.GetConnectionString("DefaultConnection");
+            _connectionString = _configuration.GetConnectionString("DefaultConnection")!;
         }
 
         public IDbConnection CreateConnection()

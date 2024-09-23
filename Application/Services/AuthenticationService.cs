@@ -42,16 +42,17 @@ namespace Application.Services
             newUser.Password = hashedPassword;
 
             var userEntity = newUser.ToUserEntity();
-            var createdUser = await _userRepository.Create(userEntity);
+            var createdUser = await _userRepository.CreateUserAsync(userEntity);
 
             if (createdUser == null)
                 return new RegistrationResponse(false, "Hubo un error en el servidor al crear al usuario");
             return new RegistrationResponse(true, "El usuario se creó correctamente", createdUser.Id);
         }
 
+
         public async Task<LoginResponse> Login(string username, string password)
         {
-            var user = await _userRepository.GetByUsername(username);
+            var user = await _userRepository.GetUserByUsernameAsync(username);
             if (user == null)
                 return new LoginResponse(false, "La cuenta no existe", IsNotFound: true);
 
@@ -61,7 +62,7 @@ namespace Application.Services
             {
                 var newJti = Guid.NewGuid().ToString();
                 user.LastJti = newJti;
-                await _userRepository.UpdateUserJti(user.Id, newJti);
+                await _userRepository.UpdateUserJtiAsync(user.Id, newJti);
                 return new LoginResponse(checkPassword, "Inicio de sesión exitoso", GenerateJWTToken(user, newJti));
             }
             else
@@ -93,6 +94,7 @@ namespace Application.Services
             return tokenValue;
         }
 
+
         public async Task<bool> ValidateToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -106,7 +108,7 @@ namespace Application.Services
             }
 
             // Obtener el usuario por el jti
-            var user = await _userRepository.GetUserByJti(jti);
+            var user = await _userRepository.GetUserByJtiAsync(jti);
             if (user == null || user.LastJti != jti)
             {
                 return false; // Token no autorizado o ha expirado

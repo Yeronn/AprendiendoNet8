@@ -170,5 +170,15 @@ namespace Infrastructure.Repositories
             }
         }
 
+        public async Task<bool> IsRoleNotAssignedToAnyUserAsync(int roleId)
+        {
+            var query = "SELECT COUNT(1) FROM UserRole WHERE RoleId = @RoleId";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { RoleId = roleId });
+                return count == 0;
+            }
+        }
     }
 }

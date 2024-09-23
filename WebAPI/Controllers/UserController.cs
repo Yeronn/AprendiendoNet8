@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         {
             try
             {
-                var users = await _userService.GetAll();
+                var users = await _userService.GetAllUsersAsync();
                 if (users == null || !users.Any())
                 {
                     return NotFound("No users found.");
@@ -41,7 +41,7 @@ namespace WebAPI.Controllers
         [HttpGet("getUser/{id}", Name ="getUser")]
         public async Task<ActionResult> GetUserById(int id)
         {
-            var user = await _userService.GetById(id);
+            var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
                 return NotFound();
             return Ok(user);

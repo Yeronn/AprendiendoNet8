@@ -18,7 +18,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<IEnumerable<UserEntity>> GetAll()
+        public async Task<IEnumerable<UserEntity>> GetAllUsersAsync()
         {
             var query = "SELECT * FROM [User]";
             using (var connection = _context.CreateConnection())
@@ -29,7 +29,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<UserEntity?> GetById(int id)
+        public async Task<UserEntity?> GetUserByIdAsync(int id)
         {
             var query = "SELECT * FROM [User] WHERE Id = @Id";
 
@@ -40,18 +40,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<UserEntity?> GetByEmail(string email)
-        {
-            var query = "SELECT * FROM [User] WHERE Email = @Email";
-
-            using (var connection = _context.CreateConnection())
-            {
-                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Email = email });
-            }
-        }
-
-
-        public async Task<UserEntity?> GetByUsername(string username)
+        public async Task<UserEntity?> GetUserByUsernameAsync(string username)
         {
             var query = "SELECT * FROM [User] WHERE Username = @Username";
 
@@ -62,19 +51,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> IsEmailUnique(string email)
-        {
-            var query = "SELECT COUNT(1) FROM [User] WHERE Email = @Email";
-
-            using (var connection = _context.CreateConnection())
-            {
-                var count = await connection.ExecuteScalarAsync<int>(query, new { Email = email });
-                return count == 0; // Si es 0, el email es único
-            }
-        }
-
-
-        public async Task<UserEntity?> Create (UserEntity newUser)
+        public async Task<UserEntity?> CreateUserAsync (UserEntity newUser)
         {
             var query = "INSERT INTO [User] (Username, Password, Fullname) VALUES (@Username, @Password, @Fullname)" +
                 "SELECT CAST(SCOPE_IDENTITY() as int)";
@@ -100,7 +77,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task UpdateUserJti(int userId, string jti)
+        public async Task UpdateUserJtiAsync(int userId, string jti)
         {
             var query = "UPDATE [User] SET LastJti = @Jti WHERE Id = @UserId";
             using (var connection = _context.CreateConnection())
@@ -110,7 +87,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<UserEntity?> GetUserByJti(string jti)
+        public async Task<UserEntity?> GetUserByJtiAsync(string jti)
         {
             var query = "SELECT * FROM [User] WHERE LastJti = @Jti";
             using (var connection = _context.CreateConnection())
@@ -120,6 +97,18 @@ namespace Infrastructure.Repositories
         }
 
     
+        public async Task<bool> IsEmailUniqueAsync(string email)
+        {
+            var query = "SELECT COUNT(1) FROM [User] WHERE Email = @Email";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Email = email });
+                return count == 0; // Si es 0, el email es único
+            }
+        }
+
+
         public async Task<bool> IsFullnameUniqueAsync(string fullname)
         {
             var query = "SELECT COUNT(1) FROM [User] WHERE Fullname = @Fullname";

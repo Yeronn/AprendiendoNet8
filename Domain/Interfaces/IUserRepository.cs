@@ -9,14 +9,13 @@ namespace Domain.Interfaces
 {
     public interface IUserRepository
     {
-        Task<IEnumerable<UserEntity>> GetAll();
-        Task<UserEntity?> GetById(int id);
-        Task<bool> IsEmailUnique(string email);
-        Task<UserEntity?> GetByEmail(string email);
-        Task<UserEntity?> GetByUsername(string username);
-        Task<UserEntity?> Create(UserEntity newUser);
-        Task UpdateUserJti(int userId, string jti);
-        Task<UserEntity?> GetUserByJti(string jti);
+        Task<IEnumerable<UserEntity>> GetAllUsersAsync();
+        Task<UserEntity?> GetUserByIdAsync(int id);
+        Task<UserEntity?> GetUserByUsernameAsync(string username);
+        Task<UserEntity?> CreateUserAsync(UserEntity newUser);
+        Task UpdateUserJtiAsync(int userId, string jti);
+        Task<UserEntity?> GetUserByJtiAsync(string jti);
+        Task<bool> IsEmailUniqueAsync(string email);
         Task<bool> IsFullnameUniqueAsync(string fullname);
         Task<bool> IsUsernameUniqueAsync(string username);
     }

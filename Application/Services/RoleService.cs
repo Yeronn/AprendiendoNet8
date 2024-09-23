@@ -75,6 +75,10 @@ namespace Application.Services
             if (!roleExists.Success)
                 return roleExists;
             
+            var isNotAssignedUser = await ValidateRoleNotAssignedToAnyUserAsync(roleId);
+            if (!isNotAssignedUser.Success)
+                return isNotAssignedUser;
+
             // * Get role permissions to delete records in RolePermission table
             var rolePermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
 
@@ -202,6 +206,9 @@ namespace Application.Services
         }
 
 
+        //TODO: Metodo para obtener todos los roles de un usuario mediante su Id
+
+
 
 
         private async Task<RoleResponseDto> ValidateRoleExistsByIdAsync(int id)
@@ -254,6 +261,17 @@ namespace Application.Services
         {
             var existingPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
             return permissionIds.Except(existingPermissions.Select(p => p.Id)).ToList();
+        }
+
+
+        private async Task<RoleResponseDto> ValidateRoleNotAssignedToAnyUserAsync(int roleId)
+        {
+            var isNotAssigned = await _roleRepository.IsRoleNotAssignedToAnyUserAsync(roleId);
+
+            if (isNotAssigned)
+                return new RoleResponseDto(true, "El rol no está asociado a ningún rol");
+            else
+                return new RoleResponseDto(false, "El rol está asociado a algún rol", IsConflict: true);
         }
 
 

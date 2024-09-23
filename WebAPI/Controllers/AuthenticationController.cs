@@ -48,7 +48,7 @@ namespace WebAPI.Controllers
             {
                 var registrationResponse = await _authService.RegisterUser(newUser);
 
-                if (registrationResponse.Id == null)
+                if (!registrationResponse.Success)
                     return BadRequest(registrationResponse.Message);
 
                 return CreatedAtRoute("getUser", new { id = registrationResponse.Id }, registrationResponse);
