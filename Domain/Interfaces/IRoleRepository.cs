@@ -22,6 +22,7 @@ namespace Domain.Interfaces
         Task<bool> RemovePermissionsFromRoleAsync(int roleId, List<int> permissionIds);
         Task<IEnumerable<RoleEntity>> GetAllRolesByPermissionIdAsync(int permissionId);
         Task<bool> IsRoleNotAssignedToAnyUserAsync(int roleId);
+        Task<IEnumerable<RoleEntity>> GetAllRolesByUserIdAsync(int userId);
     }
 
 }

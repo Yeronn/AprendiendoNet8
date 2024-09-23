@@ -91,6 +91,7 @@ namespace WebAPI.Controllers
             return Ok(roles);
         }
 
+
         [HttpGet("showRoleAndPermissions/{id}")]
         public async Task<IActionResult> GetRoleWithTheirPermissions(int id)
         {
@@ -163,6 +164,16 @@ namespace WebAPI.Controllers
             if (roles == null)
                 return NotFound($"El rol con el id {permissionId} no existe");
             return Ok(roles);
+        }
+
+
+        [HttpGet("rolesByUser/{userId}")]
+        public async Task<IActionResult> GetRolesByUserId(int userId)
+        {
+            var permissions = await _roleService.GetAllRolesByUserIdAsync(userId);
+            if (permissions == null)
+                return NotFound($"El user con el id {userId} no existe");
+            return Ok(permissions);
         }
     }
 }

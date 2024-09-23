@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using Application.Mappers;
+using Domain.Entities;
 using Domain.Interfaces;
 
 namespace Application.Services
@@ -206,7 +207,11 @@ namespace Application.Services
         }
 
 
-        //TODO: Metodo para obtener todos los roles de un usuario mediante su Id
+        public async Task<IEnumerable<RoleEntity>> GetAllRolesByUserIdAsync(int userId)
+        {
+            var rolesByUser = await _roleRepository.GetAllRolesByUserIdAsync(userId);
+            return rolesByUser;
+        }
 
 
 

@@ -170,6 +170,21 @@ namespace Infrastructure.Repositories
             }
         }
 
+
+        public async Task<IEnumerable<RoleEntity>> GetAllRolesByUserIdAsync(int userId)
+        {
+            var query = @"SELECT r.* FROM Role r
+                         JOIN UserRole ur ON r.Id = ur.RoleId
+                         WHERE ur.UserId = @UserId";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var roles = await connection.QueryAsync<RoleEntity>(query, new { UserId = userId });
+                return roles;
+            }
+        }
+
+
         public async Task<bool> IsRoleNotAssignedToAnyUserAsync(int roleId)
         {
             var query = "SELECT COUNT(1) FROM UserRole WHERE RoleId = @RoleId";
