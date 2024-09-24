@@ -6,17 +6,6 @@ namespace Application.Mappers
 {
     public static class UserMappers
     {
-        public static UserDto ToUserDto(this UserEntity userEntity)
-        {
-            return new UserDto
-            {
-                Id = userEntity.Id,
-                Username = userEntity.Username!,
-                Fullname = userEntity.Fullname!,
-            };
-        }
-
-
         public static UserEntity ToUserEntity(this RegisterUserDto registerUserDto)
         {
             return new UserEntity
@@ -27,6 +16,7 @@ namespace Application.Mappers
                 // Role = registerUserDto.Role!,
             };
         }
+
 
         public static UserEntity ToUserEntity(this UpdateUserDto updateUserDto)
         {
@@ -39,6 +29,7 @@ namespace Application.Mappers
             };
         }
 
+
         public static UserWithoutRolesDto ToUserWithoutRolesDto(this UserEntity userEntity)
         {
             return new UserWithoutRolesDto
@@ -48,5 +39,30 @@ namespace Application.Mappers
                 Username = userEntity.Username,
             };
         }
+
+
+        public static UserDto ToUserDto(this UserEntity userEntity)
+        {
+            return new UserDto
+            {
+                Id = userEntity.Id,
+                Username = userEntity.Username!,
+                Fullname = userEntity.Fullname!,
+                Roles = userEntity.Roles
+            };
+        }
+
+
+        public static UserDto ToUserDto(this UserWithoutRolesDto userWithoutRolesDto)
+        {
+            return new UserDto
+            {
+                Id = userWithoutRolesDto.Id,
+                Username = userWithoutRolesDto.Username!,
+                Fullname = userWithoutRolesDto.Fullname!,
+            };
+        }
+
+
     }
 }

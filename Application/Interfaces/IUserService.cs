@@ -8,5 +8,7 @@ namespace Application.Interfaces
         Task<IEnumerable<UserWithoutRolesDto>?> GetAllUsersAsync();
         Task<UserWithoutRolesDto?> GetUserByIdAsync(int id);
         Task<UserResponseDto> UpdateUserAsync(int id, UpdateUserDto updateUserDto);
+        Task<UserDto?> GetUserWithRolesByUserIdAsync(int userId);
+        Task<IEnumerable<UserDto>?> GetAllUsersWithRolesAsync();
     }
 }

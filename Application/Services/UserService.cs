@@ -3,6 +3,7 @@ using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Mappers;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 
 namespace Application.Services
@@ -11,11 +12,13 @@ namespace Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IPasswordHasherService _passwordHasher;
+        private readonly IRoleService _roleService;
 
-        public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasherService passwordHasher)
+        public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasherService passwordHasher, IRoleService roleService)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
+            _roleService = roleService;
         }
 
 
@@ -69,7 +72,7 @@ namespace Application.Services
                 await _userRepository.UpdateUsernameAsync(id, updateUserEntity.Username);
             }
             else
-                updateUserEntity.Fullname = currentUser!.Fullname;
+                updateUserEntity.Username = currentUser!.Username;
 
             if(!string.IsNullOrEmpty(updateUserEntity.Password))
             {
@@ -84,9 +87,31 @@ namespace Application.Services
             return new UserResponseDto(true, "Usuario actualizado correctamente.", updateUserEntity.ToUserWithoutRolesDto());
         }
 
+
+        public async Task<UserDto?> GetUserWithRolesByUserIdAsync(int userId)
+        {
+            var user = await GetUserByIdAsync(userId);
+            if (user == null)
+                return null;
+            var userDto = user.ToUserDto();
+            var roles = await _roleService.GetAllRolesByUserIdAsync(userId);
+            userDto.Roles = roles.ToList();
+            return userDto;
+        }
+
+
+        public async Task<IEnumerable<UserDto>?> GetAllUsersWithRolesAsync()
+        {
+            var usersWithRoles = await _userRepository.GetAllUsersWithRolesAsync();
+            if (!usersWithRoles.Any())
+                return null;
+
+            return usersWithRoles.Select(user => user.ToUserDto());
+        }
+
+
+        
         //TODO: Hacer endpoints para
-        //TODO: Obtener un usuario con sus roles
-        //TODO: Obtener todos los usuarios con sus roles
         //TODO: Asignar roles al usuario
         //TODO: Remover roles del usuario
         //TODO: Remover los roles del usuario para eliminarlo
@@ -111,7 +136,7 @@ namespace Application.Services
             if (userFullnameExists)
                 return new UserResponseDto(false, "El nombre de usuario ya existe en el sistema", IsConflict: true);
 
-            return new UserResponseDto(true, "Usuario válido.");
+            return new UserResponseDto(true, "Nombre de usuario válido.");
         }
 
 
@@ -119,9 +144,9 @@ namespace Application.Services
         {
             bool userUsernameExists = await _userRepository.ExistUserByUsernameAsync(userName);
             if (userUsernameExists)
-                return new UserResponseDto(false, "El nick del usuario ya existe en el sistema", IsConflict: true);
+                return new UserResponseDto(false, "El nombre de usuario ya existe en el sistema", IsConflict: true);
 
-            return new UserResponseDto(true, "Usuario válido.");
+            return new UserResponseDto(true, "Nombre de usuario válido.");
         }
     }
 }

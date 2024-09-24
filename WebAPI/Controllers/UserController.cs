@@ -58,5 +58,25 @@ namespace WebAPI.Controllers
             else
                 return BadRequest(result.Message);
         }
+
+
+        [HttpGet("getUserWithRoles/{userId}")]
+        public async Task<IActionResult> GetUserWithRoles(int userId)
+        {
+            var user = await _userService.GetUserWithRolesByUserIdAsync(userId);
+            if (user == null)
+                return NotFound($"El usuario con Id {userId} no existe");
+            return Ok(user);
+        }
+
+
+        [HttpGet("getUserWithRoles")]
+        public async Task<IActionResult> GetAllUsersWithRoles()
+        {
+            var users = await _userService.GetAllUsersWithRolesAsync();
+            if (users == null)
+                return NotFound($"No hay usuarios en el sistema");
+            return Ok(users);
+        }
     }
 }

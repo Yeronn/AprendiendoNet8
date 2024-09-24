@@ -74,6 +74,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<bool> UpdateFullnameAsync(int id, string fullname)
         {
             var query = "UPDATE [User] SET Fullname = @Fullname WHERE Id = @Id";
@@ -198,5 +199,44 @@ namespace Infrastructure.Repositories
                 return count > 0;
             }
         }
+
+
+        public async Task<IEnumerable<UserEntity>> GetAllUsersWithRolesAsync()
+        {
+            var query = @"
+                SELECT u.Id, u.Username, u.Fullname, r.Id AS RoleId, r.Id, r.Name, r.Description
+                FROM [User] u
+                LEFT JOIN UserRole ur ON u.Id = ur.UserId
+                LEFT JOIN Role r ON ur.RoleId = r.Id;
+            ";
+
+            var userDictionary = new Dictionary<int, UserEntity>();
+
+            using (var connection = _context.CreateConnection())
+            {
+                var result = await connection.QueryAsync<UserEntity, RoleEntity, UserEntity>(
+                    query,
+                    (user, role) =>
+                    {
+                        // * The user does not exist in the dictionary
+                        if (!userDictionary.TryGetValue(user.Id, out var currentUser))
+                        {
+                            currentUser = user;
+                            currentUser.Roles = new List<RoleEntity>();
+                            userDictionary.Add(user.Id, currentUser);
+                        }
+
+                        if (role != null && role.Id != 0)
+                            currentUser.Roles.Add(role);
+
+                        return currentUser;
+                    },
+                    splitOn: "RoleId"
+                );
+            }
+
+            return userDictionary.Values;
+        }
+
     }
 }

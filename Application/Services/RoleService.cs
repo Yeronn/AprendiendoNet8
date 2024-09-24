@@ -202,6 +202,7 @@ namespace Application.Services
             if(!permissionExists.Success)
                 return null;
             var rolesByPermission = await _roleRepository.GetAllRolesByPermissionIdAsync(permissionId);
+            //TODO: Decidir si tambien traiga los permisos de cada rol
             var rolesByPermissionDto = rolesByPermission.Select(role => role.ToRoleWithoutPermissionsDto());
             return rolesByPermissionDto;
         }
@@ -209,7 +210,9 @@ namespace Application.Services
 
         public async Task<IEnumerable<RoleEntity>> GetAllRolesByUserIdAsync(int userId)
         {
+            //TODO: Validar que el usuario existe
             var rolesByUser = await _roleRepository.GetAllRolesByUserIdAsync(userId);
+            //TODO: Decidir si tambien mostrar los permisos de los roles del usuario
             return rolesByUser;
         }
 
