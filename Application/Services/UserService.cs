@@ -110,7 +110,28 @@ namespace Application.Services
         }
 
 
-        
+        public async Task<UserResponseDto> AssignRolesToUserAsync(int userId, List<int> rolesIds)
+        {
+            var userExists = await ValidateUserExistsByIdAsync(userId);
+            if (!userExists.Success)
+                return userExists;
+
+            if (!rolesIds.Any())
+                return new UserResponseDto(false, "No envió los ids de los roles", IsBadRequest: true);
+            
+            var invalidRoles = await GetInvalidRolesAsync(rolesIds);
+            if (invalidRoles.Any())
+                return new UserResponseDto(false, $"Los siguientes roles no existen: {string.Join(", ", invalidRoles)}", IsBadRequest: true);
+
+            var newRoles = await GetNewRolesAsync(userId, rolesIds);
+            if (!newRoles.Any())
+                return new UserResponseDto(false, "Todos los roles se encuentran asignados al rol");
+
+            var success = await _userRepository.AddRolesToUserAsync(userId, newRoles);
+            return success
+                ? new UserResponseDto(true, "Roles añadidos correctamente al usuario.")
+                : new UserResponseDto(false, "Error al añadir roles al usuario.");
+        }
         //TODO: Hacer endpoints para
         //TODO: Asignar roles al usuario
         //TODO: Remover roles del usuario
@@ -147,6 +168,26 @@ namespace Application.Services
                 return new UserResponseDto(false, "El nombre de usuario ya existe en el sistema", IsConflict: true);
 
             return new UserResponseDto(true, "Nombre de usuario válido.");
+        }
+
+
+        private async Task<List<int>> GetInvalidRolesAsync(List<int> rolesIds)
+        {
+            var invalidRoles = new List<int>();
+            foreach (var roleId in rolesIds)
+            {
+                var roleExists = await _roleService.ValidateRoleExistsByIdAsync(roleId);
+                if (!roleExists.Success)
+                    invalidRoles.Add(roleId);
+            }
+            return invalidRoles;
+        }
+
+
+        private async Task<List<int>> GetNewRolesAsync(int userId, List<int> rolesIds)
+        {
+            var existingRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
+            return rolesIds.Except(existingRoles.Select(r => r.Id)).ToList();
         }
     }
 }

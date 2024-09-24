@@ -21,6 +21,7 @@ namespace Application.Interfaces
         Task<RoleResponseDto> RemovePermissionsFromRoleAsync(int roleId, List<int> permissionIds);
         Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesByPermissionIdAsync(int permissionId);
         Task<IEnumerable<RoleEntity>> GetAllRolesByUserIdAsync(int userId);
+        Task<RoleResponseDto> ValidateRoleExistsByIdAsync(int id);
     }
 
 }

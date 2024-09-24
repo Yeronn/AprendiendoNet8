@@ -78,5 +78,30 @@ namespace WebAPI.Controllers
                 return NotFound($"No hay usuarios en el sistema");
             return Ok(users);
         }
+
+
+        [HttpPost("{userId}/addRolesToUser")]
+        public async Task<IActionResult> AddRolesToUser(int userId, [FromBody] List<int> roleIds)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Datos inválidos.");
+            }
+
+            var result = await _userService.AssignRolesToUserAsync(userId, roleIds);
+
+            if (result.Success)
+                return Ok(new
+                {
+                    result.Success,
+                    result.Message,
+                });
+            else if (result.IsNotFound)
+                return NotFound(result.Message);
+            else if (result.IsBadRequest)
+                return BadRequest(result.Message);
+
+            return StatusCode(500, result.Message);
+        }
     }
 }

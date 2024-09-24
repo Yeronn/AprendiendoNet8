@@ -238,5 +238,17 @@ namespace Infrastructure.Repositories
             return userDictionary.Values;
         }
 
+        public async Task<bool> AddRolesToUserAsync(int userId, List<int> roleIds)
+        {
+            var query = "INSERT INTO UserRole (UserId, RoleId) VALUES (@UserId, @RoleId)";
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = roleIds.Select(roleId => new { UserId = userId, RoleId = roleId }).ToList();
+
+                await connection.ExecuteAsync(query, parameters);
+            }
+
+            return true;
+        }
     }
 }

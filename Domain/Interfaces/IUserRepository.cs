@@ -25,5 +25,6 @@ namespace Domain.Interfaces
         Task<bool> ExistUserByFullNameAsync(string fullname);
         Task<bool> ExistUserByUsernameAsync(string username);
         Task<IEnumerable<UserEntity>> GetAllUsersWithRolesAsync();
+        Task<bool> AddRolesToUserAsync(int userId, List<int> rolesIds);
     }
 }

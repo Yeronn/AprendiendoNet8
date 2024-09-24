@@ -217,9 +217,7 @@ namespace Application.Services
         }
 
 
-
-
-        private async Task<RoleResponseDto> ValidateRoleExistsByIdAsync(int id)
+        public async Task<RoleResponseDto> ValidateRoleExistsByIdAsync(int id)
         {
             bool roleExists = await _roleRepository.ExistRoleByIdAsync(id);
             if (!roleExists)
@@ -227,6 +225,8 @@ namespace Application.Services
 
             return new RoleResponseDto(true, "El rol existe.");
         }
+
+
 
 
         private async Task<RoleResponseDto> CheckRoleNameAvailabilityAsync(string roleName)

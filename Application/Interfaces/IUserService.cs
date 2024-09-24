@@ -10,5 +10,6 @@ namespace Application.Interfaces
         Task<UserResponseDto> UpdateUserAsync(int id, UpdateUserDto updateUserDto);
         Task<UserDto?> GetUserWithRolesByUserIdAsync(int userId);
         Task<IEnumerable<UserDto>?> GetAllUsersWithRolesAsync();
+        Task<UserResponseDto> AssignRolesToUserAsync(int userId, List<int> rolesIds);
     }
 }
