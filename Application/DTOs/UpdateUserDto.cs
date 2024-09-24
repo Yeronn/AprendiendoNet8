@@ -1,17 +1,14 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Domain.Entities;
 
-namespace Application.DTOs.User
+namespace Application.DTOs
 {
-    public class UserDto
+    public class UpdateUserDto
     {
-        public int Id { get; set; }
         public string Username { get; set; } = string.Empty;
         public string Fullname { get; set; } = string.Empty;
-        public List<RoleEntity> Role { get; set; } = [];
+        public string Password { get; set; } = string.Empty;
     }
 }

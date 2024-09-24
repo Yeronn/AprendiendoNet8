@@ -1,16 +1,12 @@
-﻿using Application.DTOs.User;
-using Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Application.DTOs;
+using Application.DTOs.User;
 
 namespace Application.Interfaces
 {
     public interface IUserService
     {
-        Task<IEnumerable<UsersDto>> GetAllUsersAsync();
-        Task<UserDto?> GetUserByIdAsync(int id);
+        Task<IEnumerable<UserWithoutRolesDto>?> GetAllUsersAsync();
+        Task<UserWithoutRolesDto?> GetUserByIdAsync(int id);
+        Task<UserResponseDto> UpdateUserAsync(int id, UpdateUserDto updateUserDto);
     }
 }

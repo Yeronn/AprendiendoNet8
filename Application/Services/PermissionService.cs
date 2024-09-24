@@ -101,6 +101,7 @@ namespace Application.Services
 
         public async Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId)
         {
+            //TODO: Validar que el role exista
             var permissionsByRol = await _permissionRepository.GetAllPermissionsByRoleIdAsync(roleId);
             return permissionsByRol;
         }

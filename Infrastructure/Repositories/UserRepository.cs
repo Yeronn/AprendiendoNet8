@@ -2,8 +2,6 @@
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
-using Microsoft.Data.SqlClient;
-using Microsoft.VisualBasic;
 using System.Data;
 
 namespace Infrastructure.Repositories
@@ -76,6 +74,44 @@ namespace Infrastructure.Repositories
             }
         }
 
+        public async Task<bool> UpdateFullnameAsync(int id, string fullname)
+        {
+            var query = "UPDATE [User] SET Fullname = @Fullname WHERE Id = @Id";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = new { Id = id, Fullname = fullname };
+                var affectedRows = await connection.ExecuteAsync(query, parameters);
+                return affectedRows > 0;
+            }
+        }
+
+
+        public async Task<bool> UpdateUsernameAsync(int id, string username)
+        {
+            var query = "UPDATE [User] SET Username = @Username WHERE Id = @Id";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = new { Id = id, Username = username };
+                var affectedRows = await connection.ExecuteAsync(query, parameters);
+                return affectedRows > 0;
+            }
+        }
+
+
+        public async Task<bool> UpdatePasswordAsync(int id, string password)
+        {
+            var query = "UPDATE [User] SET Password = @Password WHERE Id = @Id";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = new { Id = id, Password = password };
+                var affectedRows = await connection.ExecuteAsync(query, parameters);
+                return affectedRows > 0;
+            }
+        }
+
 
         public async Task UpdateUserJtiAsync(int userId, string jti)
         {
@@ -130,7 +166,37 @@ namespace Infrastructure.Repositories
             }
         }
 
+        public async Task<bool> ExistUserByIdAsync(int id)
+        {
+            var query = "SELECT COUNT(1) FROM [User] WHERE Id = @Id";
 
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Id = id });
+                return count > 0;
+            }
+        }
 
+        public async Task<bool> ExistUserByFullNameAsync(string fullname)
+        {
+            var query = "SELECT COUNT(1) FROM [User] WHERE Fullname = @Fullname";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Fullname = fullname });
+                return count > 0;
+            }
+        }
+
+        public async Task<bool> ExistUserByUsernameAsync(string username)
+        {
+            var query = "SELECT COUNT(1) FROM [User] WHERE Username = @Username";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Username = username });
+                return count > 0;
+            }
+        }
     }
 }

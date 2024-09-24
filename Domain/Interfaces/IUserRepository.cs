@@ -18,5 +18,11 @@ namespace Domain.Interfaces
         Task<bool> IsEmailUniqueAsync(string email);
         Task<bool> IsFullnameUniqueAsync(string fullname);
         Task<bool> IsUsernameUniqueAsync(string username);
+        Task<bool> UpdateFullnameAsync(int id, string fullname);
+        Task<bool> UpdateUsernameAsync(int id, string username);
+        Task<bool> UpdatePasswordAsync(int id, string password);
+        Task<bool> ExistUserByIdAsync(int id);
+        Task<bool> ExistUserByFullNameAsync(string fullname);
+        Task<bool> ExistUserByUsernameAsync(string username);
     }
 }

@@ -1,4 +1,5 @@
-﻿using Application.DTOs.User;
+﻿using Application.DTOs;
+using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Mappers;
 using Microsoft.AspNetCore.Authorization;
@@ -17,25 +18,16 @@ namespace WebAPI.Controllers
             _userService = userService;
         }
 
-        [HttpGet("getUsers")]
-        public async Task<ActionResult<IEnumerable<UsersDto>>> GetUsers()
-        {
-            try
-            {
-                var users = await _userService.GetAllUsersAsync();
-                if (users == null || !users.Any())
-                {
-                    return NotFound("No users found.");
-                }
-                return Ok(users);
 
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Exception: {ex.Message}");
-                return StatusCode(500, $"Ha ocurrido un error obteniendo los usuarios: {ex.Message}");
-            }
+        [HttpGet("getUsers")]
+        public async Task<IActionResult> GetUsers()
+        {
+            var users = await _userService.GetAllUsersAsync();
+            if (users == null)
+                return NotFound("No users found.");
+            return Ok(users);
         }
+
 
         [Authorize(Roles = "User, Admin")]
         [HttpGet("getUser/{id}", Name ="getUser")]
@@ -45,6 +37,26 @@ namespace WebAPI.Controllers
             if (user == null)
                 return NotFound();
             return Ok(user);
+        }
+
+
+        [HttpPut("update/{id}")]
+        public async Task<IActionResult> UpdateRol(int id, [FromBody] UpdateUserDto updateUser)
+        {
+            var result = await _userService.UpdateUserAsync(id, updateUser);
+            if (result.Success)
+                return Ok(new
+                {
+                    result.Success,
+                    result.Message,
+                    result.User
+                });
+            else if (result.IsConflict)
+                return Conflict(result.Message);
+            else if (result.IsNotFound)
+                return NotFound(result.Message);
+            else
+                return BadRequest(result.Message);
         }
     }
 }
