@@ -3,7 +3,6 @@ using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Mappers;
 using Domain.Interfaces;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.Extensions.Configuration;
 
 namespace Application.Services
@@ -112,20 +111,20 @@ namespace Application.Services
 
         public async Task<UserResponseDto> AssignRolesToUserAsync(int userId, List<int> rolesIds)
         {
+            if (!rolesIds.Any())
+                return new UserResponseDto(false, "No envió los ids de los roles", IsBadRequest: true);
+
             var userExists = await ValidateUserExistsByIdAsync(userId);
             if (!userExists.Success)
                 return userExists;
 
-            if (!rolesIds.Any())
-                return new UserResponseDto(false, "No envió los ids de los roles", IsBadRequest: true);
-            
             var invalidRoles = await GetInvalidRolesAsync(rolesIds);
             if (invalidRoles.Any())
                 return new UserResponseDto(false, $"Los siguientes roles no existen: {string.Join(", ", invalidRoles)}", IsBadRequest: true);
 
             var newRoles = await GetNewRolesAsync(userId, rolesIds);
             if (!newRoles.Any())
-                return new UserResponseDto(false, "Todos los roles se encuentran asignados al rol");
+                return new UserResponseDto(false, "Todos los roles se encuentran asignados al rol", IsBadRequest: true);
 
             var success = await _userRepository.AddRolesToUserAsync(userId, newRoles);
             return success

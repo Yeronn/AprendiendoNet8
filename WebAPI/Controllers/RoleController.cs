@@ -162,7 +162,7 @@ namespace WebAPI.Controllers
         {
             var roles = await _roleService.GetAllRolesByPermissionIdAsync(permissionId);
             if (roles == null)
-                return NotFound($"El rol con el id {permissionId} no existe");
+                return NotFound($"El permiso con el id {permissionId} no existe");
             return Ok(roles);
         }
 
