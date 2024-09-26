@@ -131,9 +131,35 @@ namespace Application.Services
                 ? new UserResponseDto(true, "Roles añadidos correctamente al usuario.")
                 : new UserResponseDto(false, "Error al añadir roles al usuario.");
         }
+
+
+        public async Task<UserResponseDto> RemoveRoleFromUserAsync(int userId, List<int> roleIds)
+        {
+            if(!roleIds.Any())
+                return new UserResponseDto(false, "Está tratando de eliminar roles del usuario, pero no envió los roles", IsBadRequest: true);
+
+            var userExists = await ValidateUserExistsByIdAsync(userId);
+            if (!userExists.Success)
+                return userExists;
+
+            var currentRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
+
+            // * Verify that the user has the roles to be removed
+            var invalidPermissions = roleIds.Except(currentRoles.Select(p => p.Id)).ToList();
+            if (invalidPermissions.Any())
+            {
+                return new UserResponseDto(false, $"El usuario no tiene los siguientes roles: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
+            }
+
+            bool success = await _userRepository.RemoveRolesFromUserAsync(userId, roleIds);
+            return success
+                ? new UserResponseDto(true, "Roles eliminados correctamente del usuario.")
+                : new UserResponseDto(false, "Error al eliminar roles del usuario.");
+        }
+
+
+        
         //TODO: Hacer endpoints para
-        //TODO: Asignar roles al usuario
-        //TODO: Remover roles del usuario
         //TODO: Remover los roles del usuario para eliminarlo
         //TODO: Obtener todos los usuarios de un rol
 

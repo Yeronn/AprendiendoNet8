@@ -238,6 +238,7 @@ namespace Infrastructure.Repositories
             return userDictionary.Values;
         }
 
+
         public async Task<bool> AddRolesToUserAsync(int userId, List<int> roleIds)
         {
             var query = "INSERT INTO UserRole (UserId, RoleId) VALUES (@UserId, @RoleId)";
@@ -250,5 +251,26 @@ namespace Infrastructure.Repositories
 
             return true;
         }
+
+
+        public async Task<bool> RemoveRolesFromUserAsync(int userId, List<int> roleIds)
+        {
+            var query = "DELETE FROM UserRole WHERE UserId = @UserId AND RoleId IN @RoleIds";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var parameters = new 
+                { 
+                    UserId = userId, 
+                    RoleIds = roleIds 
+                };
+
+                var rowsAffected = await connection.ExecuteAsync(query, parameters);
+                return rowsAffected > 0;
+            }
+        }
+
+
+
     }
 }
