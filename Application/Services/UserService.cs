@@ -133,7 +133,7 @@ namespace Application.Services
         }
 
 
-        public async Task<UserResponseDto> RemoveRoleFromUserAsync(int userId, List<int> roleIds)
+        public async Task<UserResponseDto> RemoveRolesFromUserAsync(int userId, List<int> roleIds)
         {
             if(!roleIds.Any())
                 return new UserResponseDto(false, "Está tratando de eliminar roles del usuario, pero no envió los roles", IsBadRequest: true);
@@ -144,12 +144,10 @@ namespace Application.Services
 
             var currentRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
 
-            // * Verify that the user has the roles to be removed
+            // * Ve0rify that the user has the roles to be removed
             var invalidPermissions = roleIds.Except(currentRoles.Select(p => p.Id)).ToList();
             if (invalidPermissions.Any())
-            {
                 return new UserResponseDto(false, $"El usuario no tiene los siguientes roles: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
-            }
 
             bool success = await _userRepository.RemoveRolesFromUserAsync(userId, roleIds);
             return success
@@ -158,7 +156,31 @@ namespace Application.Services
         }
 
 
-        
+        public async Task<UserResponseDto> DeleteUserAsync(int userId)
+        {
+            var userExists = await ValidateUserExistsByIdAsync(userId);
+            if (!userExists.Success)
+                return userExists;
+
+            // * Get user roles to delete records in RolePermission table
+            var userRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
+
+            if (userRoles.Any())
+            {
+                List<int> rolePermissionsIds = userRoles.Select(userRole => userRole.Id).ToList();
+
+                var removedUserRoleRecords = await RemoveRolesFromUserAsync(userId, rolePermissionsIds);
+
+                if (!removedUserRoleRecords.Success)
+                    return removedUserRoleRecords;
+            }
+
+            var success = await _userRepository.DeleteUserAsync(userId);
+            return success
+                ? new UserResponseDto(true, "Usuario eliminado exitosamente.")
+                : new UserResponseDto(false, "Error al eliminar el usuario.");
+        }
+
         //TODO: Hacer endpoints para
         //TODO: Remover los roles del usuario para eliminarlo
         //TODO: Obtener todos los usuarios de un rol
@@ -214,5 +236,8 @@ namespace Application.Services
             var existingRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
             return rolesIds.Except(existingRoles.Select(r => r.Id)).ToList();
         }
+
+
+
     }
 }

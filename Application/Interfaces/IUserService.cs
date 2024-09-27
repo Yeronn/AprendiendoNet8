@@ -11,6 +11,7 @@ namespace Application.Interfaces
         Task<UserDto?> GetUserWithRolesByUserIdAsync(int userId);
         Task<IEnumerable<UserDto>?> GetAllUsersWithRolesAsync();
         Task<UserResponseDto> AssignRolesToUserAsync(int userId, List<int> rolesIds);
-        Task<UserResponseDto> RemoveRoleFromUserAsync(int userId, List<int> roleIds);
+        Task<UserResponseDto> RemoveRolesFromUserAsync(int userId, List<int> roleIds);
+        Task<UserResponseDto> DeleteUserAsync(int userId);
     }
 }

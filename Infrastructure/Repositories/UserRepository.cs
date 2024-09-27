@@ -271,6 +271,17 @@ namespace Infrastructure.Repositories
         }
 
 
+        public async Task<bool> DeleteUserAsync(int id)
+        {
+            var query = "DELETE FROM [User] WHERE Id = @Id";
+            using (var connection = _context.CreateConnection())
+            {
+                var affectedRows = await connection.ExecuteAsync(query, new { Id = id });
+                return affectedRows > 0;
+            }
+        }
+
+
 
     }
 }

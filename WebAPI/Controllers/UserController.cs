@@ -108,7 +108,7 @@ namespace WebAPI.Controllers
         [HttpDelete("{userId}/removeRolesFromUser")]
         public async Task<IActionResult> RemoveRolesFromUser(int userId, [FromBody] List<int> roleIds)
         {
-            var result = await _userService.RemoveRoleFromUserAsync(userId, roleIds);
+            var result = await _userService.RemoveRolesFromUserAsync(userId, roleIds);
 
             if (result.Success)
                 return Ok(new
@@ -122,6 +122,18 @@ namespace WebAPI.Controllers
                 return BadRequest(result.Message);
 
             return StatusCode(500, result.Message);
+        }
+
+
+        [HttpDelete("delete/{id}")]
+        public async Task<IActionResult> DeleteUser(int id)
+        {
+            var result = await _userService.DeleteUserAsync(id);
+            if (result.Success)
+                return NoContent();
+            else if (result.IsNotFound) 
+                return NotFound(result.Message);
+            return BadRequest(result.Message);
         }
     }
 }
