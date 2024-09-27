@@ -282,6 +282,17 @@ namespace Infrastructure.Repositories
         }
 
 
-
+        public async Task<IEnumerable<UserEntity>> GetAllUsersByRoleIdAsync(int roleId) 
+        {
+            var query = @"SELECT u.* FROM [User] u
+                         JOIN UserRole ur ON u.Id = ur.UserId
+                         WHERE ur.RoleId = @RoleId";
+            
+            using (var connection = _context.CreateConnection())
+            {
+                var users = await connection.QueryAsync<UserEntity>(query, new { RoleId = roleId});
+                return users;
+            }
+        }
     }
 }

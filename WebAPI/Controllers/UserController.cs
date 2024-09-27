@@ -135,5 +135,15 @@ namespace WebAPI.Controllers
                 return NotFound(result.Message);
             return BadRequest(result.Message);
         }
+
+
+        [HttpGet("usersByRole/{roleId}")]
+        public async Task<IActionResult> GetUsersByRoleId(int roleId)
+        {
+            var users = await _userService.GetAllUsersByRoleIdAsync(roleId);
+            if (users == null)
+                return NotFound($"El Rol con el id {roleId} no existe");
+            return Ok(users);
+        }
     }
 }

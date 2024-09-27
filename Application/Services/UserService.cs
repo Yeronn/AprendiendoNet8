@@ -181,8 +181,19 @@ namespace Application.Services
                 : new UserResponseDto(false, "Error al eliminar el usuario.");
         }
 
+
+        public async Task<IEnumerable<UserWithoutRolesDto>?> GetAllUsersByRoleIdAsync(int roleId)
+        {
+            var roleExists = await _roleService.ValidateRoleExistsByIdAsync(roleId);
+            if(!roleExists.Success)
+                return null;
+            var usersByRole = await _userRepository.GetAllUsersByRoleIdAsync(roleId);
+            //TODO: Decidir si tambien traiga los permisos de cada rol
+            var usersByRoleDto = usersByRole.Select(user => user.ToUserWithoutRolesDto());
+            return usersByRoleDto;
+        }
+
         //TODO: Hacer endpoints para
-        //TODO: Remover los roles del usuario para eliminarlo
         //TODO: Obtener todos los usuarios de un rol
 
 

@@ -13,5 +13,6 @@ namespace Application.Interfaces
         Task<UserResponseDto> AssignRolesToUserAsync(int userId, List<int> rolesIds);
         Task<UserResponseDto> RemoveRolesFromUserAsync(int userId, List<int> roleIds);
         Task<UserResponseDto> DeleteUserAsync(int userId);
+        Task<IEnumerable<UserWithoutRolesDto>?> GetAllUsersByRoleIdAsync(int roleId);
     }
 }

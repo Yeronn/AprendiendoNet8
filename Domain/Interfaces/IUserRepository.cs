@@ -28,5 +28,6 @@ namespace Domain.Interfaces
         Task<bool> AddRolesToUserAsync(int userId, List<int> rolesIds);
         Task<bool> RemoveRolesFromUserAsync(int userId, List<int> roleIds);
         Task<bool> DeleteUserAsync(int id);
+        Task<IEnumerable<UserEntity>> GetAllUsersByRoleIdAsync(int roleId);
     }
 }
