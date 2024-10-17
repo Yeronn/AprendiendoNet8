@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("show/{id}")]
+        [HttpGet("get/{id}")]
         public async Task<IActionResult> GetRolById(int id)
         {
             var role = await _roleService.GetRoleByIdAsync(id);
@@ -82,7 +82,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("show")]
+        [HttpGet("get")]
         public async Task<IActionResult> GetAllRoles()
         {
             var roles = await _roleService.GetAllRolesAsync();
@@ -92,7 +92,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("showRoleAndPermissions/{id}")]
+        [HttpGet("getRoleAndPermissions/{id}")]
         public async Task<IActionResult> GetRoleWithTheirPermissions(int id)
         {
             var role = await _roleService.GetRoleWithPermissionsByRolIdAsync(id);
@@ -102,7 +102,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("showRolesAndPermissions")]
+        [HttpGet("getRolesAndPermissions")]
         public async Task<IActionResult> GetAllRolesWithTheirPermissions()
         {
             var roles = await _roleService.GetAllRolesWithPermissionsAsync();
