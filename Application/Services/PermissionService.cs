@@ -107,6 +107,20 @@ namespace Application.Services
         }
 
 
+        public async Task<IEnumerable<PermissionEntity>> GetUniquePermissionsByRoleIdsAsync(IEnumerable<int> roleIds)
+        {
+            var permissions = await _permissionRepository.GetPermissionsByRoleIdsAsync(roleIds);
+
+            //* verify that permissions are unique
+            var uniquePermissions = permissions
+                .GroupBy(permission => permission.Id)
+                .Select(group => group.First())
+                .ToList();
+
+            return uniquePermissions;
+        }
+
+
         public async Task<PermissionResponseDto> ValidatePermissionExistsByIdAsync(int id)
         {
             bool existingPermission = await _permissionRepository.ExistPermissionByIdAsync(id);

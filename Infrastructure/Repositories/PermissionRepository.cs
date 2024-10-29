@@ -153,6 +153,21 @@ namespace Infrastructure.Repositories
         }
 
 
+        public async Task<IEnumerable<PermissionEntity>> GetPermissionsByRoleIdsAsync(IEnumerable<int> roleIds)
+        {
+            // Get unique permissions
+            var query = @"SELECT DISTINCT p.* 
+                        FROM Permission p
+                        INNER JOIN RolePermission rp ON p.Id = rp.PermissionId
+                        WHERE rp.RoleId IN @RoleIds";
+            
+            using (var connection = _context.CreateConnection())
+            {
+                return await connection.QueryAsync<PermissionEntity>(query, new { RoleIds = roleIds });
+            }
+        }
+
+
         public async Task<bool> IsPermissionNotAssignedToAnyRoleAsync(int permissionId)
         {
             var query = "SELECT COUNT(1) FROM RolePermission WHERE PermissionId = @PermissionId";

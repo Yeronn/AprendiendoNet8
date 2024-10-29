@@ -17,12 +17,14 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasherService _passwordHasher;
+        private readonly IRoleRepository _roleRepository;
 
-        public AuthenticationService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasherService passwordHasher)
+        public AuthenticationService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasherService passwordHasher, IRoleRepository roleRepository)
         {
             _userRepository = userRepository;
             _passwordHasher = passwordHasher;
             _configuration = configuration;
+            _roleRepository = roleRepository;
         }
 
 
@@ -70,8 +72,7 @@ namespace Application.Services
 
         public string GenerateJWTToken(UserEntity user, string jti)
         {
-            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
-            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+            var roles = _roleRepository.GetAllRolesByUserIdAsync(user.Id);
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -80,6 +81,9 @@ namespace Application.Services
                 // new Claim(ClaimTypes.Role, user.Role!),
                 new Claim(JwtRegisteredClaimNames.Jti, jti)
             };
+
+            var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
+            var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],

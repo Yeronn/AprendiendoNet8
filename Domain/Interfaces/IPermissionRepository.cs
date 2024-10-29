@@ -20,6 +20,7 @@ namespace Domain.Interfaces
         Task<bool> ExistPermissionByNameAsync(string name);
         Task<string?> GetPermissionNameAsync(int id);
         Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId);
+        Task<IEnumerable<PermissionEntity>> GetPermissionsByRoleIdsAsync(IEnumerable<int> roleIds);
         Task<bool> IsPermissionNotAssignedToAnyRoleAsync(int permissionId);
     }
 }
