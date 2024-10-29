@@ -115,5 +115,21 @@ namespace WebAPI.Controllers
                 return NotFound($"El rol con el id {roleId} no existe");
             return Ok(permissions);
         }
+
+
+        [HttpPost("get-permissions-by-roles")]
+        public async Task<IActionResult> GetPermissionsByRoles([FromBody] List<int> roleIds)
+        {
+            if (roleIds == null || roleIds.Count == 0)
+                return BadRequest("La lista de IDs de roles no puede estar vacía.");
+
+            var permissions = await _permissionService.GetUniquePermissionsByRoleIdsAsync(roleIds);
+
+            if (permissions == null || !permissions.Any())
+                return NotFound("No se encontraron permisos para los roles proporcionados.");
+
+            return Ok(permissions);
+        }
+
     }
 }
