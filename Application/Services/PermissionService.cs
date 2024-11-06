@@ -49,11 +49,7 @@ namespace Application.Services
 
         public async Task<PermissionResponseDto> UpdatePermissionAsync(int id, UpdatePermissionDto updatePermission)
         {
-            var validateId = ValidateIdsMatch(id, updatePermission.Id);
-            if (!validateId.Success)
-                return validateId;
-            else
-                updatePermission.Id = id;
+            updatePermission.Id = id;
 
             var permissionExist = await ValidatePermissionExistsByIdAsync(id);
             if (!permissionExist.Success)
@@ -140,18 +136,6 @@ namespace Application.Services
                 return new PermissionResponseDto(false, "El Permiso ya existe en el sistema", IsConflict: true);
 
             return new PermissionResponseDto(true, "Permiso válido.");
-        }
-
-
-        private PermissionResponseDto ValidateIdsMatch(int urlId, int? bodyId)
-        {
-            if (bodyId == null || bodyId == 0)
-                return new PermissionResponseDto(true, "Asignar ID de la URL al objeto del body");
-
-            if (bodyId != urlId)
-                return new PermissionResponseDto(false, "El Id de la URL y del cuerpo no coinciden.");
-
-            return new PermissionResponseDto(true, "Los Id son iguales");
         }
 
 
