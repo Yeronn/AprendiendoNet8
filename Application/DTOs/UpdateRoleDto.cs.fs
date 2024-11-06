@@ -2,7 +2,7 @@
 
 namespace Application.DTOs
 {
-    public class UpdateRolDto
+    public class UpdateRoleDto
     {
         public int? Id { get; set; }
         [StringLength(50, ErrorMessage = "El nombre no puede exceder los 50 caracteres.")]
