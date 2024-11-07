@@ -41,7 +41,7 @@ namespace WebAPI.Controllers
 
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateRol(int id, [FromBody] UpdateRolDto updateRoleDto)
+        public async Task<IActionResult> UpdateRol(int id, [FromBody] CreateUpdateRolDto updateRoleDto)
         {
             var result = await _roleService.UpdateRoleAsync(id, updateRoleDto);
             if (result.Success)
