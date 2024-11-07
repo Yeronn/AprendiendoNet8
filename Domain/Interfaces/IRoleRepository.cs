@@ -6,7 +6,7 @@ namespace Domain.Interfaces
     {
         Task<RoleEntity?> GetRoleByIdAsync(int id);
         Task<IEnumerable<RoleEntity>> GetAllRolesAsync();
-        Task<bool> CreateRoleAsync(RoleEntity role);
+        Task<int?> CreateRoleAsync(RoleEntity role);
         Task<bool> UpdateRoleAsync(RoleEntity role);
         Task<bool> DeleteRoleAsync(int id);
         Task<bool> ExistRoleByIdAsync(int id);

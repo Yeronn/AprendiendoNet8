@@ -17,12 +17,8 @@ namespace WebAPI.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateRol([FromBody] CreateRolDto createRole)
+        public async Task<IActionResult> CreateRol([FromBody] CreateUpdateRoleDto createRole)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Datos inválidos: " + ModelState);
-            }
             var result = await _roleService.CreateRoleAsync(createRole);
 
             if (result.Success)
@@ -41,7 +37,7 @@ namespace WebAPI.Controllers
 
 
         [HttpPut("update/{id}")]
-        public async Task<IActionResult> UpdateRol(int id, [FromBody] CreateUpdateRolDto updateRoleDto)
+        public async Task<IActionResult> UpdateRol(int id, [FromBody] CreateUpdateRoleDto updateRoleDto)
         {
             var result = await _roleService.UpdateRoleAsync(id, updateRoleDto);
             if (result.Success)

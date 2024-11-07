@@ -37,7 +37,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> CreateRoleAsync(RoleEntity role)
+        public async Task<int?> CreateRoleAsync(RoleEntity role)
         {
             var query = "INSERT INTO Role (Name, Description) VALUES (@Name, @Description); SELECT CAST(SCOPE_IDENTITY() as int);";
             using (var connection = _context.CreateConnection())
@@ -45,10 +45,9 @@ namespace Infrastructure.Repositories
                 var id = await connection.ExecuteScalarAsync<int>(query, new { role.Name, role.Description });
                 if (id > 0)
                 {
-                    role.Id = id;
-                    return true;
+                    return id;
                 }
-                return false;
+                return null;
             }
         }
 

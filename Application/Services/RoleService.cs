@@ -17,24 +17,29 @@ namespace Application.Services
             _permissionService = permissionService;
         }
 
-
-        public async Task<RoleResponseDto> CreateRoleAsync(CreateRolDto createRole)
+        //? Hacer que en todos los metodos, si no se cumplen todas las condiciones y algo falla se restablezca los datos anteriores antes de la operaciones que hizo el usuario
+        //? Por ejemplo, en crear el rol, se crea el rol, pero luego puede fallar que se le asignen los permisos, entonces si falla tocaria borrar el rol creado
+        public async Task<RoleResponseDto> CreateRoleAsync(CreateUpdateRoleDto createRole)
         {
             var nameAvalible = await CheckRoleNameAvailabilityAsync(createRole.Name!);
             if (!nameAvalible.Success)
                 return nameAvalible;
-         
-            var roleEntity = createRole.ToRoleEntity();
 
-            var success = await _roleRepository.CreateRoleAsync(roleEntity); //TODO: Hacer que devuelva el id
-            //TODO: Añadir permisos al crear el rol
-            return success
-                ? new RoleResponseDto(true, "Rol creado exitosamente.", roleEntity.ToRoleDto())
-                : new RoleResponseDto(false, "Error al crear el rol.");
+            var id = await _roleRepository.CreateRoleAsync(createRole.ToRoleEntity());
+
+            if(id == null)
+                return new RoleResponseDto(false, "Error al crear el rol");
+
+            var assignedPermissions = await AssignPermissionsToRoleAsync((int)id, createRole.PermissionsIds);
+            if(!assignedPermissions.Success)
+                return new RoleResponseDto(false, "Error al asignar los permisos al rol creado: " + assignedPermissions.Message);
+
+            var createdRole = await GetRoleWithPermissionsByRolIdAsync((int)id);
+            return new RoleResponseDto(true, "Rol creado exitosamente.", createdRole);
         }
 
 
-        public async Task<RoleResponseDto> UpdateRoleAsync(int roleId, CreateUpdateRolDto updateRoleDto)
+        public async Task<RoleResponseDto> UpdateRoleAsync(int roleId, CreateUpdateRoleDto updateRoleDto)
         {
             var currentRole = await GetRoleByIdAsync(roleId);
             if (currentRole == null)

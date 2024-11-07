@@ -14,7 +14,7 @@ namespace Application.Mappers
             };
         }
 
-        public static RoleEntity ToRoleEntity(this CreateUpdateRolDto role)
+        public static RoleEntity ToRoleEntity(this CreateUpdateRoleDto role)
         {
             return new RoleEntity
             {
