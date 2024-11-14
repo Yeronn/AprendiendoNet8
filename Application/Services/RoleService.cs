@@ -25,16 +25,20 @@ namespace Application.Services
             if (!nameAvalible.Success)
                 return nameAvalible;
 
-            var id = await _roleRepository.CreateRoleAsync(createRole.ToRoleEntity());
+            var newRoleId = await _roleRepository.CreateRoleAsync(createRole.ToRoleEntity());
 
-            if(id == null)
+            if(newRoleId == null)
                 return new RoleResponseDto(false, "Error al crear el rol");
 
-            var assignedPermissions = await AssignPermissionsToRoleAsync((int)id, createRole.PermissionsIds);
+            var assignedPermissions = await AssignPermissionsToRoleAsync((int)newRoleId, createRole.PermissionsIds);
             if(!assignedPermissions.Success)
-                return new RoleResponseDto(false, "Error al asignar los permisos al rol creado: " + assignedPermissions.Message);
-
-            var createdRole = await GetRoleWithPermissionsByRolIdAsync((int)id);
+            {
+                var deletedRole = await DeleteRoleAsync((int)newRoleId);
+                if (deletedRole.Success)
+                    return new RoleResponseDto(false, "No se pudo crear el rol: " + assignedPermissions.Message);
+                return new RoleResponseDto(false, "Se creó el rol, pero ocurrió un error al asignarle permisos: " + assignedPermissions.Message);
+            }
+            var createdRole = await GetRoleWithPermissionsByRolIdAsync((int)newRoleId);
             return new RoleResponseDto(true, "Rol creado exitosamente.", createdRole);
         }
 
@@ -153,11 +157,11 @@ namespace Application.Services
             
             // Obtener los permisos que no existen
             var invalidPermissions = await GetInvalidPermissionsAsync(permissionIds);
-            if (invalidPermissions.Any())
+            if (invalidPermissions.Count != 0)
                 return new RoleResponseDto(false, $"Los siguientes permisos no existen: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
 
             var newPermissions = await GetNewPermissionsAsync(roleId, permissionIds);
-            if (!newPermissions.Any())
+            if (newPermissions.Count == 0)
                 return new RoleResponseDto(false, "Todos los permisos ya están asignados al rol.", IsBadRequest: true);
 
             var success = await _roleRepository.AddPermissionsToRoleAsync(roleId, newPermissions);
@@ -176,11 +180,11 @@ namespace Application.Services
             if(!permissionIds.Any())
                 return new RoleResponseDto(false, "Está tratando de eliminar permisos del rol, pero no envió los permisos", IsBadRequest: true);
             
-            var currentPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
 
             // * Verify that role have the permissions to delete
+            var currentPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
             var invalidPermissions = permissionIds.Except(currentPermissions.Select(p => p.Id)).ToList();
-            if (invalidPermissions.Any())
+            if (invalidPermissions.Count != 0)
             {
                 return new RoleResponseDto(false, $"El rol no tiene los siguientes permisos: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
             }
