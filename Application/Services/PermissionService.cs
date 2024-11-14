@@ -119,14 +119,21 @@ namespace Application.Services
 
         public async Task<PermissionResponseDto> ValidatePermissionExistsByIdAsync(int id)
         {
-            bool existingPermission = await _permissionRepository.ExistPermissionByIdAsync(id);
-            if (!existingPermission)
+            bool validatedPermission = await _permissionRepository.ExistPermissionByIdAsync(id);
+            if (!validatedPermission)
                 return new PermissionResponseDto(false, "El permiso no existe.", IsNotFound: true);
 
             return new PermissionResponseDto(true, "El permiso existe.");
         }
 
 
+        public async Task<PermissionResponseDto> ValidatePermissionsExistAsync(List<int> permissionIds)
+        {
+            bool validatedPermissions = await _permissionRepository.ExistPermissionsAsync(permissionIds);
+            if (!validatedPermissions)
+                return new PermissionResponseDto(false, "Un permiso no es válido");
+            return new PermissionResponseDto(true, "Los permisos son válidos");
+        }
 
 
         private async Task<PermissionResponseDto> CheckPermissionNameAvailabilityAsync(string permissionName)

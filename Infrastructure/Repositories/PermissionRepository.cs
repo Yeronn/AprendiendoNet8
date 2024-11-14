@@ -116,6 +116,18 @@ namespace Infrastructure.Repositories
         }
 
 
+        public async Task<bool> ExistPermissionsAsync(List<int> permissionIds)
+        {
+            var query = "SELECT COUNT(*) FROM Permission WHERE Id IN @Ids";
+        
+            using (var connection = _context.CreateConnection())
+            {
+                int count = await connection.ExecuteScalarAsync<int>(query, new { Ids = permissionIds });
+                return count == permissionIds.Count;
+            }
+        }
+
+
         public async Task<bool> ExistPermissionByNameAsync(string name)
         {
             var query = "SELECT COUNT(1) FROM Permission WHERE Name = @Name";

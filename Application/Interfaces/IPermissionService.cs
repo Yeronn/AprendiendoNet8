@@ -18,5 +18,6 @@ namespace Application.Interfaces
         Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId);
         Task<IEnumerable<PermissionEntity>> GetUniquePermissionsByRoleIdsAsync(IEnumerable<int> roleIds);
         Task<PermissionResponseDto> ValidatePermissionExistsByIdAsync(int id);
+        Task<PermissionResponseDto> ValidatePermissionsExistAsync(List<int> permissionIds);
     }
 }

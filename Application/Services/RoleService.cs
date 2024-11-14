@@ -51,19 +51,24 @@ namespace Application.Services
 
             if (updateRoleDto.Name != currentRole!.Name)
             {
-                var availableName = await CheckRoleNameAvailabilityAsync(updateRoleDto.Name!);
-                if (!availableName.Success)
-                    return availableName;
-                await _roleRepository.UpdateRoleNameAsync(roleId, updateRoleDto.Name!);
+                var updatedName = await UpdateRoleNameAsync(roleId, updateRoleDto.Name!);
+                if (!updatedName.Success)
+                    return updatedName;
             }
 
             if (updateRoleDto.Description != currentRole.Description)
-                await _roleRepository.UpdateRoleDescriptionAsync(roleId, updateRoleDto.Description!);
-
-            var updatedPermissions = await UpdatePermissions(roleId, updateRoleDto.PermissionsIds);
-            if(!updatedPermissions.Success)
-                return updatedPermissions;
-
+            {
+                var updatedDescription = await UpdateRoleDescriptionAsync(roleId, updateRoleDto.Description!);
+                if (!updatedDescription.Success)
+                    return updatedDescription;
+            }
+                //TODO: Falta que deshaga la actualizacion del name, description en caso de que haya un error en los roles
+            if (!updateRoleDto.PermissionsIds!.Contains(0))
+            {
+                var updatedPermissions = await UpdateRolePermissions(roleId, updateRoleDto.PermissionsIds);
+                if(!updatedPermissions.Success)
+                    return updatedPermissions;
+            }
             var updatedRol = await GetRoleWithPermissionsByRolIdAsync(roleId);
             return new RoleResponseDto(true, "Rol actualizado exitosamente.", updatedRol);
         }
@@ -270,13 +275,17 @@ namespace Application.Services
         }
 
 
-        private async Task<RoleResponseDto> UpdatePermissions(int roleId, List<int> permissionsIds) {
-            
+        private async Task<RoleResponseDto> UpdateRolePermissions(int roleId, List<int> permissionsIds) 
+        {
+            var validatedPermissions = await _permissionService.ValidatePermissionsExistAsync(permissionsIds);
+            if (!validatedPermissions.Success)
+                return new RoleResponseDto(false, validatedPermissions.Message);
+
             var currentPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
             var currentPermissionsIds = currentPermissions.Select(p => p.Id).ToList();
 
             var permissionsToRemove = currentPermissionsIds.Except(permissionsIds).ToList();
-            if (permissionsToRemove.Any())
+            if (permissionsToRemove.Count != 0)
             {
                 var permissionsRemoved = await RemovePermissionsFromRoleAsync(roleId, permissionsToRemove);
                 if (!permissionsRemoved.Success)
@@ -284,7 +293,7 @@ namespace Application.Services
             }
 
             var permissionsToAdd = permissionsIds.Except(currentPermissionsIds).ToList();
-            if (permissionsToAdd.Any())
+            if (permissionsToAdd.Count != 0)
             {
                 var permissionsAssigned = await AssignPermissionsToRoleAsync(roleId, permissionsToAdd);
                 if (!permissionsAssigned.Success)
@@ -292,6 +301,29 @@ namespace Application.Services
             }
             return new RoleResponseDto(true, "Roles actualizados");
         }
-    }
 
+
+        private async Task<RoleResponseDto> UpdateRoleNameAsync(int roleId, string name)
+        {
+            var availableName = await CheckRoleNameAvailabilityAsync(name);
+            if (!availableName.Success)
+                return availableName;
+            var updatedRoleName = await _roleRepository.UpdateRoleNameAsync(roleId, name);
+            if (updatedRoleName)
+                return new RoleResponseDto(true, "Nombre del rol actualizado");
+            return new RoleResponseDto(false, "Error al actualizar el nombre del rol");
+        }
+
+
+        private async Task<RoleResponseDto> UpdateRoleDescriptionAsync(int roleId, string description)
+        {
+            bool updatedDescription = await _roleRepository.UpdateRoleDescriptionAsync(roleId, description);
+            if (updatedDescription)
+                return new RoleResponseDto(true, "La descripción se actualizó correctamente");
+            return new RoleResponseDto(false, "Error al actualizar la descripción");
+        }
+
+
+        
+    }
 }

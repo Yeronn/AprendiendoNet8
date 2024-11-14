@@ -17,6 +17,7 @@ namespace Domain.Interfaces
         Task<bool> UpdatePermissionDescriptionAsync(int id, string description);
         Task<bool> DeletePermissionAsync(int id);
         Task<bool> ExistPermissionByIdAsync(int id);
+        Task<bool> ExistPermissionsAsync(List<int> permissionIds);
         Task<bool> ExistPermissionByNameAsync(string name);
         Task<string?> GetPermissionNameAsync(int id);
         Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId);
