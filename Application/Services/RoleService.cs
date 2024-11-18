@@ -53,20 +53,25 @@ namespace Application.Services
             {
                 var updatedName = await UpdateRoleNameAsync(roleId, updateRoleDto.Name!);
                 if (!updatedName.Success)
-                    return updatedName;
+                {
+                    return new RoleResponseDto(Success: false, Message:"No se pudo actualizar el rol: " + updatedName.Message, IsConflict: updatedName.IsConflict);
+                }
             }
 
             if (updateRoleDto.Description != currentRole.Description)
             {
                 var updatedDescription = await UpdateRoleDescriptionAsync(roleId, updateRoleDto.Description!);
                 if (!updatedDescription.Success)
-                    return updatedDescription;
+                    await UpdateRoleNameAsync(roleId, currentRole.Name!);
+                    return new RoleResponseDto(false, "No se pudo actualizar el rol: " + updatedDescription.Message);
             }
                 //TODO: Falta que deshaga la actualizacion del name, description en caso de que haya un error en los roles
             if (!updateRoleDto.PermissionsIds!.Contains(0))
             {
                 var updatedPermissions = await UpdateRolePermissions(roleId, updateRoleDto.PermissionsIds);
                 if(!updatedPermissions.Success)
+                    await UpdateRoleNameAsync(roleId, currentRole.Name!);
+                    await UpdateRoleDescriptionAsync(roleId, currentRole.Description!);
                     return updatedPermissions;
             }
             var updatedRol = await GetRoleWithPermissionsByRolIdAsync(roleId);
@@ -238,7 +243,7 @@ namespace Application.Services
         {
             bool existingRoleName = await _roleRepository.ExistRoleByNameAsync(roleName);
             if (existingRoleName)
-                return new RoleResponseDto(false, "El Rol ya existe en el sistema", IsConflict: true);
+                return new RoleResponseDto(false, "El nombre del rol ya se encuentra usado en el sistema", IsConflict: true);
 
             return new RoleResponseDto(true, "Rol válido.");
         }
