@@ -62,17 +62,21 @@ namespace Application.Services
             {
                 var updatedDescription = await UpdateRoleDescriptionAsync(roleId, updateRoleDto.Description!);
                 if (!updatedDescription.Success)
+                {
                     await UpdateRoleNameAsync(roleId, currentRole.Name!);
                     return new RoleResponseDto(false, "No se pudo actualizar el rol: " + updatedDescription.Message);
+                }
             }
-                //TODO: Falta que deshaga la actualizacion del name, description en caso de que haya un error en los roles
+                
             if (!updateRoleDto.PermissionsIds!.Contains(0))
             {
                 var updatedPermissions = await UpdateRolePermissions(roleId, updateRoleDto.PermissionsIds);
                 if(!updatedPermissions.Success)
+                {
                     await UpdateRoleNameAsync(roleId, currentRole.Name!);
                     await UpdateRoleDescriptionAsync(roleId, currentRole.Description!);
-                    return updatedPermissions;
+                    return new RoleResponseDto(false, "No se pudo actualizar el rol: " + updatedPermissions.Message);
+                }
             }
             var updatedRol = await GetRoleWithPermissionsByRolIdAsync(roleId);
             return new RoleResponseDto(true, "Rol actualizado exitosamente.", updatedRol);
@@ -304,7 +308,7 @@ namespace Application.Services
                 if (!permissionsAssigned.Success)
                     return permissionsAssigned;
             }
-            return new RoleResponseDto(true, "Roles actualizados");
+            return new RoleResponseDto(true, "Permisos del rol actualizados");
         }
 
 
