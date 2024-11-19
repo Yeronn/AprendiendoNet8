@@ -16,6 +16,26 @@ namespace WebAPI.Controllers
         }
 
 
+        [HttpGet("getRoleAndPermissions/{id}")]
+        public async Task<IActionResult> GetRoleById(int id)
+        {
+            var role = await _roleService.GetRoleByRolIdAsync(id);
+            if (role == null)
+                return NotFound("El rol no existe en el sistema");
+            return Ok(role);
+        }
+
+
+        [HttpGet("getRolesAndPermissions")]
+        public async Task<IActionResult> GetAllRoles()
+        {
+            var roles = await _roleService.GetAllRolesAsync();
+            if (roles == null)
+                return NotFound("No hay roles en el sistema");
+            return Ok(roles);
+        }
+
+
         [HttpPost]
         public async Task<IActionResult> CreateRol([FromBody] CreateUpdateRoleDto createRole)
         {
@@ -69,9 +89,9 @@ namespace WebAPI.Controllers
 
 
         [HttpGet("get/{id}")]
-        public async Task<IActionResult> GetRolById(int id)
+        public async Task<IActionResult> GetRolWithoutPermissionsById(int id)
         {
-            var role = await _roleService.GetRoleByIdAsync(id);
+            var role = await _roleService.GetRoleWithoutPermissionsByIdAsync(id);
             if (role == null)
                 return NotFound("Rol no encontrado.");
             return Ok(role);
@@ -79,29 +99,9 @@ namespace WebAPI.Controllers
 
 
         [HttpGet("get")]
-        public async Task<IActionResult> GetAllRoles()
+        public async Task<IActionResult> GetAllRolesWithoutPermissions()
         {
-            var roles = await _roleService.GetAllRolesAsync();
-            if (roles == null)
-                return NotFound("No hay roles en el sistema");
-            return Ok(roles);
-        }
-
-
-        [HttpGet("getRoleAndPermissions/{id}")]
-        public async Task<IActionResult> GetRoleWithTheirPermissions(int id)
-        {
-            var role = await _roleService.GetRoleWithPermissionsByRolIdAsync(id);
-            if (role == null)
-                return NotFound("El rol no existe en el sistema");
-            return Ok(role);
-        }
-
-
-        [HttpGet("getRolesAndPermissions")]
-        public async Task<IActionResult> GetAllRolesWithTheirPermissions()
-        {
-            var roles = await _roleService.GetAllRolesWithPermissionsAsync();
+            var roles = await _roleService.GetAllRolesWithoutPermissionsAsync();
             if (roles == null)
                 return NotFound("No hay roles en el sistema");
             return Ok(roles);
@@ -156,7 +156,7 @@ namespace WebAPI.Controllers
         [HttpGet("rolesByPermission/{permissionId}")]
         public async Task<IActionResult> GetRolesByPermissionId(int permissionId)
         {
-            var roles = await _roleService.GetAllRolesByPermissionIdAsync(permissionId);
+            var roles = await _roleService.GetAllRolesWithoutPermissionsByPermissionIdAsync(permissionId);
             if (roles == null)
                 return NotFound($"El permiso con el id {permissionId} no existe");
             return Ok(roles);

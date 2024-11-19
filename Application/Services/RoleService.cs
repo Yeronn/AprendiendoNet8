@@ -17,8 +17,34 @@ namespace Application.Services
             _permissionService = permissionService;
         }
 
-        //? Hacer que en todos los metodos, si no se cumplen todas las condiciones y algo falla se restablezca los datos anteriores antes de la operaciones que hizo el usuario
-        //? Por ejemplo, en crear el rol, se crea el rol, pero luego puede fallar que se le asignen los permisos, entonces si falla tocaria borrar el rol creado
+
+        public async Task<RoleDto?> GetRoleByRolIdAsync(int id)
+        {
+            var role = await GetRoleWithoutPermissionsByIdAsync(id);
+            if (role == null)
+                return null;
+            var roleDto = role.ToRoleDto();
+            var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync(role.Id);
+            roleDto.Permissions = permissions.ToList();
+            return roleDto;
+        }
+
+
+        public async Task<IEnumerable<RoleDto>?> GetAllRolesAsync()
+        {
+            var roles = await _roleRepository.GetAllRolesAsync();
+            if (!roles.Any())
+                return null;
+
+            foreach (var role in roles)
+            {
+                var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync(role.Id);
+                role.Permissions = permissions.ToList();
+            }
+            return roles.Select(role => role.ToRoleDto());
+        }
+
+
         public async Task<RoleResponseDto> CreateRoleAsync(CreateUpdateRoleDto createRole)
         {
             var nameAvalible = await CheckRoleNameAvailabilityAsync(createRole.Name!);
@@ -38,14 +64,14 @@ namespace Application.Services
                     return new RoleResponseDto(false, "No se pudo crear el rol: " + assignedPermissions.Message);
                 return new RoleResponseDto(false, "Se creó el rol, pero ocurrió un error al asignarle permisos: " + assignedPermissions.Message);
             }
-            var createdRole = await GetRoleWithPermissionsByRolIdAsync((int)newRoleId);
+            var createdRole = await GetRoleByRolIdAsync((int)newRoleId);
             return new RoleResponseDto(true, "Rol creado exitosamente.", createdRole);
         }
 
 
         public async Task<RoleResponseDto> UpdateRoleAsync(int roleId, CreateUpdateRoleDto updateRoleDto)
         {
-            var currentRole = await GetRoleByIdAsync(roleId);
+            var currentRole = await GetRoleWithoutPermissionsByIdAsync(roleId);
             if (currentRole == null)
                 return new RoleResponseDto(false, "El rol no existe.", IsNotFound: true);
 
@@ -78,7 +104,7 @@ namespace Application.Services
                     return new RoleResponseDto(false, "No se pudo actualizar el rol: " + updatedPermissions.Message);
                 }
             }
-            var updatedRol = await GetRoleWithPermissionsByRolIdAsync(roleId);
+            var updatedRol = await GetRoleByRolIdAsync(roleId);
             return new RoleResponseDto(true, "Rol actualizado exitosamente.", updatedRol);
         }
 
@@ -113,7 +139,7 @@ namespace Application.Services
         }
 
 
-        public async Task<RoleWithoutPermissionsDto?> GetRoleByIdAsync(int roleId)
+        public async Task<RoleWithoutPermissionsDto?> GetRoleWithoutPermissionsByIdAsync(int roleId)
         {
             var roleExists = await ValidateRoleExistsByIdAsync(roleId);
             if (!roleExists.Success)
@@ -123,40 +149,13 @@ namespace Application.Services
         }
 
 
-        public async Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesAsync()
+        public async Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesWithoutPermissionsAsync()
         {
             var roles = await _roleRepository.GetAllRolesAsync();
             if (!roles.Any())
                 return null;
             var rolesDto = roles.Select(role => role.ToRoleWithoutPermissionsDto()).ToList();
             return rolesDto;
-        }
-
-
-        public async Task<RoleDto?> GetRoleWithPermissionsByRolIdAsync(int id)
-        {
-            var role = await GetRoleByIdAsync(id);
-            if (role == null)
-                return null;
-            var roleDto = role.ToRoleDto();
-            var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync(role.Id);
-            roleDto.Permissions = permissions.ToList();
-            return roleDto;
-        }
-
-
-        public async Task<IEnumerable<RoleDto>?> GetAllRolesWithPermissionsAsync()
-        {
-            var roles = await _roleRepository.GetAllRolesAsync();
-            if (!roles.Any())
-                return null;
-
-            foreach (var role in roles)
-            {
-                var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync(role.Id);
-                role.Permissions = permissions.ToList();
-            }
-            return roles.Select(role => role.ToRoleDto());
         }
 
 
@@ -192,7 +191,7 @@ namespace Application.Services
                 return roleExists;
 
             if(!permissionIds.Any())
-                return new RoleResponseDto(false, "Está tratando de eliminar permisos del rol, pero no envió los permisos", IsBadRequest: true);
+                return new RoleResponseDto(false, "No envió los permisos", IsBadRequest: true);
             
 
             // * Verify that role have the permissions to delete
@@ -210,7 +209,7 @@ namespace Application.Services
         }
 
 
-        public async Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesByPermissionIdAsync(int permissionId)
+        public async Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesWithoutPermissionsByPermissionIdAsync(int permissionId)
         {
             var permissionExists = await _permissionService.ValidatePermissionExistsByIdAsync(permissionId);
             if(!permissionExists.Success)
@@ -256,6 +255,7 @@ namespace Application.Services
         private async Task<List<int>> GetInvalidPermissionsAsync(List<int> permissionIds)
         {
             var invalidPermissions = new List<int>();
+            //TODO: Cambiar este foreach por una consulta en el repositorio que reciba una lsita de permisos
             foreach (var permissionId in permissionIds)
             {
                 var permissionExists = await _permissionService.ValidatePermissionExistsByIdAsync(permissionId);

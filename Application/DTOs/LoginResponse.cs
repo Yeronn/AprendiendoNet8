@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Application.DTOs.User
+﻿namespace Application.DTOs.User
 {
     public record LoginResponse(bool Success, string Message = null!, string token = null!, bool IsNotFound = false, bool IsBadRequest = false);
 }

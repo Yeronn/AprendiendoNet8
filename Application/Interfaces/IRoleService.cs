@@ -8,13 +8,13 @@ namespace Application.Interfaces
         Task<RoleResponseDto> CreateRoleAsync(CreateUpdateRoleDto createRole);
         Task<RoleResponseDto> UpdateRoleAsync(int id, CreateUpdateRoleDto updateRoleDto);
         Task<RoleResponseDto> DeleteRoleAsync(int id);
-        Task<RoleWithoutPermissionsDto?> GetRoleByIdAsync(int id);
-        Task<RoleDto?> GetRoleWithPermissionsByRolIdAsync(int id);
-        Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesAsync();
-        Task<IEnumerable<RoleDto>?> GetAllRolesWithPermissionsAsync();
+        Task<RoleDto?> GetRoleByRolIdAsync(int id);
+        Task<IEnumerable<RoleDto>?> GetAllRolesAsync();
+        Task<RoleWithoutPermissionsDto?> GetRoleWithoutPermissionsByIdAsync(int id);
+        Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesWithoutPermissionsAsync();
+        Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesWithoutPermissionsByPermissionIdAsync(int permissionId);
         Task<RoleResponseDto> AssignPermissionsToRoleAsync(int roleId, List<int> permissionIds);
         Task<RoleResponseDto> RemovePermissionsFromRoleAsync(int roleId, List<int> permissionIds);
-        Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesByPermissionIdAsync(int permissionId);
         Task<IEnumerable<RoleEntity>> GetAllRolesByUserIdAsync(int userId);
         Task<RoleResponseDto> ValidateRoleExistsByIdAsync(int id);
     }
