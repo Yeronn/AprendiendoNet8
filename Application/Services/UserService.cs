@@ -197,6 +197,43 @@ namespace Application.Services
         //TODO: Obtener todos los usuarios de un rol
 
 
+        public async Task<UserResponseDto> ValidateUsernameUniquenessAsync(string username)
+        {
+            if (string.IsNullOrWhiteSpace(username))
+                return new UserResponseDto(false, "El username no puede estar vacío.");
+
+            if (username.Length < 5 || username.Length > 50) //TODO: Parámetrizar estos valores
+                return new UserResponseDto(false, "El username debe tener entre 5 y 50 caracteres.");
+
+            var usernameIsUnique = await _userRepository.IsUsernameUniqueAsync(username);
+            if (!usernameIsUnique)
+                return new UserResponseDto(false, "El username ya se encuentra registrado.");
+
+            return new UserResponseDto(true, "El username es único.");
+        }
+
+
+        public async Task<RegistrationResponse> ValidateFullnameUniquenessAsync(string fullname)
+        {
+            if (string.IsNullOrWhiteSpace(fullname))
+                return new RegistrationResponse(false, "El nombre completo no puede estar vacío.");
+
+            if (!fullname.All(char.IsLetterOrDigit))
+                return new RegistrationResponse(false, "El nombre completo solo puede contener letras y números.");
+
+            var fullnameIsUnique = await _userRepository.IsFullnameUniqueAsync(fullname);
+            if (!fullnameIsUnique)
+                return new RegistrationResponse(false, "El nombre ya está en uso.");
+
+            return new RegistrationResponse(true, "El nombre es único.");
+        }
+
+
+
+
+
+
+
 
 
         private async Task<UserResponseDto> ValidateUserExistsByIdAsync(int id)

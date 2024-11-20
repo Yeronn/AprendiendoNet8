@@ -1,8 +1,5 @@
 ﻿using Application.DTOs;
-using Application.DTOs.User;
 using Application.Interfaces;
-using Application.Mappers;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -29,7 +26,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [Authorize(Roles = "User, Admin")]
+        // [Authorize(Roles = "User, Admin")]
         [HttpGet("getUser/{id}", Name ="getUser")]
         public async Task<ActionResult> GetUserById(int id)
         {

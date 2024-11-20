@@ -17,7 +17,7 @@ namespace Application.Services
         private readonly IUserRepository _userRepository;
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasherService _passwordHasher;
-        private readonly IRoleRepository _roleRepository;
+        private readonly IRoleRepository _roleRepository; //TODO: Usar el servicio y no el repositorio
 
         public AuthenticationService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasherService passwordHasher, IRoleRepository roleRepository)
         {

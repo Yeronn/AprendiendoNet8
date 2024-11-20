@@ -167,6 +167,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<bool> ExistUserByIdAsync(int id)
         {
             var query = "SELECT COUNT(1) FROM [User] WHERE Id = @Id";
@@ -178,6 +179,7 @@ namespace Infrastructure.Repositories
             }
         }
 
+
         public async Task<bool> ExistUserByFullNameAsync(string fullname)
         {
             var query = "SELECT COUNT(1) FROM [User] WHERE Fullname = @Fullname";
@@ -188,6 +190,7 @@ namespace Infrastructure.Repositories
                 return count > 0;
             }
         }
+
 
         public async Task<bool> ExistUserByUsernameAsync(string username)
         {
