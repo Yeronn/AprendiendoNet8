@@ -7,92 +7,97 @@ GO
 USE aplAnalitycsApiControl;
 GO
 
-CREATE TABLE Role (
+-- Create Empresas table
+CREATE TABLE Companies (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Name NVARCHAR(50) UNIQUE NOT NULL,
-    Description NVARCHAR(255)
+    Name VARCHAR(100) NOT NULL UNIQUE,
+    NIT VARCHAR(50) NOT NULL UNIQUE
 );
-GO
 
--- Crear tabla User
-CREATE TABLE [User] (
+-- Create Roles table (with new columns Status and CompanyId)
+CREATE TABLE Roles (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Username NVARCHAR(50) UNIQUE NOT NULL,
-    Password NVARCHAR(255) NOT NULL,
-    Fullname NVARCHAR(100),
-    LastJti NVARCHAR(255),
-    RoleId INT NULL,
-    CONSTRAINT FK_User_Role FOREIGN KEY (RoleId) REFERENCES Role(Id)
+    Name VARCHAR(100) NOT NULL UNIQUE,
+    Description TEXT,
+    Status BIT NOT NULL DEFAULT 1,  -- Active by default
+    CompanyId INT NOT NULL,
+    FOREIGN KEY (CompanyId) REFERENCES Companies(Id)
 );
-GO
 
--- Crear tabla Role
-
--- Crear tabla Permission
-CREATE TABLE Permission (
+-- Create Permissions table
+CREATE TABLE Permissions (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Name NVARCHAR(50) UNIQUE NOT NULL,
-    Description NVARCHAR(255)
+    Name VARCHAR(100) NOT NULL UNIQUE,
+    Description TEXT
 );
-GO
 
--- Crear tabla intermedia RolePermission (relaci�n muchos a muchos entre Role y Permission)
-CREATE TABLE RolePermission (
+-- Create RolePermission table (many-to-many relation between Roles and Permissions)
+CREATE TABLE RolePermissions (
     RoleId INT NOT NULL,
     PermissionId INT NOT NULL,
     PRIMARY KEY (RoleId, PermissionId),
-    FOREIGN KEY (RoleId) REFERENCES Role(Id),
-    FOREIGN KEY (PermissionId) REFERENCES Permission(Id)
+    FOREIGN KEY (RoleId) REFERENCES Roles(Id),
+    FOREIGN KEY (PermissionId) REFERENCES Permissions(Id)
 );
-GO
 
--- Insertar datos en la tabla Role
-INSERT INTO Role (Name, Description)
-VALUES
-    ('Admin', 'Administrator role with full permissions'),
-    ('Editor', 'Editor role with edit permissions'),
-    ('Viewer', 'Viewer role with read-only permissions'),
-    ('Moderator', 'Moderator role with limited permissions'),
-    ('Guest', 'Guest role with very limited access'),
-    ('SuperAdmin', 'Super Administrator with all permissions');
-GO
--- Insertar datos en la tabla User
-INSERT INTO [User] (Username, Password, Fullname, LastJti, RoleId)
-VALUES
-    ('john_doe', '$2a$10$Dow5c', 'John Doe', NULL, 1),
-    ('alice_smith', '$2a$10$Dow5c', 'Alice Smith', NULL, 2),
-    ('bruce_wayne', '$2a$10$Dow5c', 'Bruce Wayne', NULL, 3),
-    ('charlie', '$2a$10$Dow5c', 'Charlie Brown', NULL, 4),
-    ('lucy', '$2a$10$Dow5c', 'Lucy van Pelt', NULL, 5),
-    ('snoopy', '$2a$10$Dow5c', 'Snoopy', NULL, 6),
-    ('linus', '$2a$10$Dow5c', 'Linus Van Pelt', NULL, 5),
-    ('peppermint', '$2a$10$Dow5c', 'Peppermint Patty', NULL, 3);
-GO
+-- Create Users table with updated primary key (IdCardNit) and new fields
+CREATE TABLE Users (
+    IdCardNit int NOT NULL PRIMARY KEY,  -- Auto-incrementing Id
+    Id INT IDENTITY(1,1),  -- Auto-incrementing Id
+    FirstName VARCHAR(100) NOT NULL,
+    LastName VARCHAR(100) NOT NULL,
+    Email VARCHAR(100) NOT NULL UNIQUE,
+    Identification VARCHAR(50),
+    Password VARCHAR(255) NOT NULL,  -- Assuming hashed password
+    PasswordSalt VARCHAR(255) NOT NULL,  -- Assuming salt for password hashing
+    RoleId INT NOT NULL,  -- Foreign key to Roles
+    RegistrationDate DATETIME NOT NULL DEFAULT GETDATE(),  -- Date of registration
+    FOREIGN KEY (RoleId) REFERENCES Roles(Id)
+);
 
+-- Create Tokens table with nullable token fields
+CREATE TABLE Tokens (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Token VARCHAR(255) NULL,
+    RecoveryToken VARCHAR(255) NULL,  -- Can be NULL if not provided
+    UserId INT NOT NULL,  -- Foreign key to Users
+    FOREIGN KEY (UserId) REFERENCES Users(IdCardNit)
+);
 
--- Insertar datos en la tabla Permission
-INSERT INTO Permission (Name, Description)
-VALUES
-    ('Read', 'Permission to read data'),
-    ('Write', 'Permission to write data'),
-    ('Edit', 'Permission to edit data'),
-    ('Delete', 'Permission to delete data'),
-    ('AdminAccess', 'Full admin access to the system');
-GO
+-- Example: Inserting data into the Companies table
+INSERT INTO Companies (Name, NIT)
+VALUES 
+    ('Company A', '123456789'),
+    ('Company B', '987654321');
 
--- Asignar Permisos a Roles en la tabla RolePermission
-INSERT INTO RolePermission (RoleId, PermissionId)
+-- Example: Inserting data into the Roles table
+INSERT INTO Roles (Name, Description, Status, CompanyId)
 VALUES
-    (1, 1), -- Admin tiene permiso de lectura
-    (1, 2), -- Admin tiene permiso de escritura
-    (1, 3), -- Admin tiene permiso de edici�n
-    (1, 4), -- Admin tiene permiso de eliminaci�n
-    (1, 5), -- Admin tiene permiso de acceso completo
-    (2, 1), -- Editor tiene permiso de lectura
-    (2, 3), -- Editor tiene permiso de edici�n
-    (3, 1), -- Viewer tiene permiso de lectura
-    (4, 1), -- Moderator tiene permiso de lectura
-    (4, 3), -- Moderator tiene permiso de edici�n
-    (5, 1), -- Guest tiene permiso de lectura
-    (6, 5); -- SuperAdmin tiene acceso completo
-GO
+    ('Admin', 'Administrator Role', 1, 1),
+    ('User', 'Regular User Role', 1, 2);
+
+-- Example: Inserting data into the Permissions table
+INSERT INTO Permissions (Name, Description)
+VALUES
+    ('Read', 'Read Permission'),
+    ('Write', 'Write Permission'),
+    ('Delete', 'Delete Permission');
+
+-- Example: Inserting data into the RolePermissions table (many-to-many relation)
+INSERT INTO RolePermissions (RoleId, PermissionId)
+VALUES
+    (1, 1),  -- Admin gets Read permission
+    (1, 2),  -- Admin gets Write permission
+    (2, 1);  -- User gets Read permission
+
+-- Example: Inserting data into the Users table
+INSERT INTO Users (IdCardNit, FirstName, LastName, Email, Identification, Password, PasswordSalt, RoleId)
+VALUES
+    (123456789, 'John', 'Doe', 'john.doe@example.com', 'ID12345', 'hashedpassword1', 'salt1', 1),  -- Admin user
+    (987654321, 'Jane', 'Smith', 'jane.smith@example.com', 'ID54321', 'hashedpassword2', 'salt2', 2);  -- Regular user
+
+-- Example: Inserting data into the Tokens table
+INSERT INTO Tokens (Token, RecoveryToken, UserId)
+VALUES
+    ('token123', 'recoverytoken123', 123456789),
+    ('token456', NULL, 987654321);  -- User without recovery token

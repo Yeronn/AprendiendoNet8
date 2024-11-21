@@ -15,5 +15,6 @@ namespace Application.Interfaces
         Task<UserResponseDto> DeleteUserAsync(int userId);
         Task<IEnumerable<UserWithoutRolesDto>?> GetAllUsersByRoleIdAsync(int roleId);
         Task<UserResponseDto> ValidateUsernameUniquenessAsync(string username);
+        Task<RegistrationResponse> ValidateFullnameUniquenessAsync(string fullname);
     }
 }

@@ -15,13 +15,15 @@ namespace Application.Services
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IUserService _userService;
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasherService _passwordHasher;
         private readonly IRoleRepository _roleRepository; //TODO: Usar el servicio y no el repositorio
 
-        public AuthenticationService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasherService passwordHasher, IRoleRepository roleRepository)
+        public AuthenticationService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasherService passwordHasher, IRoleRepository roleRepository, IUserService userService)
         {
             _userRepository = userRepository;
+            _userService = userService;
             _passwordHasher = passwordHasher;
             _configuration = configuration;
             _roleRepository = roleRepository;
@@ -30,13 +32,13 @@ namespace Application.Services
 
         public async Task<RegistrationResponse> RegisterUser(RegisterUserDto newUser)
         {
-            var usernameIsUnique = await _userRepository.IsUsernameUniqueAsync(newUser.Username);
-            if (!usernameIsUnique)
-                return new RegistrationResponse(false, "El username ya se encuentra registrado");
+            var usernameValidation = await _userService.ValidateUsernameUniquenessAsync(newUser.Username);
+            if (!usernameValidation.Success)
+                return new RegistrationResponse(false, usernameValidation.Message);
             
-            bool fullnameIsUnique = await _userRepository.IsFullnameUniqueAsync(newUser.Fullname);
-            if (!fullnameIsUnique)
-                return new RegistrationResponse(false, "El nombre ya está en uso.");
+            var fullnameValidation = await _userService.ValidateFullnameUniquenessAsync(newUser.Fullname);
+            if (!fullnameValidation.Success)
+                return fullnameValidation;
 
             var hashedPassword = _passwordHasher.HashPassword(newUser.Password);
             newUser.Password = hashedPassword;

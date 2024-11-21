@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
                 if (!registrationResponse.Success)
                     return BadRequest(registrationResponse.Message);
 
-                return CreatedAtRoute("getUser", new { id = registrationResponse.Id }, registrationResponse);
+                return CreatedAtRoute("getUser", new { id = registrationResponse.Id }, registrationResponse); //TODO: Aplicar esto en los demás controladores que crean 
             }
             catch (Exception ex)
             {
