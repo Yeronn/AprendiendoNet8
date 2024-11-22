@@ -10,7 +10,9 @@ namespace Domain.Interfaces
         Task<bool> UpdateCompanyAsync(CompanyEntity company);
         Task<bool> DeleteCompanyAsync(int id);
         Task<bool> IsCompanyNameUniqueAsync(string name);
-        Task<bool> IsCompanyNITUniqueAsync(int nit);
+        Task<bool> IsCompanyNitUniqueAsync(int nit);
         Task<bool> CompanyExistsByIdAsync(int id);
+        Task<bool> UpdateCompanyNameAsync(int companyId, string newName);
+        Task<bool> UpdateCompanyNitAsync(int companyId, int newNIT);
     }
 }

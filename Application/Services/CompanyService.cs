@@ -18,13 +18,13 @@ namespace Application.Services
 
         public async Task<CompanyResponseDto> CreateCompanyAsync(CreateUpdateCompanyDto companyDto)
         {
-            bool isCompanyNameUnique = await _companyRepository.IsCompanyNameUniqueAsync(companyDto.Name!);
-            if (!isCompanyNameUnique)
-                return new CompanyResponseDto(false, "El nombre de la empresa ya se encuentra en uso.", IsConflict: true);
+            var availableName = await CheckCompanyNameAvailabilityAsync(companyDto.Name!);
+            if (!availableName.Success)
+                return availableName;
 
-            bool isCompanyNITUnique = await _companyRepository.IsCompanyNITUniqueAsync((int)companyDto.NIT!);
-            if (!isCompanyNITUnique)
-                return new CompanyResponseDto(false, "El nit de la empresa ya se encuentra usado.", IsConflict: true);
+            var availableNit = await CheckCompanyNitAvailabilityAsync((int)companyDto.NIT!);
+            if (!availableNit.Success)
+                return availableNit;
 
             var companyEntity = companyDto.ToEntity();
             var id = await _companyRepository.CreateCompanyAsync(companyEntity);
@@ -58,23 +58,23 @@ namespace Application.Services
         
         public async Task<CompanyResponseDto> UpdateCompanyAsync(int companyId, CreateUpdateCompanyDto companyDto)
         {
-            var companyExists = await ValidateCompanyExistsByIdAsync(companyId);
-            if (!companyExists.Success)
-                return companyExists;
+            var currentCompany = await GetCompanyByIdAsync(companyId);
+            if (currentCompany == null)
+                return new CompanyResponseDto(false, "La empresa no se encuentra en el sistema", IsNotFound: true);
 
-            bool isCompanyNameUnique = await _companyRepository.IsCompanyNameUniqueAsync(companyDto.Name!);
-            if (!isCompanyNameUnique)
-                return new CompanyResponseDto(false, "El nombre de la empresa ya se encuentra en uso.", IsConflict: true);
+            if (companyDto.Name != currentCompany.Name)
+            {
+                var updatedName = await UpdateCompanyNameAsync(companyId, companyDto.Name!);
+                if (!updatedName.Success)
+                    return updatedName;
+            }
 
-            bool isCompanyNITUnique = await _companyRepository.IsCompanyNITUniqueAsync((int)companyDto.NIT!);
-            if (!isCompanyNITUnique)
-                return new CompanyResponseDto(false, "El nit de la empresa ya se encuentra usado.", IsConflict: true);
-
-            var companyEntity = companyDto.ToEntity();
-            companyEntity.Id = companyId;
-            var success = await _companyRepository.UpdateCompanyAsync(companyEntity);
-            if (!success)
-                return new CompanyResponseDto(false, "Error mientras se actualiza la empresa.", IsBadRequest: true);
+            if (companyDto.NIT != currentCompany.NIT)
+            {
+                var updatedNit = await UpdateCompanyNitAsync(companyId, (int)companyDto.NIT!);
+                if (!updatedNit.Success)
+                return updatedNit;
+            }
 
             var updatedCompany = await GetCompanyByIdAsync(companyId);
             return new CompanyResponseDto(true, "Empresa actualizada correctamente.", updatedCompany);
@@ -105,6 +105,50 @@ namespace Application.Services
                 return new CompanyResponseDto(false, "La empresa no existe.", IsNotFound: true);
 
             return new CompanyResponseDto(true, "La empresa existe.");
+        }
+
+
+        private async Task<CompanyResponseDto> CheckCompanyNameAvailabilityAsync(string companyName)
+        {
+            bool nameUnique = await _companyRepository.IsCompanyNameUniqueAsync(companyName);
+            if (!nameUnique)
+                return new CompanyResponseDto(false, "Nombre no disponible", IsConflict: true);
+
+            return new CompanyResponseDto(true, "Nombre válido.");
+        }
+
+
+        private async Task<CompanyResponseDto> CheckCompanyNitAvailabilityAsync(int companyNit)
+        {
+            bool nameUnique = await _companyRepository.IsCompanyNitUniqueAsync(companyNit);
+            if (!nameUnique)
+                return new CompanyResponseDto(false, "Nit no disponible", IsConflict: true);
+
+            return new CompanyResponseDto(true, "Nit válido.");
+        }
+
+
+        private async Task<CompanyResponseDto> UpdateCompanyNameAsync(int companyId, string name)
+        {
+            var availableName = await CheckCompanyNameAvailabilityAsync(name);
+            if (!availableName.Success)
+                return availableName;
+            bool updatedCompanyName = await _companyRepository.UpdateCompanyNameAsync(companyId, name);
+            if (updatedCompanyName)
+                return new CompanyResponseDto(true, "Nombre de la empresa actualizado");
+            return new CompanyResponseDto(false, "Error al actualizar el nombre de la empresa");
+        }
+
+
+        private async Task<CompanyResponseDto> UpdateCompanyNitAsync(int companyId, int nit)
+        {
+            var availableNit = await CheckCompanyNitAvailabilityAsync(nit);
+            if (!availableNit.Success)
+                return availableNit;
+            bool updatedCompanyNit = await _companyRepository.UpdateCompanyNitAsync(companyId, nit);
+            if (updatedCompanyNit)
+                return new CompanyResponseDto(true, "Nit de la empresa actualizado");
+            return new CompanyResponseDto(false, "Error al actualizar el NIT de la empresa");
         }
 
     }

@@ -87,7 +87,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> IsCompanyNITUniqueAsync(int nit)
+        public async Task<bool> IsCompanyNitUniqueAsync(int nit)
         {
             var query = "SELECT COUNT(1) FROM Companies WHERE NIT = @NIT";
 
@@ -109,5 +109,28 @@ namespace Infrastructure.Repositories
                 return count > 0;
             }
         }
+
+
+        public async Task<bool> UpdateCompanyNameAsync(int companyId, string newName)
+        {
+            var query = "UPDATE Companies SET Name = @NewName WHERE Id = @CompanyId";
+            using (var connection = _context.CreateConnection())
+            {
+                int rowsAffected = await connection.ExecuteAsync(query, new { NewName = newName, CompanyId = companyId });
+                return rowsAffected > 0; 
+            }
+        }
+
+
+        public async Task<bool> UpdateCompanyNitAsync(int companyId, int newNIT)
+        {
+            var query = "UPDATE Companies SET NIT = @NewNIT WHERE Id = @CompanyId";
+            using (var connection = _context.CreateConnection())
+            {
+                int rowsAffected = await connection.ExecuteAsync(query, new { NewNIT = newNIT, CompanyId = companyId });
+                return rowsAffected > 0;
+            }
+        }
+
     }
 }
