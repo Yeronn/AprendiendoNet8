@@ -1,13 +1,13 @@
-using Application.DTOs.Companies;
+using Application.DTOs.Company;
 
 namespace Application.Interfaces
 {
     public interface ICompanyService
     {
-        Task<CompanyResponseDTO> CreateCompanyAsync(CompanyDto companyDto);
-        Task<CompanyResponseDTO> GetCompanyByIdAsync(int id);
-        Task<CompanyResponseDTO> GetAllCompaniesAsync();
-        Task<CompanyResponseDTO> UpdateCompanyAsync(CompanyDto companyDto);
-        Task<CompanyResponseDTO> DeleteCompanyAsync(int id);
+        Task<CompanyResponseDto> CreateCompanyAsync(CreateUpdateCompanyDto companyDto);
+        Task<CompanyDto?> GetCompanyByIdAsync(int id);
+        Task<IEnumerable<CompanyDto>?> GetAllCompaniesAsync();
+        Task<CompanyResponseDto> UpdateCompanyAsync(int companyId, CreateUpdateCompanyDto companyDto);
+        Task<CompanyResponseDto> DeleteCompanyAsync(int id);
     }
 }

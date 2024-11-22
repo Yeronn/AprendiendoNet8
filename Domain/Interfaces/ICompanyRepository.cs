@@ -6,12 +6,11 @@ namespace Domain.Interfaces
     {
         Task<IEnumerable<CompanyEntity>> GetAllCompaniesAsync();
         Task<CompanyEntity?> GetCompanyByIdAsync(int id);
-        Task<int?> CreateCompanyAsync(CompanyEntity company);
+        Task<int> CreateCompanyAsync(CompanyEntity company);
         Task<bool> UpdateCompanyAsync(CompanyEntity company);
         Task<bool> DeleteCompanyAsync(int id);
-
-        // Métodos de validación de unicidad
         Task<bool> IsCompanyNameUniqueAsync(string name);
-        Task<bool> IsCompanyNITUniqueAsync(string nit);
+        Task<bool> IsCompanyNITUniqueAsync(int nit);
+        Task<bool> CompanyExistsByIdAsync(int id);
     }
 }

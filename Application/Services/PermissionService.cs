@@ -58,6 +58,7 @@ namespace Application.Services
             var currentPermission = await _permissionRepository.GetPermissionByIdAsync(id);
             var updatePermissionEntity = updatePermission.ToPermissionEntity();
 
+            //TODO: Hacer esta validacion con data notation
             if (!string.IsNullOrEmpty(updatePermissionEntity.Name) && updatePermissionEntity.Name != currentPermission!.Name)
             {
                 var availableName = await CheckPermissionNameAvailabilityAsync(updatePermissionEntity.Name);

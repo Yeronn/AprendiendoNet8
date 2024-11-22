@@ -36,6 +36,7 @@ namespace Application.Services
             if (!roles.Any())
                 return null;
 
+            //TODO: Quitar el foreach y hacer una consulta en el repositorio que haga esto una sola vez
             foreach (var role in roles)
             {
                 var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync(role.Id);

@@ -11,7 +11,7 @@ GO
 CREATE TABLE Companies (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Name VARCHAR(100) NOT NULL UNIQUE,
-    NIT VARCHAR(50) NOT NULL UNIQUE
+    NIT INT NOT NULL UNIQUE
 );
 
 -- Create Roles table (with new columns Status and CompanyId)
@@ -35,6 +35,7 @@ CREATE TABLE Permissions (
 CREATE TABLE RolePermissions (
     RoleId INT NOT NULL,
     PermissionId INT NOT NULL,
+    AssignmentDate DATE NOT NULL DEFAULT GETDATE(),
     PRIMARY KEY (RoleId, PermissionId),
     FOREIGN KEY (RoleId) REFERENCES Roles(Id),
     FOREIGN KEY (PermissionId) REFERENCES Permissions(Id)
@@ -42,12 +43,12 @@ CREATE TABLE RolePermissions (
 
 -- Create Users table with updated primary key (IdCardNit) and new fields
 CREATE TABLE Users (
-    IdCardNit int NOT NULL PRIMARY KEY,  -- Auto-incrementing Id
+    IdCardNit INT NOT NULL PRIMARY KEY,  
     Id INT IDENTITY(1,1),  -- Auto-incrementing Id
     FirstName VARCHAR(100) NOT NULL,
     LastName VARCHAR(100) NOT NULL,
-    Email VARCHAR(100) NOT NULL UNIQUE,
-    Identification VARCHAR(50),
+    Email VARCHAR(100) NOT NULL,
+    Identification VARCHAR(50) NOT NULL,
     Password VARCHAR(255) NOT NULL,  -- Assuming hashed password
     PasswordSalt VARCHAR(255) NOT NULL,  -- Assuming salt for password hashing
     RoleId INT NOT NULL,  -- Foreign key to Roles
@@ -58,46 +59,54 @@ CREATE TABLE Users (
 -- Create Tokens table with nullable token fields
 CREATE TABLE Tokens (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Token VARCHAR(255) NULL,
+    LastJti VARCHAR(255) NULL,
     RecoveryToken VARCHAR(255) NULL,  -- Can be NULL if not provided
     UserId INT NOT NULL,  -- Foreign key to Users
     FOREIGN KEY (UserId) REFERENCES Users(IdCardNit)
 );
 
--- Example: Inserting data into the Companies table
+
+-- Insertar datos en la tabla Companies
 INSERT INTO Companies (Name, NIT)
 VALUES 
-    ('Company A', '123456789'),
-    ('Company B', '987654321');
+    ('Tech Solutions Inc.', 123456789),
+    ('Global Enterprises', 987654321),
+    ('Innovatech Ltd.', 567890123);
 
--- Example: Inserting data into the Roles table
+-- Insertar datos en la tabla Roles
 INSERT INTO Roles (Name, Description, Status, CompanyId)
 VALUES
     ('Admin', 'Administrator Role', 1, 1),
-    ('User', 'Regular User Role', 1, 2);
+    ('Manager', 'Manager Role', 1, 2),
+    ('User', 'Regular User Role', 1, 3);
 
--- Example: Inserting data into the Permissions table
+-- Insertar datos en la tabla Permissions
 INSERT INTO Permissions (Name, Description)
 VALUES
-    ('Read', 'Read Permission'),
-    ('Write', 'Write Permission'),
-    ('Delete', 'Delete Permission');
+    ('Read', 'Permission to read data'),
+    ('Write', 'Permission to write data'),
+    ('Delete', 'Permission to delete data');
 
--- Example: Inserting data into the RolePermissions table (many-to-many relation)
-INSERT INTO RolePermissions (RoleId, PermissionId)
+-- Insertar datos en la tabla RolePermissions (asignando permisos a roles)
+INSERT INTO RolePermissions (RoleId, PermissionId, AssignmentDate)
 VALUES
-    (1, 1),  -- Admin gets Read permission
-    (1, 2),  -- Admin gets Write permission
-    (2, 1);  -- User gets Read permission
+    (1, 1, '2024-10-01'),  -- Admin tiene permiso de lectura
+    (1, 2, '2024-10-02'),  -- Admin tiene permiso de escritura
+    (2, 1, '2024-10-03'),  -- Manager tiene permiso de lectura
+    (3, 1, '2024-10-04');  -- User tiene permiso de lectura
 
--- Example: Inserting data into the Users table
+-- Insertar datos en la tabla Users
 INSERT INTO Users (IdCardNit, FirstName, LastName, Email, Identification, Password, PasswordSalt, RoleId)
 VALUES
-    (123456789, 'John', 'Doe', 'john.doe@example.com', 'ID12345', 'hashedpassword1', 'salt1', 1),  -- Admin user
-    (987654321, 'Jane', 'Smith', 'jane.smith@example.com', 'ID54321', 'hashedpassword2', 'salt2', 2);  -- Regular user
+    (10101010, 'John', 'Doe', 'john.doe@example.com', 'JD123456', 'hashedpassword1', 'salt1', 1),  -- Admin
+    (20202020, 'Jane', 'Smith', 'jane.smith@example.com', 'JS654321', 'hashedpassword2', 'salt2', 2),  -- Manager
+    (30303030, 'Alice', 'Johnson', 'alice.johnson@example.com', 'AJ987654', 'hashedpassword3', 'salt3', 3),  -- User
+    (40404040, 'Bob', 'Williams', 'bob.williams@example.com', 'BW111222', 'hashedpassword4', 'salt4', 3);  -- User sin permisos adicionales
 
--- Example: Inserting data into the Tokens table
-INSERT INTO Tokens (Token, RecoveryToken, UserId)
+-- Insertar datos en la tabla Tokens (vinculados a usuarios específicos)
+INSERT INTO Tokens (LastJti, RecoveryToken, UserId)
 VALUES
-    ('token123', 'recoverytoken123', 123456789),
-    ('token456', NULL, 987654321);  -- User without recovery token
+    ('jti-token-123', 'recovery-token-abc', 10101010),  -- Token para John Doe (Admin)
+    ('jti-token-456', NULL, 20202020),  -- Token para Jane Smith (Manager)
+    ('jti-token-789', 'recovery-token-xyz', 30303030),  -- Token para Alice Johnson (User)
+    (NULL, NULL, 40404040);  -- Bob Williams sin tokens

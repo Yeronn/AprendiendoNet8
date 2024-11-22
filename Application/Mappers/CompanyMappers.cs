@@ -1,22 +1,32 @@
-using Application.DTOs.Companies;
+using Application.DTOs.Company;
 using Domain.Entities;
 
 namespace Application.Mappers
 {
-    public class CompanyMappers
+    public static class CompanyMappers
     {
-        public static CompanyEntity ToEntity(CompanyDto dto)
+        public static CompanyEntity ToEntity(this CompanyDto dto)
         {
             return new CompanyEntity
             {
                 Id = dto.Id ?? 0, 
-                Name = dto.Name ?? string.Empty,
-                NIT = dto.NIT ?? string.Empty
+                Name = dto.Name,
+                NIT = dto.NIT
             };
         }
 
-        
-        public static CompanyDto ToDto(CompanyEntity company)
+
+        public static CompanyEntity ToEntity(this CreateUpdateCompanyDto dto)
+        {
+            return new CompanyEntity
+            {
+                Name = dto.Name,
+                NIT = dto.NIT
+            };
+        }
+
+
+        public static CompanyDto ToDto(this CompanyEntity company)
         {
             return new CompanyDto
             {
@@ -25,5 +35,6 @@ namespace Application.Mappers
                 NIT = company.NIT
             };
         }
+
     }
 }
