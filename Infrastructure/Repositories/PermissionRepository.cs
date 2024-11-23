@@ -16,7 +16,7 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<PermissionEntity>> GetAllPermissionsAsync()
         {
-            var query = "SELECT * FROM Permission";
+            var query = "SELECT * FROM Permissions";
 
             using (var connection = _context.CreateConnection())
             {
@@ -27,7 +27,7 @@ namespace Infrastructure.Repositories
 
         public async Task<PermissionEntity?> GetPermissionByIdAsync(int id)
         {
-            var query = "SELECT * FROM Permission WHERE Id = @Id";
+            var query = "SELECT * FROM Permissions WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
@@ -38,7 +38,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> CreatePermissionAsync(PermissionEntity permission)
         {
-            var query = "INSERT INTO Permission (Name, Description) VALUES (@Name, @Description);" +
+            var query = "INSERT INTO Permissions (Name, Description) VALUES (@Name, @Description);" +
                         "SELECT CAST(SCOPE_IDENTITY() as int);";
 
             using (var connection = _context.CreateConnection())
@@ -56,7 +56,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> UpdatePermissionAsync(PermissionEntity permission)
         {
-            var query = "UPDATE Permission SET Name = @Name, Description = @Description WHERE Id = @Id";
+            var query = "UPDATE Permissions SET Name = @Name, Description = @Description WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
@@ -68,7 +68,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> UpdatePermissionNameAsync(int id, string name)
         {
-            var query = "UPDATE Permission SET Name = @Name WHERE Id = @Id";
+            var query = "UPDATE Permissions SET Name = @Name WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
@@ -81,7 +81,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> UpdatePermissionDescriptionAsync(int id, string description)
         {
-            var query = "UPDATE Permission SET Description = @Description WHERE Id = @Id";
+            var query = "UPDATE Permissions SET Description = @Description WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
@@ -94,7 +94,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> DeletePermissionAsync(int id)
         {
-            var query = "DELETE FROM Permission WHERE Id = @Id";
+            var query = "DELETE FROM Permissions WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
@@ -106,7 +106,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> ExistPermissionByIdAsync(int id)
         {
-            var query = "SELECT COUNT(1) FROM Permission WHERE Id = @Id";
+            var query = "SELECT COUNT(1) FROM Permissions WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
@@ -118,7 +118,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> ExistPermissionsAsync(List<int> permissionIds)
         {
-            var query = "SELECT COUNT(*) FROM Permission WHERE Id IN @Ids";
+            var query = "SELECT COUNT(*) FROM Permissions WHERE Id IN @Ids";
         
             using (var connection = _context.CreateConnection())
             {
@@ -130,7 +130,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> ExistPermissionByNameAsync(string name)
         {
-            var query = "SELECT COUNT(1) FROM Permission WHERE Name = @Name";
+            var query = "SELECT COUNT(1) FROM Permissions WHERE Name = @Name";
             using (var connection = _context.CreateConnection())
             {
                 var count = await connection.ExecuteScalarAsync<int>(query, new { Name = name });
@@ -141,7 +141,7 @@ namespace Infrastructure.Repositories
 
         public async Task<string?> GetPermissionNameAsync(int id)
         {
-            var query = "SELECT Name FROM Permission WHERE Id = @Id";
+            var query = "SELECT Name FROM Permissions WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
@@ -153,8 +153,8 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId)
         {
-            var query = @"SELECT p.* FROM Permission p
-                         JOIN RolePermission rp ON p.Id = rp.PermissionId
+            var query = @"SELECT p.* FROM Permissions p
+                         JOIN RolePermissions rp ON p.Id = rp.PermissionId
                          WHERE rp.RoleId = @RoleId";
 
             using (var connection = _context.CreateConnection())
@@ -165,24 +165,9 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<IEnumerable<PermissionEntity>> GetPermissionsByRoleIdsAsync(IEnumerable<int> roleIds)
-        {
-            // Get unique permissions
-            var query = @"SELECT DISTINCT p.* 
-                        FROM Permission p
-                        INNER JOIN RolePermission rp ON p.Id = rp.PermissionId
-                        WHERE rp.RoleId IN @RoleIds";
-            
-            using (var connection = _context.CreateConnection())
-            {
-                return await connection.QueryAsync<PermissionEntity>(query, new { RoleIds = roleIds });
-            }
-        }
-
-
         public async Task<bool> IsPermissionNotAssignedToAnyRoleAsync(int permissionId)
         {
-            var query = "SELECT COUNT(1) FROM RolePermission WHERE PermissionId = @PermissionId";
+            var query = "SELECT COUNT(1) FROM RolePermissions WHERE PermissionId = @PermissionId";
 
             using (var connection = _context.CreateConnection())
             {

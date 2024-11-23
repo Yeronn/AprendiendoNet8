@@ -38,7 +38,7 @@ namespace WebAPI.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreatePermission([FromBody] CreatePermissionDto createPermission)
+        public async Task<IActionResult> CreatePermission([FromBody] CreateUpdatePermissionDto createPermission)
         {
             if (!ModelState.IsValid)
             {
@@ -62,7 +62,7 @@ namespace WebAPI.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdatePermission(int id, [FromBody] UpdatePermissionDto permissionDto)
+        public async Task<IActionResult> UpdatePermission(int id, [FromBody] CreateUpdatePermissionDto permissionDto)
         {
             if (!ModelState.IsValid) //TODO: Investigar porque cuando se hace una peticion con datos faltantes no entra al controlador si no que de una da error
             {
@@ -116,20 +116,7 @@ namespace WebAPI.Controllers
             return Ok(permissions);
         }
 
-
-        [HttpPost("get-permissions-by-roles")]
-        public async Task<IActionResult> GetPermissionsByRoles([FromBody] List<int> roleIds)
-        {
-            if (roleIds == null || roleIds.Count == 0)
-                return BadRequest("La lista de IDs de roles no puede estar vacía.");
-
-            var permissions = await _permissionService.GetUniquePermissionsByRoleIdsAsync(roleIds);
-
-            if (permissions == null || !permissions.Any())
-                return NotFound("No se encontraron permisos para los roles proporcionados.");
-
-            return Ok(permissions);
-        }
+        
 
     }
 }

@@ -3,6 +3,7 @@ using Application.Interfaces;
 using Application.Mappers;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Application.Services
 {
@@ -21,60 +22,59 @@ namespace Application.Services
             var permissions = await _permissionRepository.GetAllPermissionsAsync();
             if (!permissions.Any())
                 return null;
-            var permissionsDto = permissions.Select(permission => permission.ToPermissionDto());
+            var permissionsDto = permissions.Select(permission => permission.ToDto());
             return permissionsDto.ToList();
         }
 
 
-        public async Task<PermissionEntity?> GetPermissionByIdAsync(int id)
+        public async Task<PermissionDto?> GetPermissionByIdAsync(int id)
         {
-            return await _permissionRepository.GetPermissionByIdAsync(id);
+            var permissionExists = await ValidatePermissionExistsByIdAsync(id);
+            if (!permissionExists.Success)
+                return null;
+            var permission = await _permissionRepository.GetPermissionByIdAsync(id);
+            return permission!.ToDto();
         }
 
 
-        public async Task<PermissionResponseDto> CreatePermissionAsync(CreatePermissionDto createPermission)
+        public async Task<PermissionResponseDto> CreatePermissionAsync(CreateUpdatePermissionDto createPermissionDto)
         {
-            var nameAvalible = await CheckPermissionNameAvailabilityAsync(createPermission.Name!);
+            var nameAvalible = await CheckPermissionNameAvailabilityAsync(createPermissionDto.Name!);
             if (!nameAvalible.Success)
                 return nameAvalible;
 
-            PermissionEntity permissionEntity = createPermission.ToEntity();
+            PermissionEntity permissionEntity = createPermissionDto.ToEntity();
 
             bool success = await _permissionRepository.CreatePermissionAsync(permissionEntity);
             return success
-                    ? new PermissionResponseDto(true, "Permiso creado exitosamente.", permissionEntity.ToPermissionDto())
+                    ? new PermissionResponseDto(true, "Permiso creado exitosamente.", permissionEntity.ToDto())
                     : new PermissionResponseDto(false, "Error al crear el permiso");
         }
 
 
-        public async Task<PermissionResponseDto> UpdatePermissionAsync(int id, UpdatePermissionDto updatePermission)
+        public async Task<PermissionResponseDto> UpdatePermissionAsync(int id, CreateUpdatePermissionDto updatePermissionDto)
         {
-            updatePermission.Id = id;
-
             var permissionExist = await ValidatePermissionExistsByIdAsync(id);
             if (!permissionExist.Success)
                 return permissionExist;
 
             var currentPermission = await _permissionRepository.GetPermissionByIdAsync(id);
-            var updatePermissionEntity = updatePermission.ToPermissionEntity();
+            var updatePermissionEntity = updatePermissionDto.ToEntity();
+            updatePermissionEntity.Id = id;
 
-            //TODO: Hacer esta validacion con data notation
-            if (!string.IsNullOrEmpty(updatePermissionEntity.Name) && updatePermissionEntity.Name != currentPermission!.Name)
+            if (updatePermissionEntity.Name != currentPermission!.Name)
             {
-                var availableName = await CheckPermissionNameAvailabilityAsync(updatePermissionEntity.Name);
+                var availableName = await CheckPermissionNameAvailabilityAsync(updatePermissionEntity.Name!);
                 if (!availableName.Success)
                     return availableName;
-                await _permissionRepository.UpdatePermissionNameAsync(id, updatePermissionEntity.Name);
+                await _permissionRepository.UpdatePermissionNameAsync(id, updatePermissionEntity.Name!);
             }
-            else
-                updatePermissionEntity.Name = currentPermission!.Name;
 
-            if (!string.IsNullOrEmpty(updatePermissionEntity.Description) && updatePermissionEntity.Description != currentPermission?.Description)
-                await _permissionRepository.UpdatePermissionDescriptionAsync(id, updatePermissionEntity.Description);
-            else
-                updatePermissionEntity.Description = currentPermission?.Description;
+            if (!updatePermissionEntity.Description.IsNullOrEmpty() && updatePermissionEntity.Description != currentPermission?.Description)
+                await _permissionRepository.UpdatePermissionDescriptionAsync(id, updatePermissionEntity.Description!);
             
-            return new PermissionResponseDto(true, "Permiso actualizado exitosamente.", updatePermissionEntity.ToPermissionDto());
+            var updatedPermission = await GetPermissionByIdAsync(id);
+            return new PermissionResponseDto(true, "Permiso actualizado exitosamente.", updatedPermission);
         }
 
 
@@ -96,25 +96,10 @@ namespace Application.Services
         }
 
 
-        public async Task<IEnumerable<PermissionEntity>> GetAllPermissionsByRoleIdAsync(int roleId)
+        public async Task<IEnumerable<PermissionDto>> GetAllPermissionsByRoleIdAsync(int roleId)
         {
-            //TODO: Validar que el role exista
             var permissionsByRol = await _permissionRepository.GetAllPermissionsByRoleIdAsync(roleId);
-            return permissionsByRol;
-        }
-
-
-        public async Task<IEnumerable<PermissionEntity>> GetUniquePermissionsByRoleIdsAsync(IEnumerable<int> roleIds)
-        {
-            var permissions = await _permissionRepository.GetPermissionsByRoleIdsAsync(roleIds);
-
-            //* verify that permissions are unique
-            var uniquePermissions = permissions
-                .GroupBy(permission => permission.Id)
-                .Select(group => group.First())
-                .ToList();
-
-            return uniquePermissions;
+            return permissionsByRol.Select(p => p.ToDto());
         }
 
 

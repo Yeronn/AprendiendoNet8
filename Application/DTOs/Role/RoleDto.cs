@@ -8,6 +8,6 @@ namespace Application.DTOs
         public int? Id { get; set; }
         public string? Name { get; set; }
         public string? Description { get; set; }
-        public List<PermissionEntity> Permissions { get; set; } = [];
+        public List<PermissionDto> Permissions { get; set; } = [];
     }
 }

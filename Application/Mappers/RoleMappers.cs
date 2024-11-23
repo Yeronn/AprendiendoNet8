@@ -26,14 +26,14 @@ namespace Application.Mappers
         }
 
 
-        public static RoleDto ToRoleDto(this RoleEntity roleEntity)
+        public static RoleDto ToDto(this RoleEntity roleEntity)
         {
             return new RoleDto
             {
                 Id = roleEntity.Id,
                 Name = roleEntity.Name,
                 Description = roleEntity.Description,
-                Permissions = roleEntity.Permissions
+                Permissions = roleEntity.Permissions.Select(p => p.ToDto()).ToList()
             };
         }
 

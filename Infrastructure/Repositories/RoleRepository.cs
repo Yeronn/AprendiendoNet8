@@ -17,7 +17,7 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<RoleEntity>> GetAllRolesAsync()
         {
-            var query = "SELECT * FROM Role";
+            var query = "SELECT * FROM Roles";
             using (var connection = _context.CreateConnection())
             {
                 var roles = await connection.QueryAsync<RoleEntity>(query);
@@ -28,7 +28,7 @@ namespace Infrastructure.Repositories
 
         public async Task<RoleEntity?> GetRoleByIdAsync(int id)
         {
-            var query = "SELECT * FROM Role WHERE Id = @Id";
+            var query = "SELECT * FROM Roles WHERE Id = @Id";
             using (var connection = _context.CreateConnection())
             {
                 var role = await connection.QuerySingleOrDefaultAsync<RoleEntity>(query, new { Id = id });
@@ -39,7 +39,7 @@ namespace Infrastructure.Repositories
 
         public async Task<int?> CreateRoleAsync(RoleEntity role)
         {
-            var query = "INSERT INTO Role (Name, Description) VALUES (@Name, @Description); SELECT CAST(SCOPE_IDENTITY() as int);";
+            var query = "INSERT INTO Roles (Name, Description) VALUES (@Name, @Description); SELECT CAST(SCOPE_IDENTITY() as int);";
             using (var connection = _context.CreateConnection())
             {
                 var id = await connection.ExecuteScalarAsync<int>(query, new { role.Name, role.Description });
@@ -54,7 +54,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> UpdateRoleAsync(RoleEntity role)
         {
-            var query = "UPDATE Role SET Name = @Name, Description = @Description WHERE Id = @Id";
+            var query = "UPDATE Roles SET Name = @Name, Description = @Description WHERE Id = @Id";
             using (var connection = _context.CreateConnection())
             {
                 var affectedRows = await connection.ExecuteAsync(query, role);
@@ -65,7 +65,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> UpdateRoleNameAsync(int id, string name)
         {
-            var query = "UPDATE Role SET Name = @Name WHERE Id = @Id";
+            var query = "UPDATE Roles SET Name = @Name WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
@@ -78,7 +78,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> UpdateRoleDescriptionAsync(int id, string description)
         {
-            var query = "UPDATE Role SET Description = @Description WHERE Id = @Id";
+            var query = "UPDATE Roles SET Description = @Description WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
@@ -91,7 +91,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> DeleteRoleAsync(int id)
         {
-            var query = "DELETE FROM Role WHERE Id = @Id";
+            var query = "DELETE FROM Roles WHERE Id = @Id";
             using (var connection = _context.CreateConnection())
             {
                 var affectedRows = await connection.ExecuteAsync(query, new { Id = id });
@@ -102,7 +102,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> ExistRoleByIdAsync(int id)
         {
-            var query = "SELECT COUNT(1) FROM Role WHERE Id = @Id";
+            var query = "SELECT COUNT(1) FROM Roles WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
@@ -114,7 +114,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> ExistRoleByNameAsync(string name)
         {
-            var query = "SELECT COUNT(1) FROM Role WHERE Name = @Name";
+            var query = "SELECT COUNT(1) FROM Roles WHERE Name = @Name";
 
             using (var connection = _context.CreateConnection())
             {
@@ -126,7 +126,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> AddPermissionsToRoleAsync(int roleId, List<int> permissionIds)
         {
-            var query = "INSERT INTO RolePermission (RoleId, PermissionId) VALUES (@RoleId, @PermissionId)";
+            var query = "INSERT INTO RolePermissions (RoleId, PermissionId) VALUES (@RoleId, @PermissionId)";
             using (var connection = _context.CreateConnection())
             {
                 var parameters = permissionIds.Select(permissionId => new { RoleId = roleId, PermissionId = permissionId }).ToList();
@@ -140,7 +140,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> RemovePermissionsFromRoleAsync(int roleId, List<int> permissionIds)
         {
-            var query = "DELETE FROM RolePermission WHERE RoleId = @RoleId AND PermissionId IN @PermissionIds";
+            var query = "DELETE FROM RolePermissions WHERE RoleId = @RoleId AND PermissionId IN @PermissionIds";
 
             using (var connection = _context.CreateConnection())
             {
@@ -158,8 +158,8 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<RoleEntity>> GetAllRolesByPermissionIdAsync(int permissionId) 
         {
-            var query = @"SELECT r.* FROM Role r
-                         JOIN RolePermission rp ON r.Id = rp.RoleId
+            var query = @"SELECT r.* FROM Roles r
+                         JOIN RolePermissions rp ON r.Id = rp.RoleId
                          WHERE rp.PermissionId = @PermissionId";
             
             using (var connection = _context.CreateConnection())
@@ -172,7 +172,7 @@ namespace Infrastructure.Repositories
 
         public async Task<IEnumerable<RoleEntity>> GetAllRolesByUserIdAsync(int userId)
         {
-            var query = @"SELECT r.* FROM Role r
+            var query = @"SELECT r.* FROM Roles r
                          JOIN UserRole ur ON r.Id = ur.RoleId
                          WHERE ur.UserId = @UserId";
 

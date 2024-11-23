@@ -25,7 +25,7 @@ namespace Application.Services
                 return null;
             var roleDto = role.ToRoleDto();
             var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync(role.Id);
-            roleDto.Permissions = permissions.ToList();
+            roleDto.Permissions = permissions!.ToList();
             return roleDto;
         }
 
@@ -33,16 +33,17 @@ namespace Application.Services
         public async Task<IEnumerable<RoleDto>?> GetAllRolesAsync()
         {
             var roles = await _roleRepository.GetAllRolesAsync();
+            var rolesDto = roles.Select(r => r.ToDto());
             if (!roles.Any())
                 return null;
 
             //TODO: Quitar el foreach y hacer una consulta en el repositorio que haga esto una sola vez
-            foreach (var role in roles)
+            foreach (var role in rolesDto)
             {
-                var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync(role.Id);
-                role.Permissions = permissions.ToList();
+                var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync((int) role.Id!);
+                role.Permissions = permissions!.ToList();
             }
-            return roles.Select(role => role.ToRoleDto());
+            return rolesDto;
         }
 
 
@@ -125,7 +126,7 @@ namespace Application.Services
 
             if (rolePermissions.Any())
             {
-                List<int> rolePermissionsIds = rolePermissions.Select(rolePermission => rolePermission.Id).ToList();
+                List<int> rolePermissionsIds = rolePermissions.Select(rp => (int)rp.Id!).ToList();
 
                 var removedRolePermissionRecords = await RemovePermissionsFromRoleAsync(roleId, rolePermissionsIds);
 
@@ -194,14 +195,12 @@ namespace Application.Services
             if(!permissionIds.Any())
                 return new RoleResponseDto(false, "No envió los permisos", IsBadRequest: true);
             
-
             // * Verify that role have the permissions to delete
             var currentPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
-            var invalidPermissions = permissionIds.Except(currentPermissions.Select(p => p.Id)).ToList();
-            if (invalidPermissions.Count != 0)
-            {
+            var invalidPermissions = permissionIds.Except(currentPermissions.Select(cp => (int)cp.Id!).ToList());
+
+            if (!invalidPermissions.Any())
                 return new RoleResponseDto(false, $"El rol no tiene los siguientes permisos: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
-            }
 
             var success = await _roleRepository.RemovePermissionsFromRoleAsync(roleId, permissionIds);
             return success
@@ -270,7 +269,7 @@ namespace Application.Services
         private async Task<List<int>> GetNewPermissionsAsync(int roleId, List<int> permissionIds)
         {
             var existingPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
-            return permissionIds.Except(existingPermissions.Select(p => p.Id)).ToList();
+            return permissionIds.Except(existingPermissions.Select(p => (int)p.Id!)).ToList();
         }
 
 
@@ -292,7 +291,7 @@ namespace Application.Services
                 return new RoleResponseDto(false, validatedPermissions.Message);
 
             var currentPermissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
-            var currentPermissionsIds = currentPermissions.Select(p => p.Id).ToList();
+            var currentPermissionsIds = currentPermissions.Select(p => (int)p.Id!).ToList();
 
             var permissionsToRemove = currentPermissionsIds.Except(permissionsIds).ToList();
             if (permissionsToRemove.Count != 0)

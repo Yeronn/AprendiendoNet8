@@ -15,7 +15,7 @@ namespace Application.Mappers
             };
         }
 
-        public static PermissionEntity ToEntity(this CreatePermissionDto createPermissionDto)
+        public static PermissionEntity ToEntity(this CreateUpdatePermissionDto createPermissionDto)
         {
             return new PermissionEntity
             {
@@ -24,17 +24,7 @@ namespace Application.Mappers
             };
         }
 
-        public static PermissionEntity ToPermissionEntity(this UpdatePermissionDto updatePermissionDto)
-        {
-            return new PermissionEntity
-            {
-                Id = updatePermissionDto.Id ?? 0,
-                Name = updatePermissionDto.Name,
-                Description = updatePermissionDto.Description
-            };
-        }
-
-        public static PermissionDto ToPermissionDto(this PermissionEntity entity)
+        public static PermissionDto ToDto(this PermissionEntity entity)
         {
             return new PermissionDto
             {

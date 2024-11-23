@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 
 namespace Application.DTOs
 {
-    public class CreatePermissionDto
+    public class CreateUpdatePermissionDto
     {
+        [StringLength(100, ErrorMessage = "El nombre no puede exceder los 100 caracteres.")]
         [Required(ErrorMessage = "El nombre es obligatorio.")]
-        [StringLength(50, ErrorMessage = "El nombre no puede exceder los 50 caracteres.")]
         public string? Name { get; set; }
         public string? Description { get; set; }
     }
