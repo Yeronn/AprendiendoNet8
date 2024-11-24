@@ -10,6 +10,10 @@ namespace Application.DTOs
         [Required(ErrorMessage = "El campo Description es obligatorio.")]
         public string? Description { get; set; }
         [Required]
+        public bool Status { get; set; } = true;
+        [Required(ErrorMessage = "El campo CompanyId es obligatorio.")]
+        public int CompanyId { get; set; }
+        [Required]
         public List<int> PermissionsIds { get; set; } = [];
     }
 }

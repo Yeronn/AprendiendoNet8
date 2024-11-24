@@ -9,5 +9,6 @@ namespace Application.Interfaces
         Task<IEnumerable<CompanyDto>?> GetAllCompaniesAsync();
         Task<CompanyResponseDto> UpdateCompanyAsync(int companyId, CreateUpdateCompanyDto companyDto);
         Task<CompanyResponseDto> DeleteCompanyAsync(int id);
+        Task<CompanyResponseDto> ValidateCompanyExistsByIdAsync(int id);
     }
 }

@@ -17,7 +17,7 @@ CREATE TABLE Companies (
 -- Create Roles table (with new columns Status and CompanyId)
 CREATE TABLE Roles (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    Name VARCHAR(100) NOT NULL UNIQUE,
+    Name VARCHAR(100) NOT NULL,
     Description TEXT,
     Status BIT NOT NULL DEFAULT 1,  -- Active by default
     CompanyId INT NOT NULL,

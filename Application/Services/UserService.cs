@@ -93,8 +93,8 @@ namespace Application.Services
             if (user == null)
                 return null;
             var userDto = user.ToUserDto();
-            var roles = await _roleService.GetAllRolesByUserIdAsync(userId);
-            userDto.Roles = roles.ToList();
+            // var roles = await _roleService.GetAllRolesByUserIdAsync(userId);
+            // userDto.Roles = roles.ToList();
             return userDto;
         }
 
@@ -109,51 +109,51 @@ namespace Application.Services
         }
 
 
-        public async Task<UserResponseDto> AssignRolesToUserAsync(int userId, List<int> rolesIds)
-        {
-            if (!rolesIds.Any())
-                return new UserResponseDto(false, "No envió los ids de los roles", IsBadRequest: true);
+        // public async Task<UserResponseDto> AssignRolesToUserAsync(int userId, List<int> rolesIds)
+        // {
+        //     if (!rolesIds.Any())
+        //         return new UserResponseDto(false, "No envió los ids de los roles", IsBadRequest: true);
 
-            var userExists = await ValidateUserExistsByIdAsync(userId);
-            if (!userExists.Success)
-                return userExists;
+        //     var userExists = await ValidateUserExistsByIdAsync(userId);
+        //     if (!userExists.Success)
+        //         return userExists;
 
-            var invalidRoles = await GetInvalidRolesAsync(rolesIds);
-            if (invalidRoles.Any())
-                return new UserResponseDto(false, $"Los siguientes roles no existen: {string.Join(", ", invalidRoles)}", IsBadRequest: true);
+        //     var invalidRoles = await GetInvalidRolesAsync(rolesIds);
+        //     if (invalidRoles.Any())
+        //         return new UserResponseDto(false, $"Los siguientes roles no existen: {string.Join(", ", invalidRoles)}", IsBadRequest: true);
 
-            var newRoles = await GetNewRolesAsync(userId, rolesIds);
-            if (!newRoles.Any())
-                return new UserResponseDto(false, "Todos los roles se encuentran asignados al rol", IsBadRequest: true);
+        //     var newRoles = await GetNewRolesAsync(userId, rolesIds);
+        //     if (!newRoles.Any())
+        //         return new UserResponseDto(false, "Todos los roles se encuentran asignados al rol", IsBadRequest: true);
 
-            var success = await _userRepository.AddRolesToUserAsync(userId, newRoles);
-            return success
-                ? new UserResponseDto(true, "Roles añadidos correctamente al usuario.")
-                : new UserResponseDto(false, "Error al añadir roles al usuario.");
-        }
+        //     var success = await _userRepository.AddRolesToUserAsync(userId, newRoles);
+        //     return success
+        //         ? new UserResponseDto(true, "Roles añadidos correctamente al usuario.")
+        //         : new UserResponseDto(false, "Error al añadir roles al usuario.");
+        // }
 
 
-        public async Task<UserResponseDto> RemoveRolesFromUserAsync(int userId, List<int> roleIds)
-        {
-            if(!roleIds.Any())
-                return new UserResponseDto(false, "Está tratando de eliminar roles del usuario, pero no envió los roles", IsBadRequest: true);
+        // public async Task<UserResponseDto> RemoveRolesFromUserAsync(int userId, List<int> roleIds)
+        // {
+        //     if(!roleIds.Any())
+        //         return new UserResponseDto(false, "Está tratando de eliminar roles del usuario, pero no envió los roles", IsBadRequest: true);
 
-            var userExists = await ValidateUserExistsByIdAsync(userId);
-            if (!userExists.Success)
-                return userExists;
+        //     var userExists = await ValidateUserExistsByIdAsync(userId);
+        //     if (!userExists.Success)
+        //         return userExists;
 
-            var currentRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
+        //     var currentRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
 
-            // * Ve0rify that the user has the roles to be removed
-            var invalidPermissions = roleIds.Except(currentRoles.Select(p => p.Id)).ToList();
-            if (invalidPermissions.Any())
-                return new UserResponseDto(false, $"El usuario no tiene los siguientes roles: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
+        //     // * Ve0rify that the user has the roles to be removed
+        //     var invalidPermissions = roleIds.Except(currentRoles.Select(p => p.Id)).ToList();
+        //     if (invalidPermissions.Any())
+        //         return new UserResponseDto(false, $"El usuario no tiene los siguientes roles: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
 
-            bool success = await _userRepository.RemoveRolesFromUserAsync(userId, roleIds);
-            return success
-                ? new UserResponseDto(true, "Roles eliminados correctamente del usuario.")
-                : new UserResponseDto(false, "Error al eliminar roles del usuario.");
-        }
+        //     bool success = await _userRepository.RemoveRolesFromUserAsync(userId, roleIds);
+        //     return success
+        //         ? new UserResponseDto(true, "Roles eliminados correctamente del usuario.")
+        //         : new UserResponseDto(false, "Error al eliminar roles del usuario.");
+        // }
 
 
         public async Task<UserResponseDto> DeleteUserAsync(int userId)
@@ -163,17 +163,17 @@ namespace Application.Services
                 return userExists;
 
             // * Get user roles to delete records in RolePermission table
-            var userRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
+            // var userRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
 
-            if (userRoles.Any())
-            {
-                List<int> rolePermissionsIds = userRoles.Select(userRole => userRole.Id).ToList();
+            // if (userRoles.Any())
+            // {
+            //     List<int> rolePermissionsIds = userRoles.Select(userRole => userRole.Id).ToList();
 
-                var removedUserRoleRecords = await RemoveRolesFromUserAsync(userId, rolePermissionsIds);
+            //     var removedUserRoleRecords = await RemoveRolesFromUserAsync(userId, rolePermissionsIds);
 
-                if (!removedUserRoleRecords.Success)
-                    return removedUserRoleRecords;
-            }
+            //     if (!removedUserRoleRecords.Success)
+            //         return removedUserRoleRecords;
+            // }
 
             var success = await _userRepository.DeleteUserAsync(userId);
             return success
@@ -279,11 +279,11 @@ namespace Application.Services
         }
 
 
-        private async Task<List<int>> GetNewRolesAsync(int userId, List<int> rolesIds)
-        {
-            var existingRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
-            return rolesIds.Except(existingRoles.Select(r => r.Id)).ToList();
-        }
+        // private async Task<List<int>> GetNewRolesAsync(int userId, List<int> rolesIds)
+        // {
+        //     var existingRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
+        //     return rolesIds.Except(existingRoles.Select(r => r.Id)).ToList();
+        // }
 
 
 

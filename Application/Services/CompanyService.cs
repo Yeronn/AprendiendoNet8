@@ -96,9 +96,7 @@ namespace Application.Services
         }
 
 
-
-
-        private async Task<CompanyResponseDto> ValidateCompanyExistsByIdAsync(int id)
+        public async Task<CompanyResponseDto> ValidateCompanyExistsByIdAsync(int id)
         {
             bool exists = await _companyRepository.CompanyExistsByIdAsync(id);
             if (!exists)
@@ -106,6 +104,8 @@ namespace Application.Services
 
             return new CompanyResponseDto(true, "La empresa existe.");
         }
+
+
 
 
         private async Task<CompanyResponseDto> CheckCompanyNameAvailabilityAsync(string companyName)

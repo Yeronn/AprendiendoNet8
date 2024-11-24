@@ -77,49 +77,49 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpPost("{userId}/addRolesToUser")]
-        public async Task<IActionResult> AddRolesToUser(int userId, [FromBody] List<int> roleIds)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Datos inválidos.");
-            }
+        // [HttpPost("{userId}/addRolesToUser")]
+        // public async Task<IActionResult> AddRolesToUser(int userId, [FromBody] List<int> roleIds)
+        // {
+        //     if (!ModelState.IsValid)
+        //     {
+        //         return BadRequest("Datos inválidos.");
+        //     }
 
-            var result = await _userService.AssignRolesToUserAsync(userId, roleIds);
+        //     var result = await _userService.AssignRolesToUserAsync(userId, roleIds);
 
-            if (result.Success)
-                return Ok(new
-                {
-                    result.Success,
-                    result.Message,
-                });
-            else if (result.IsNotFound)
-                return NotFound(result.Message);
-            else if (result.IsBadRequest)
-                return BadRequest(result.Message);
+        //     if (result.Success)
+        //         return Ok(new
+        //         {
+        //             result.Success,
+        //             result.Message,
+        //         });
+        //     else if (result.IsNotFound)
+        //         return NotFound(result.Message);
+        //     else if (result.IsBadRequest)
+        //         return BadRequest(result.Message);
 
-            return StatusCode(500, result.Message);
-        }
+        //     return StatusCode(500, result.Message);
+        // }
 
 
-        [HttpDelete("{userId}/removeRolesFromUser")]
-        public async Task<IActionResult> RemoveRolesFromUser(int userId, [FromBody] List<int> roleIds)
-        {
-            var result = await _userService.RemoveRolesFromUserAsync(userId, roleIds);
+        // [HttpDelete("{userId}/removeRolesFromUser")]
+        // public async Task<IActionResult> RemoveRolesFromUser(int userId, [FromBody] List<int> roleIds)
+        // {
+        //     var result = await _userService.RemoveRolesFromUserAsync(userId, roleIds);
 
-            if (result.Success)
-                return Ok(new
-                {
-                    result.Success,
-                    result.Message,
-                });
-            else if (result.IsNotFound)
-                return NotFound(result.Message);
-            else if (result.IsBadRequest)
-                return BadRequest(result.Message);
+        //     if (result.Success)
+        //         return Ok(new
+        //         {
+        //             result.Success,
+        //             result.Message,
+        //         });
+        //     else if (result.IsNotFound)
+        //         return NotFound(result.Message);
+        //     else if (result.IsBadRequest)
+        //         return BadRequest(result.Message);
 
-            return StatusCode(500, result.Message);
-        }
+        //     return StatusCode(500, result.Message);
+        // }
 
 
         [HttpDelete("delete/{id}")]
@@ -134,13 +134,13 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("usersByRole/{roleId}")]
-        public async Task<IActionResult> GetUsersByRoleId(int roleId)
-        {
-            var users = await _userService.GetAllUsersByRoleIdAsync(roleId);
-            if (users == null)
-                return NotFound($"El Rol con el id {roleId} no existe");
-            return Ok(users);
-        }
+        // [HttpGet("usersByRole/{roleId}")]
+        // public async Task<IActionResult> GetUsersByRoleId(int roleId)
+        // {
+        //     var users = await _userService.GetAllUsersByRoleIdAsync(roleId);
+        //     if (users == null)
+        //         return NotFound($"El Rol con el id {roleId} no existe");
+        //     return Ok(users);
+        // }
     }
 }

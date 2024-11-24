@@ -74,7 +74,7 @@ namespace Application.Services
 
         public string GenerateJWTToken(UserEntity user, string jti)
         {
-            var roles = _roleRepository.GetAllRolesByUserIdAsync(user.Id);
+            // var roles = _roleRepository.GetAllRolesByUserIdAsync(user.Id);
             var claims = new[]
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),

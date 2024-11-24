@@ -5,12 +5,29 @@ namespace Application.Mappers
 {
     public static class RoleMappers
     {
-        public static RoleEntity ToRoleEntity(this CreateUpdateRoleDto role)
+        public static RoleEntity ToEntity(this CreateUpdateRoleDto createRoleDto)
         {
             return new RoleEntity
             {
+                Name = createRoleDto.Name,
+                Description = createRoleDto.Description,
+                Status = createRoleDto.Status,
+                CompanyId = createRoleDto.CompanyId,
+                Permissions = []
+            };
+        }
+
+
+        public static RoleEntity ToEntity(this RoleWithoutPermissionsDto role)
+        {
+            return new RoleEntity
+            {
+                Id = role.Id,
                 Name = role.Name,
-                Description = role.Description
+                Description = role.Description,
+                Status = role.Status,
+                CompanyId = role.CompanyId,
+                Permissions = []
             };
         }
 
@@ -21,7 +38,9 @@ namespace Application.Mappers
             {
                 Id = roleEntity.Id,
                 Name = roleEntity.Name,
-                Description = roleEntity.Description
+                Description = roleEntity.Description,
+                Status = roleEntity.Status,
+                CompanyId = roleEntity.CompanyId,
             };
         }
 
@@ -33,6 +52,8 @@ namespace Application.Mappers
                 Id = roleEntity.Id,
                 Name = roleEntity.Name,
                 Description = roleEntity.Description,
+                Status = roleEntity.Status,
+                CompanyId = roleEntity.CompanyId,
                 Permissions = roleEntity.Permissions.Select(p => p.ToDto()).ToList()
             };
         }
