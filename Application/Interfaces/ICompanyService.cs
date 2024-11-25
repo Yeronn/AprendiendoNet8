@@ -4,9 +4,9 @@ namespace Application.Interfaces
 {
     public interface ICompanyService
     {
+        Task<IEnumerable<CompanyDto>?> GetCompaniesAsync();
         Task<CompanyResponseDto> CreateCompanyAsync(CreateUpdateCompanyDto companyDto);
         Task<CompanyDto?> GetCompanyByIdAsync(int id);
-        Task<IEnumerable<CompanyDto>?> GetAllCompaniesAsync();
         Task<CompanyResponseDto> UpdateCompanyAsync(int companyId, CreateUpdateCompanyDto companyDto);
         Task<CompanyResponseDto> DeleteCompanyAsync(int id);
         Task<CompanyResponseDto> ValidateCompanyExistsByIdAsync(int id);

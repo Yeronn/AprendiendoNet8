@@ -18,36 +18,35 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAllAsync()
         {
-            var response = await _companyService.GetAllCompaniesAsync();
+            var response = await _companyService.GetCompaniesAsync();
             if (response != null)
                 return Ok(response);
             
-
-            return NotFound(response);
+            return NotFound();
         }
 
-        // GET: api/companies/5
-        [HttpGet("getCompany/{id}", Name ="getCompany")]
+
+        [HttpPost]
+        public async Task<IActionResult> CreateAsync([FromBody] CreateUpdateCompanyDto companyDto)
+        {
+            var response = await _companyService.CreateCompanyAsync(companyDto);
+            if (response.Success)
+                return CreatedAtRoute("GetCompany", new { id = response.Company!.Id}, response.Company);
+            else if (response.IsConflict)
+                return Conflict(response.Message);
+            else
+                return BadRequest(response.Message);
+        }
+
+
+        [HttpGet("{id}", Name = "GetCompany")]
         public async Task<IActionResult> GetByIdAsync(int id)
         {
             var response = await _companyService.GetCompanyByIdAsync(id);
             if (response != null)
                 return Ok(response);
 
-            return NotFound(response);
-        }
-
-        // POST: api/companies
-        [HttpPost]
-        public async Task<IActionResult> CreateAsync([FromBody] CreateUpdateCompanyDto companyDto)
-        {
-            var response = await _companyService.CreateCompanyAsync(companyDto);
-            if (response.Success)
-                return CreatedAtRoute("getCompany", new { id = response.Company!.Id}, response.Company);
-            else if (response.IsConflict)
-                return Conflict(response.Message);
-            else
-                return BadRequest(response.Message);
+            return NotFound();
         }
 
         // PUT: api/companies/5
@@ -76,11 +75,11 @@ namespace WebAPI.Controllers
         {
             var response = await _companyService.DeleteCompanyAsync(id);
             if (response.Success)
-            {
-                return Ok(response);
-            }
-
-            return NotFound(response);
+                return NoContent();
+            else if (response.IsNotFound)
+                return NotFound(response.Message);
+            else
+                return StatusCode(500, response.Message);
         }
     }
 }

@@ -4,7 +4,7 @@ namespace Domain.Interfaces
 {
     public interface ICompanyRepository
     {
-        Task<IEnumerable<CompanyEntity>> GetAllCompaniesAsync();
+        Task<IEnumerable<CompanyEntity>> GetCompaniesAsync();
         Task<CompanyEntity?> GetCompanyByIdAsync(int id);
         Task<int> CreateCompanyAsync(CompanyEntity company);
         Task<bool> UpdateCompanyAsync(CompanyEntity company);

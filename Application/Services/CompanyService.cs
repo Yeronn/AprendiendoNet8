@@ -16,24 +16,34 @@ namespace Application.Services
         }
 
 
-        public async Task<CompanyResponseDto> CreateCompanyAsync(CreateUpdateCompanyDto companyDto)
+        public async Task<IEnumerable<CompanyDto>?> GetCompaniesAsync()
         {
-            var availableName = await CheckCompanyNameAvailabilityAsync(companyDto.Name!);
+            var companies = await _companyRepository.GetCompaniesAsync();
+            if (!companies.Any())
+                return null;
+            var companyDtos = companies.Select(company => company.ToDto());
+            return companyDtos;
+        }
+
+
+        public async Task<CompanyResponseDto> CreateCompanyAsync(CreateUpdateCompanyDto createDto)
+        {
+            var availableName = await CheckCompanyNameAvailabilityAsync(createDto.Name!);
             if (!availableName.Success)
                 return availableName;
 
-            var availableNit = await CheckCompanyNitAvailabilityAsync((int)companyDto.NIT!);
+            var availableNit = await CheckCompanyNitAvailabilityAsync((int)createDto.NIT!);
             if (!availableNit.Success)
                 return availableNit;
 
-            var companyEntity = companyDto.ToEntity();
+            var companyEntity = createDto.ToEntity();
             var id = await _companyRepository.CreateCompanyAsync(companyEntity);
 
             if (id <= 0)
-                return new CompanyResponseDto(false, "Error al intentar crear la empresa.", IsBadRequest: true);
+                return new CompanyResponseDto(false, "No se pudo crear la empresa.", IsBadRequest: true);
 
             var createdCompany = await GetCompanyByIdAsync(id);
-            return new CompanyResponseDto(true, "Company created successfully.", createdCompany);
+            return new CompanyResponseDto(true, "La empresa fue creada.", createdCompany);
         }
 
 
@@ -45,22 +55,12 @@ namespace Application.Services
             return companyEntity.ToDto();
         }
 
-
-        public async Task<IEnumerable<CompanyDto>?> GetAllCompaniesAsync()
-        {
-            var companies = await _companyRepository.GetAllCompaniesAsync();
-            if (!companies.Any())
-                return null;
-            var companyDtos = companies.Select(company => company.ToDto());
-            return companyDtos;
-        }
-
         
         public async Task<CompanyResponseDto> UpdateCompanyAsync(int companyId, CreateUpdateCompanyDto companyDto)
         {
             var currentCompany = await GetCompanyByIdAsync(companyId);
             if (currentCompany == null)
-                return new CompanyResponseDto(false, "La empresa no se encuentra en el sistema", IsNotFound: true);
+                return new CompanyResponseDto(false, "La empresa no existe", IsNotFound: true);
 
             if (companyDto.Name != currentCompany.Name)
             {
@@ -90,9 +90,9 @@ namespace Application.Services
             var success = await _companyRepository.DeleteCompanyAsync(id);
 
             if (!success)
-                return new CompanyResponseDto(false, "Error while deleting the company.", IsBadRequest: true);
+                return new CompanyResponseDto(false, "Error al intentar eliminar la empresa.");
 
-            return new CompanyResponseDto(true, "Company deleted successfully.");
+            return new CompanyResponseDto(true, "Empresa eliminada.");
         }
 
 
@@ -135,8 +135,8 @@ namespace Application.Services
                 return availableName;
             bool updatedCompanyName = await _companyRepository.UpdateCompanyNameAsync(companyId, name);
             if (updatedCompanyName)
-                return new CompanyResponseDto(true, "Nombre de la empresa actualizado");
-            return new CompanyResponseDto(false, "Error al actualizar el nombre de la empresa");
+                return new CompanyResponseDto(true, "Nombre actualizado");
+            return new CompanyResponseDto(false, "Error al actualizar el nombre");
         }
 
 
@@ -147,8 +147,8 @@ namespace Application.Services
                 return availableNit;
             bool updatedCompanyNit = await _companyRepository.UpdateCompanyNitAsync(companyId, nit);
             if (updatedCompanyNit)
-                return new CompanyResponseDto(true, "Nit de la empresa actualizado");
-            return new CompanyResponseDto(false, "Error al actualizar el NIT de la empresa");
+                return new CompanyResponseDto(true, "Nit actualizado");
+            return new CompanyResponseDto(false, "Error al actualizar el NIT");
         }
 
     }

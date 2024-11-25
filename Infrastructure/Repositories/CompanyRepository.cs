@@ -15,7 +15,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<IEnumerable<CompanyEntity>> GetAllCompaniesAsync()
+        public async Task<IEnumerable<CompanyEntity>> GetCompaniesAsync()
         {
             var query = "SELECT * FROM Companies";
 
