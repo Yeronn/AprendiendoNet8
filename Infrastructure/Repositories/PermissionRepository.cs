@@ -14,7 +14,7 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<PermissionEntity>> GetAllPermissionsAsync()
+        public async Task<IEnumerable<PermissionEntity>> GetPermissionsAsync()
         {
             var query = "SELECT * FROM Permissions";
 

@@ -10,12 +10,12 @@ namespace Application.Interfaces
 {
     public interface IPermissionService
     {
-        Task<IEnumerable<PermissionDto>?> GetAllPermissionsAsync();
+        Task<IEnumerable<PermissionDto>?> GetPermissionsAsync();
         Task<PermissionDto?> GetPermissionByIdAsync(int id);
         Task<PermissionResponseDto> CreatePermissionAsync(CreateUpdatePermissionDto createPermissionDto);
         Task<PermissionResponseDto> UpdatePermissionAsync(int id, CreateUpdatePermissionDto updatePermissionDto);
         Task<PermissionResponseDto> DeletePermissionAsync(int id);
-        Task<IEnumerable<PermissionDto>> GetAllPermissionsByRoleIdAsync(int roleId);
+        Task<IEnumerable<PermissionDto>> GetPermissionsByRoleIdAsync(int roleId);
         Task<PermissionResponseDto> ValidatePermissionExistsByIdAsync(int id);
         Task<PermissionResponseDto> ValidatePermissionsExistAsync(List<int> permissionIds);
     }

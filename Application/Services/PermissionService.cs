@@ -17,9 +17,9 @@ namespace Application.Services
         }
 
 
-        public async Task<IEnumerable<PermissionDto>?> GetAllPermissionsAsync()
+        public async Task<IEnumerable<PermissionDto>?> GetPermissionsAsync()
         {
-            var permissions = await _permissionRepository.GetAllPermissionsAsync();
+            var permissions = await _permissionRepository.GetPermissionsAsync();
             if (!permissions.Any())
                 return null;
             var permissionsDto = permissions.Select(permission => permission.ToDto());
@@ -95,8 +95,7 @@ namespace Application.Services
                 : new PermissionResponseDto(false, "Error al eliminar el rol.");
         }
 
-
-        public async Task<IEnumerable<PermissionDto>> GetAllPermissionsByRoleIdAsync(int roleId)
+        public async Task<IEnumerable<PermissionDto>> GetPermissionsByRoleIdAsync(int roleId)
         {
             var permissionsByRol = await _permissionRepository.GetAllPermissionsByRoleIdAsync(roleId);
             return permissionsByRol.Select(p => p.ToDto());

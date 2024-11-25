@@ -17,9 +17,9 @@ namespace WebAPI.Controllers
 
 
         [HttpGet]
-        public async Task<IActionResult> GetAllPermissions()
+        public async Task<IActionResult> GetPermissions()
         {
-            var permissions = await _permissionService.GetAllPermissionsAsync();
+            var permissions = await _permissionService.GetPermissionsAsync();
             if (permissions == null)
                 return NotFound("No hay permisos creados");
             return Ok(permissions);
@@ -40,11 +40,6 @@ namespace WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreatePermission([FromBody] CreateUpdatePermissionDto createPermission)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Datos inválidos: " + ModelState);
-            }
-
             var result = await _permissionService.CreatePermissionAsync(createPermission);
             
             if (result.Success)
@@ -64,17 +59,6 @@ namespace WebAPI.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdatePermission(int id, [FromBody] CreateUpdatePermissionDto permissionDto)
         {
-            if (!ModelState.IsValid) //TODO: Investigar porque cuando se hace una peticion con datos faltantes no entra al controlador si no que de una da error
-            {
-                var errorMessages = ModelState.Values
-                                    .SelectMany(v => v.Errors)
-                                    .Select(e => e.ErrorMessage);
-
-                var fullErrorMessage = "Datos inválidos: " + string.Join("; ", errorMessages);
-
-                return BadRequest(fullErrorMessage);
-            }
-            
             var updatedPermission = await _permissionService.UpdatePermissionAsync(id, permissionDto);
             
             if (updatedPermission.Success)
@@ -110,9 +94,9 @@ namespace WebAPI.Controllers
         [HttpGet("permissionsByRol/{roleId}")]
         public async Task<IActionResult> GetPermissionsByRoleId(int roleId)
         {
-            var permissions = await _permissionService.GetAllPermissionsByRoleIdAsync(roleId);
-            if (permissions == null)
-                return NotFound($"El rol con el id {roleId} no existe");
+            var permissions = await _permissionService.GetPermissionsByRoleIdAsync(roleId);
+            if (!permissions.Any())
+                return NotFound($"El rol con el id {roleId} no existe o no tiene permisos");
             return Ok(permissions);
         }
 

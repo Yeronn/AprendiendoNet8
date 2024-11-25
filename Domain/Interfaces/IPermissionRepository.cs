@@ -9,7 +9,7 @@ namespace Domain.Interfaces
 {
     public interface IPermissionRepository
     {
-        Task<IEnumerable<PermissionEntity>> GetAllPermissionsAsync();
+        Task<IEnumerable<PermissionEntity>> GetPermissionsAsync();
         Task<PermissionEntity?> GetPermissionByIdAsync(int id);
         Task<bool> CreatePermissionAsync(PermissionEntity permission);
         Task<bool> UpdatePermissionAsync(PermissionEntity permission);
