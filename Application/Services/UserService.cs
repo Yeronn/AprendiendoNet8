@@ -51,7 +51,7 @@ namespace Application.Services
         public async Task<UserDto?> UpdateUserAsync(int idCardNit, UpdateUserDto updateUserDto)
         {
             var userEntity = updateUserDto.ToUserEntity();
-            userEntity.IdCardNit = idCardNit; 
+            userEntity.IdCardNit = idCardNit;
 
             var isUpdated = await _userRepository.UpdateUserAsync(userEntity);
             if (isUpdated)
@@ -62,11 +62,77 @@ namespace Application.Services
             return null;
         }
 
+
         public async Task<bool> DeleteUserAsync(int idCardNit)
         {
             return await _userRepository.DeleteUserAsync(idCardNit);
         }
         
+
+        public async Task<UserDto?> GetUserByLastJtiAsync(string lastJti)
+        {
+            var userEntity = await _userRepository.GetUserByLastJtiAsync(lastJti);
+            return userEntity?.ToUserDto();  
+        }
+
+        //TODO: Borrar metodo, el metodo exists hace esto
+        public async Task<bool> IsIdCardNitUniqueAsync(int idCardNit)
+        {
+            return !await _userRepository.IdCardNitExistsAsync(idCardNit);  // Devuelve true si no existe
+        }
+
+
+        public async Task<string?> GetPasswordByIdCardNitAsync(int idCardNit)
+        {
+            var password = await _userRepository.GetPasswordByIdCardNitAsync(idCardNit);
+            if (password == null)
+            {
+                throw new Exception("Usuario no encontrado.");
+            }
+            return password;
+        }
+
+
+        public async Task<bool> UpdateLastJtiAsync(int idCardNit, string lastJti)
+        {
+            // Verifica si el usuario existe con el idCardNit (opcional)
+            var user = await _userRepository.GetUserByIdCardNitAsync(idCardNit);
+            if (user == null)
+            {
+                throw new Exception("Usuario no encontrado.");
+            }
+
+            // Llama al repositorio para actualizar el LastJti
+            return await _userRepository.UpdateLastJtiAsync(idCardNit, lastJti);
+        }
+
+
+        public async Task<bool> VerifyIdCardNitExistsAsync(int idCardNit)
+        {
+            var exists = await _userRepository.IdCardNitExistsAsync(idCardNit);
+
+            if (!exists)
+                return exists;
+
+            return exists;
+        }
+
+
+        public async Task<UserJwtTokenDto> GetUserJwtTokenByIdCardNitAsync(int idCardNit)
+        {
+            var user = await GetUserByIdCardNitAsync(idCardNit);
+            
+            if (user == null)
+            {
+                throw new Exception("Usuario no encontrado.");
+            }
+            var userJwtTokenDto = user.ToUserJwtTokenDto();
+            return userJwtTokenDto;
+        }
+
+
+
+
     }
 
 }

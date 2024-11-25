@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
         }
 
         // GET: api/users/by-id/{id}
-        [HttpGet("by-id/{id:int}")]
+        [HttpGet("by-id/{id:int}", Name = "GetUserById") ]
         public async Task<IActionResult> GetUserById(int id)
         {
             var user = await _userService.GetUserByIdAsync(id);

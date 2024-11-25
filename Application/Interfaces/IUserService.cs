@@ -11,5 +11,11 @@ namespace Application.Interfaces
         Task<UserDto?> GetUserByIdCardNitAsync(int idCardNit);
         Task<UserDto?> GetUserByIdAsync(int id);
         Task<bool> DeleteUserAsync(int idCardNit);
+        Task<bool> IsIdCardNitUniqueAsync(int idCardNit);
+        Task<UserDto?> GetUserByLastJtiAsync(string lastJti);
+        Task<string?> GetPasswordByIdCardNitAsync(int idCardNit);
+        Task<bool> UpdateLastJtiAsync(int idCardNit, string lastJti);
+        Task<bool> VerifyIdCardNitExistsAsync(int idCardNit);
+        Task<UserJwtTokenDto> GetUserJwtTokenByIdCardNitAsync(int idCardNit);
     }
 }

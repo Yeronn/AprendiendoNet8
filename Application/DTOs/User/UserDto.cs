@@ -11,7 +11,8 @@ namespace Application.DTOs.User
         public string Email { get; set; } = string.Empty;
         public string Identification { get; set; } = string.Empty;
         public int RoleId { get; set; }
-        public DateTime RegistrationDate { get; set; }  // Tipo DateTime
+        public DateTime RegistrationDate { get; set; }
+        public string LastJti { get; set; } = string.Empty;
     }
 
 

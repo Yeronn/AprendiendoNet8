@@ -16,71 +16,80 @@ namespace Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IUserService _userService;
+        private readonly IRoleService _roleService;
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasherService _passwordHasher;
-        private readonly IRoleRepository _roleRepository; //TODO: Usar el servicio y no el repositorio
 
-        public AuthenticationService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasherService passwordHasher, IRoleRepository roleRepository, IUserService userService)
+        public AuthenticationService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasherService passwordHasher, IUserService userService, IRoleService roleService)
         {
             _userRepository = userRepository;
             _userService = userService;
+            _roleService = roleService;
             _passwordHasher = passwordHasher;
             _configuration = configuration;
-            _roleRepository = roleRepository;
         }
 
 
         public async Task<RegistrationResponse> RegisterUser(RegisterUserDto newUser)
         {
-            var usernameValidation = await _userService.ValidateUsernameUniquenessAsync(newUser.Username);
-            if (!usernameValidation.Success)
-                return new RegistrationResponse(false, usernameValidation.Message);
+            bool isUnique = await _userService.IsIdCardNitUniqueAsync(newUser.IdCardNit);
+            if (!isUnique)
+                throw new Exception("El IdCardNit ya está registrado.");
+
+            var roleExists = await _roleService.ValidateRoleExistsByIdAsync(newUser.RoleId);
+            if (!roleExists.Success)
+                throw new Exception("El rol del usuario no existe");
             
-            var fullnameValidation = await _userService.ValidateFullnameUniquenessAsync(newUser.Fullname);
-            if (!fullnameValidation.Success)
-                return fullnameValidation;
+            //TODO: Implementar el PasswordSalt
+            
 
             var hashedPassword = _passwordHasher.HashPassword(newUser.Password);
             newUser.Password = hashedPassword;
 
             var userEntity = newUser.ToUserEntity();
-            var createdUser = await _userRepository.CreateUserAsync(userEntity);
+            var createdUserId  = await _userRepository.CreateUserAsync(userEntity);
 
-            if (createdUser == null)
+            if (createdUserId.HasValue)
+            {
+                var createdUser = await _userService.GetUserByIdAsync(createdUserId.Value);
+                return new RegistrationResponse(true, "El usuario se creó correctamente", createdUser);
+            }
                 return new RegistrationResponse(false, "Hubo un error en el servidor al crear al usuario");
-            return new RegistrationResponse(true, "El usuario se creó correctamente", createdUser.Id);
         }
 
 
-        public async Task<LoginResponse> Login(string username, string password)
+        public async Task<LoginResponse> Login(LoginDto login)
         {
-            var user = await _userRepository.GetUserByUsernameAsync(username);
-            if (user == null)
-                return new LoginResponse(false, "La cuenta no existe", IsNotFound: true);
+            bool userExists = await _userService.VerifyIdCardNitExistsAsync(login.IdCardNit);
+            if (!userExists)
+                return new LoginResponse(false, "El usuario no existe");
 
-            bool checkPassword = _passwordHasher.VerifyPassword(password, user.Password!);
+            var hashedPassword = await _userService.GetPasswordByIdCardNitAsync(login.IdCardNit);
+            bool checkPassword = _passwordHasher.VerifyPassword(login.Password, hashedPassword!);
 
             if (checkPassword)
             {
                 var newJti = Guid.NewGuid().ToString();
-                user.LastJti = newJti;
-                await _userRepository.UpdateUserJtiAsync(user.Id, newJti);
-                return new LoginResponse(checkPassword, "Inicio de sesión exitoso", GenerateJWTToken(user, newJti));
+                bool updatedJti = await _userService.UpdateLastJtiAsync(login.IdCardNit, newJti);
+                if (!updatedJti)
+                    return new LoginResponse(false, "Ocurrió un error al actualizar la sesión");
+                var userJwtTokenDto = await _userService.GetUserJwtTokenByIdCardNitAsync(login.IdCardNit);
+                return new LoginResponse(checkPassword, "Inicio de sesión exitoso", GenerateJWTToken(userJwtTokenDto, newJti));
             }
             else
                 return new LoginResponse(checkPassword, "Credenciales Inválidas", IsBadRequest: true);
         }
 
 
-        public string GenerateJWTToken(UserEntity user, string jti)
+        public string GenerateJWTToken(UserJwtTokenDto user, string jti)
         {
             // var roles = _roleRepository.GetAllRolesByUserIdAsync(user.Id);
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Fullname!),
-                new Claim(ClaimTypes.Email, user.Username!),
-                // new Claim(ClaimTypes.Role, user.Role!),
+                new Claim(ClaimTypes.NameIdentifier, user.IdCardNit.ToString()),
+                new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
+                new Claim(ClaimTypes.Email, user.Email),
+                // new Claim(ClaimTypes.Role, user.RoleId!),
                 new Claim(JwtRegisteredClaimNames.Jti, jti)
             };
 
@@ -112,7 +121,7 @@ namespace Application.Services
             }
 
             // Obtener el usuario por el jti
-            var user = await _userRepository.GetUserByJtiAsync(jti);
+            var user = await _userService.GetUserByLastJtiAsync(jti);
             if (user == null || user.LastJti != jti)
             {
                 return false; // Token no autorizado o ha expirado

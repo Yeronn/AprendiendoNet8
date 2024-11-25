@@ -24,7 +24,7 @@ namespace WebAPI.Controllers
                 return BadRequest("Datos inválidos: " + ModelState);
             }
 
-            var loginResponse = await _authService.Login(loginDto.Username, loginDto.Password);
+            var loginResponse = await _authService.Login(loginDto);
 
             if (loginResponse.IsNotFound)
                 return NotFound(new { message = loginResponse.Message });
@@ -51,7 +51,7 @@ namespace WebAPI.Controllers
                 if (!registrationResponse.Success)
                     return BadRequest(registrationResponse.Message);
 
-                return CreatedAtRoute("getUser", new { id = registrationResponse.Id }, registrationResponse); //TODO: Aplicar esto en los demás controladores que crean 
+                return CreatedAtRoute("GetUserById", new { id = registrationResponse.UserDto!.Id }, registrationResponse); //TODO: Aplicar esto en los demás controladores que crean 
             }
             catch (Exception ex)
             {
