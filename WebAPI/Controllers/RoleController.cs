@@ -16,17 +16,17 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("getRoleAndPermissions/{id}")]
+        [HttpGet("{id}", Name = "GetRole")]
         public async Task<IActionResult> GetRoleById(int id)
         {
             var role = await _roleService.GetRoleByIdAsync(id);
             if (role == null)
-                return NotFound("El rol no existe en el sistema");
+                return NotFound("El rol no existe");
             return Ok(role);
         }
 
 
-        [HttpGet("getRolesAndPermissions")]
+        [HttpGet]
         public async Task<IActionResult> GetAllRoles()
         {
             var roles = await _roleService.GetRolesAsync();
@@ -42,12 +42,7 @@ namespace WebAPI.Controllers
             var result = await _roleService.CreateRoleAsync(createRole);
 
             if (result.Success)
-                return Ok(new
-                {
-                    result.Success,
-                    result.Message,
-                    result.Role
-                });
+                return CreatedAtRoute("GetRole", new { id = result.Role!.Id}, result.Role);
             else if (result.IsConflict)
                 return Conflict(result.Message);
             else
@@ -56,7 +51,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpPut("update/{id}")]
+        [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRol(int id, [FromBody] CreateUpdateRoleDto updateRoleDto)
         {
             var result = await _roleService.UpdateRoleAsync(id, updateRoleDto);
@@ -76,7 +71,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpDelete("delete/{id}")]
+        [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRol(int id)
         {
             var result = await _roleService.DeleteRoleAsync(id);

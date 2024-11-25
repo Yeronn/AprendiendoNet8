@@ -1,7 +1,6 @@
 ﻿using Application.DTOs;
 using Application.Interfaces;
 using Application.Mappers;
-using Domain.Entities;
 using Domain.Interfaces;
 
 namespace Application.Services
@@ -48,7 +47,7 @@ namespace Application.Services
                 return nameAvalible;
 
             var companyExists = await _companyService.ValidateCompanyExistsByIdAsync(createRole.CompanyId);
-            if(createRole.CompanyId == 0 || companyExists.Success == false)
+            if(companyExists.Success == false)
                 return new RoleResponseDto(false, "La empresa no es válida");
 
             var newRoleId = await _roleRepository.CreateRoleAsync(createRole.ToEntity());

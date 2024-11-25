@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("{id}", Name = "GetPermissionById")]
+        [HttpGet("{id}", Name = "GetPermission")]
         public async Task<IActionResult> GetPermissionById(int id)
         {
             var permission = await _permissionService.GetPermissionByIdAsync(id);
@@ -43,12 +43,7 @@ namespace WebAPI.Controllers
             var result = await _permissionService.CreatePermissionAsync(createPermission);
             
             if (result.Success)
-                return Ok(new
-                {
-                    result.Success,
-                    result.Message,
-                    result.Permission
-                });
+                return CreatedAtRoute("GetPermission", new { id = result.Permission!.Id}, result.Permission);
             else if (result.IsConflict)
                 return Conflict(result.Message);
             else
