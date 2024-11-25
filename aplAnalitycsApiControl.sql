@@ -53,6 +53,7 @@ CREATE TABLE Users (
     PasswordSalt VARCHAR(255) NOT NULL,  -- Assuming salt for password hashing
     RoleId INT NOT NULL,  -- Foreign key to Roles
     RegistrationDate DATETIME NOT NULL DEFAULT GETDATE(),  -- Date of registration
+    LastJti VARCHAR(255) NULL,  -- Assuming hashed password
     FOREIGN KEY (RoleId) REFERENCES Roles(Id)
 );
 
@@ -101,7 +102,7 @@ VALUES
     (10101010, 'John', 'Doe', 'john.doe@example.com', 'JD123456', 'hashedpassword1', 'salt1', 1),  -- Admin
     (20202020, 'Jane', 'Smith', 'jane.smith@example.com', 'JS654321', 'hashedpassword2', 'salt2', 2),  -- Manager
     (30303030, 'Alice', 'Johnson', 'alice.johnson@example.com', 'AJ987654', 'hashedpassword3', 'salt3', 3),  -- User
-    (40404040, 'Bob', 'Williams', 'bob.williams@example.com', 'BW111222', 'hashedpassword4', 'salt4', 3);  -- User sin permisos adicionales
+    (40404040, 'Bob', 'Williams', 'bob.williams@example.com', 'BW111222', 'hashedpassword4', 'salt4', 3),  -- User sin permisos adicionales
     (12345, 'prueba', 'prueba', 'prueba@example.com', '123231', '$2a$11$VTDt63kAgy//Q2LankkKeerI3LDUsRjQDpZoAFAdvh4AtCOoOQWDi', 'salt4', 3);  -- User sin permisos adicionales
 
 -- Insertar datos en la tabla Tokens (vinculados a usuarios específicos)
