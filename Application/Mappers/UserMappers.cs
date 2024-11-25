@@ -4,65 +4,57 @@ using Domain.Entities;
 
 namespace Application.Mappers
 {
-    public static class UserMappers
+public static class UserMappers
+{
+    // Mapear RegisterUserDto a UserEntity (para creación)
+    public static UserEntity ToUserEntity(this RegisterUserDto registerUserDto)
     {
-        public static UserEntity ToUserEntity(this RegisterUserDto registerUserDto)
+        return new UserEntity
         {
-            return new UserEntity
-            {
-                Fullname = registerUserDto.Fullname,
-                Username = registerUserDto.Username,
-                Password = registerUserDto.Password,
-                // Role = registerUserDto.Role!,
-            };
-        }
-
-
-        public static UserEntity ToUserEntity(this UpdateUserDto updateUserDto)
-        {
-            return new UserEntity
-            {
-                Fullname = updateUserDto.Fullname,
-                Username = updateUserDto.Username,
-                Password = updateUserDto.Password,
-                // Role = registerUserDto.Role!,
-            };
-        }
-
-
-        public static UserWithoutRolesDto ToUserWithoutRolesDto(this UserEntity userEntity)
-        {
-            return new UserWithoutRolesDto
-            {
-                Id = userEntity.Id,
-                Fullname = userEntity.Fullname,
-                Username = userEntity.Username,
-            };
-        }
-
-
-        public static UserDto ToUserDto(this UserEntity userEntity)
-        {
-            return new UserDto
-            {
-                Id = userEntity.Id,
-                Username = userEntity.Username!,
-                Fullname = userEntity.Fullname!,
-                Roles = userEntity.Roles
-            };
-        }
-
-
-        public static UserDto ToUserDto(this UserWithoutRolesDto userWithoutRolesDto)
-        {
-            return new UserDto
-            {
-                Id = userWithoutRolesDto.Id,
-                Username = userWithoutRolesDto.Username!,
-                Fullname = userWithoutRolesDto.Fullname!,
-            };
-        }
-
-
+            IdCardNit = registerUserDto.IdCardNit,
+            FirstName = registerUserDto.FirstName,
+            LastName = registerUserDto.LastName,
+            Email = registerUserDto.Email,
+            Identification = registerUserDto.Identification,
+            Password = registerUserDto.Password,
+            PasswordSalt = registerUserDto.PasswordSalt,
+            RoleId = registerUserDto.RoleId,
+            RegistrationDate = DateTime.UtcNow  // Fecha actual
+        };
     }
+
+    // Mapear UpdateUserDto a UserEntity (para actualización)
+    public static UserEntity ToUserEntity(this UpdateUserDto updateUserDto)
+    {
+        return new UserEntity
+        {
+            FirstName = updateUserDto.FirstName,
+            LastName = updateUserDto.LastName,
+            Email = updateUserDto.Email,
+            Identification = updateUserDto.Identification,
+            Password = updateUserDto.Password,
+            PasswordSalt = updateUserDto.PasswordSalt,
+            RoleId = updateUserDto.RoleId,
+            RegistrationDate = updateUserDto.RegistrationDate  // Mantiene la fecha original
+        };
+    }
+
+    // Mapear UserEntity a UserDto (para respuesta)
+    public static UserDto ToUserDto(this UserEntity userEntity)
+    {
+        return new UserDto
+        {
+            IdCardNit = userEntity.IdCardNit,
+            Id = userEntity.Id,
+            FirstName = userEntity.FirstName!,
+            LastName = userEntity.LastName!,
+            Email = userEntity.Email!,
+            Identification = userEntity.Identification!,
+            RoleId = userEntity.RoleId,
+            RegistrationDate = userEntity.RegistrationDate
+        };
+    }
+}
+
+
 }

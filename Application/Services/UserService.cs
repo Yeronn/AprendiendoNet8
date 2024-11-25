@@ -3,289 +3,70 @@ using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Mappers;
 using Domain.Interfaces;
-using Microsoft.Extensions.Configuration;
 
 namespace Application.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
-        private readonly IPasswordHasherService _passwordHasher;
-        private readonly IRoleService _roleService;
 
-        public UserService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasherService passwordHasher, IRoleService roleService)
+        public UserService(IUserRepository userRepository)
         {
             _userRepository = userRepository;
-            _passwordHasher = passwordHasher;
-            _roleService = roleService;
         }
 
-
-        public async Task<IEnumerable<UserWithoutRolesDto>?> GetAllUsersAsync()
+        public async Task<IEnumerable<UserDto>> GetUsersAsync()
         {
-            var users = await _userRepository.GetAllUsersAsync();
-            if (!users.Any())
-                return null;
-            var usersDto = users.Select(u => u.ToUserWithoutRolesDto());
-            return usersDto;
+            var users = await _userRepository.GetUsersAsync();
+            return users.Select(u => u.ToUserDto());
         }
 
+        public async Task<UserDto?> GetUserByIdCardNitAsync(int idCardNit)
+        {
+            var user = await _userRepository.GetUserByIdCardNitAsync(idCardNit);
+            return user?.ToUserDto();
+        }
 
-        public async Task<UserWithoutRolesDto?> GetUserByIdAsync(int id)
+        public async Task<UserDto?> GetUserByIdAsync(int id)
         {
             var user = await _userRepository.GetUserByIdAsync(id);
-            if (user == null)
-                return null;
-            return user.ToUserWithoutRolesDto();
+            return user?.ToUserDto();
         }
 
-
-        public async Task<UserResponseDto> UpdateUserAsync(int id, UpdateUserDto updateUserDto) 
+        public async Task<UserDto?> CreateUserAsync(RegisterUserDto createUserDto)
         {
-            var userExists = await ValidateUserExistsByIdAsync(id);
-            if (!userExists.Success)
-                return userExists;
+            var userEntity = createUserDto.ToUserEntity();
+            var createdUserId = await _userRepository.CreateUserAsync(userEntity);
             
-            var currentUser = await _userRepository.GetUserByIdAsync(id);
-            var updateUserEntity = updateUserDto.ToUserEntity();
-            updateUserEntity.Id = id;
-
-            if (!string.IsNullOrEmpty(updateUserEntity.Fullname) && updateUserEntity.Fullname != currentUser!.Fullname)
+            if (createdUserId.HasValue)
             {
-                var availableName = await CheckUserFullnameAvailabilityAsync(updateUserEntity.Fullname);
-                if (!availableName.Success)
-                    return availableName;
-
-                await _userRepository.UpdateFullnameAsync(id, updateUserEntity.Fullname);
+                
+                var createdUser = await _userRepository.GetUserByIdAsync(createdUserId.Value);
+                return createdUser?.ToUserDto();
             }
-            else
-                updateUserEntity.Fullname = currentUser!.Fullname;
+            return null;
+        }
 
 
-            if (!string.IsNullOrEmpty(updateUserEntity.Username) && updateUserEntity.Username != currentUser!.Username)
+        public async Task<UserDto?> UpdateUserAsync(int idCardNit, UpdateUserDto updateUserDto)
+        {
+            var userEntity = updateUserDto.ToUserEntity();
+            userEntity.IdCardNit = idCardNit; 
+
+            var isUpdated = await _userRepository.UpdateUserAsync(userEntity);
+            if (isUpdated)
             {
-                var availableName = await CheckUsernameAvailabilityAsync(updateUserEntity.Username);
-                if (!availableName.Success)
-                    return availableName;
-
-                await _userRepository.UpdateUsernameAsync(id, updateUserEntity.Username);
+                var updatedUser = await _userRepository.GetUserByIdCardNitAsync(idCardNit);
+                return updatedUser?.ToUserDto();
             }
-            else
-                updateUserEntity.Username = currentUser!.Username;
-
-            if(!string.IsNullOrEmpty(updateUserEntity.Password))
-            {
-                bool samePassword = _passwordHasher.VerifyPassword(updateUserEntity.Password!, currentUser.Password!);
-                if (!samePassword)
-                {
-                    string hashedPassword = _passwordHasher.HashPassword(updateUserEntity.Password);
-                    await _userRepository.UpdatePasswordAsync(id, hashedPassword);
-                }
-            }
-
-            return new UserResponseDto(true, "Usuario actualizado correctamente.", updateUserEntity.ToUserWithoutRolesDto());
+            return null;
         }
 
-
-        public async Task<UserDto?> GetUserWithRolesByUserIdAsync(int userId)
+        public async Task<bool> DeleteUserAsync(int idCardNit)
         {
-            var user = await GetUserByIdAsync(userId);
-            if (user == null)
-                return null;
-            var userDto = user.ToUserDto();
-            // var roles = await _roleService.GetAllRolesByUserIdAsync(userId);
-            // userDto.Roles = roles.ToList();
-            return userDto;
+            return await _userRepository.DeleteUserAsync(idCardNit);
         }
-
-
-        public async Task<IEnumerable<UserDto>?> GetAllUsersWithRolesAsync()
-        {
-            var usersWithRoles = await _userRepository.GetAllUsersWithRolesAsync();
-            if (!usersWithRoles.Any())
-                return null;
-
-            return usersWithRoles.Select(user => user.ToUserDto());
-        }
-
-
-        // public async Task<UserResponseDto> AssignRolesToUserAsync(int userId, List<int> rolesIds)
-        // {
-        //     if (!rolesIds.Any())
-        //         return new UserResponseDto(false, "No envió los ids de los roles", IsBadRequest: true);
-
-        //     var userExists = await ValidateUserExistsByIdAsync(userId);
-        //     if (!userExists.Success)
-        //         return userExists;
-
-        //     var invalidRoles = await GetInvalidRolesAsync(rolesIds);
-        //     if (invalidRoles.Any())
-        //         return new UserResponseDto(false, $"Los siguientes roles no existen: {string.Join(", ", invalidRoles)}", IsBadRequest: true);
-
-        //     var newRoles = await GetNewRolesAsync(userId, rolesIds);
-        //     if (!newRoles.Any())
-        //         return new UserResponseDto(false, "Todos los roles se encuentran asignados al rol", IsBadRequest: true);
-
-        //     var success = await _userRepository.AddRolesToUserAsync(userId, newRoles);
-        //     return success
-        //         ? new UserResponseDto(true, "Roles añadidos correctamente al usuario.")
-        //         : new UserResponseDto(false, "Error al añadir roles al usuario.");
-        // }
-
-
-        // public async Task<UserResponseDto> RemoveRolesFromUserAsync(int userId, List<int> roleIds)
-        // {
-        //     if(!roleIds.Any())
-        //         return new UserResponseDto(false, "Está tratando de eliminar roles del usuario, pero no envió los roles", IsBadRequest: true);
-
-        //     var userExists = await ValidateUserExistsByIdAsync(userId);
-        //     if (!userExists.Success)
-        //         return userExists;
-
-        //     var currentRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
-
-        //     // * Ve0rify that the user has the roles to be removed
-        //     var invalidPermissions = roleIds.Except(currentRoles.Select(p => p.Id)).ToList();
-        //     if (invalidPermissions.Any())
-        //         return new UserResponseDto(false, $"El usuario no tiene los siguientes roles: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
-
-        //     bool success = await _userRepository.RemoveRolesFromUserAsync(userId, roleIds);
-        //     return success
-        //         ? new UserResponseDto(true, "Roles eliminados correctamente del usuario.")
-        //         : new UserResponseDto(false, "Error al eliminar roles del usuario.");
-        // }
-
-
-        public async Task<UserResponseDto> DeleteUserAsync(int userId)
-        {
-            var userExists = await ValidateUserExistsByIdAsync(userId);
-            if (!userExists.Success)
-                return userExists;
-
-            // * Get user roles to delete records in RolePermission table
-            // var userRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
-
-            // if (userRoles.Any())
-            // {
-            //     List<int> rolePermissionsIds = userRoles.Select(userRole => userRole.Id).ToList();
-
-            //     var removedUserRoleRecords = await RemoveRolesFromUserAsync(userId, rolePermissionsIds);
-
-            //     if (!removedUserRoleRecords.Success)
-            //         return removedUserRoleRecords;
-            // }
-
-            var success = await _userRepository.DeleteUserAsync(userId);
-            return success
-                ? new UserResponseDto(true, "Usuario eliminado exitosamente.")
-                : new UserResponseDto(false, "Error al eliminar el usuario.");
-        }
-
-
-        public async Task<IEnumerable<UserWithoutRolesDto>?> GetAllUsersByRoleIdAsync(int roleId)
-        {
-            var roleExists = await _roleService.ValidateRoleExistsByIdAsync(roleId);
-            if(!roleExists.Success)
-                return null;
-            var usersByRole = await _userRepository.GetAllUsersByRoleIdAsync(roleId);
-            //TODO: Decidir si tambien traiga los permisos de cada rol
-            var usersByRoleDto = usersByRole.Select(user => user.ToUserWithoutRolesDto());
-            return usersByRoleDto;
-        }
-
-        //TODO: Hacer endpoints para
-        //TODO: Obtener todos los usuarios de un rol
-
-
-        public async Task<UserResponseDto> ValidateUsernameUniquenessAsync(string username)
-        {
-            if (string.IsNullOrWhiteSpace(username))
-                return new UserResponseDto(false, "El username no puede estar vacío.");
-
-            if (username.Length < 5 || username.Length > 50) //TODO: Parámetrizar estos valores
-                return new UserResponseDto(false, "El username debe tener entre 5 y 50 caracteres.");
-
-            var usernameIsUnique = await _userRepository.IsUsernameUniqueAsync(username);
-            if (!usernameIsUnique)
-                return new UserResponseDto(false, "El username ya se encuentra registrado.");
-
-            return new UserResponseDto(true, "El username es único.");
-        }
-
-
-        public async Task<RegistrationResponse> ValidateFullnameUniquenessAsync(string fullname)
-        {
-            if (string.IsNullOrWhiteSpace(fullname))
-                return new RegistrationResponse(false, "El nombre completo no puede estar vacío.");
-
-            if (!fullname.All(char.IsLetterOrDigit))
-                return new RegistrationResponse(false, "El nombre completo solo puede contener letras y números.");
-
-            var fullnameIsUnique = await _userRepository.IsFullnameUniqueAsync(fullname);
-            if (!fullnameIsUnique)
-                return new RegistrationResponse(false, "El nombre ya está en uso.");
-
-            return new RegistrationResponse(true, "El nombre es único.");
-        }
-
-
-
-
-
-
-
-
-
-        private async Task<UserResponseDto> ValidateUserExistsByIdAsync(int id)
-        {
-            bool userExists = await _userRepository.ExistUserByIdAsync(id);
-            if (!userExists)
-                return new UserResponseDto(false, "El usuario no existe.", IsNotFound: true);
-
-            return new UserResponseDto(true, "El usuario existe.");
-        }
-
-
-        private async Task<UserResponseDto> CheckUserFullnameAvailabilityAsync(string userFullname)
-        {
-            bool userFullnameExists = await _userRepository.ExistUserByFullNameAsync(userFullname);
-            if (userFullnameExists)
-                return new UserResponseDto(false, "El nombre de usuario ya existe en el sistema", IsConflict: true);
-
-            return new UserResponseDto(true, "Nombre de usuario válido.");
-        }
-
-
-        private async Task<UserResponseDto> CheckUsernameAvailabilityAsync(string userName)
-        {
-            bool userUsernameExists = await _userRepository.ExistUserByUsernameAsync(userName);
-            if (userUsernameExists)
-                return new UserResponseDto(false, "El nombre de usuario ya existe en el sistema", IsConflict: true);
-
-            return new UserResponseDto(true, "Nombre de usuario válido.");
-        }
-
-
-        private async Task<List<int>> GetInvalidRolesAsync(List<int> rolesIds)
-        {
-            var invalidRoles = new List<int>();
-            foreach (var roleId in rolesIds)
-            {
-                var roleExists = await _roleService.ValidateRoleExistsByIdAsync(roleId);
-                if (!roleExists.Success)
-                    invalidRoles.Add(roleId);
-            }
-            return invalidRoles;
-        }
-
-
-        // private async Task<List<int>> GetNewRolesAsync(int userId, List<int> rolesIds)
-        // {
-        //     var existingRoles = await _roleService.GetAllRolesByUserIdAsync(userId);
-        //     return rolesIds.Except(existingRoles.Select(r => r.Id)).ToList();
-        // }
-
-
-
+        
     }
+
 }

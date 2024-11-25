@@ -2,13 +2,16 @@
 {
     public class UserEntity
     {
-        public int CedulaNit { get; set; }
+        public int IdCardNit { get; set; }
         public int Id { get; set; }
-        public string? Username { get; set; }
-        public string? Password { get; set; }
-        public string? Fullname { get; set; }
-        public string? LastJti { get; set; }
+        public required string FirstName { get; set; }
+        public required string LastName { get; set; }
+        public required string Email { get; set; }
+        public required string Identification { get; set; }
+        public required string Password { get; set; }
+        public required string PasswordSalt { get; set; }
         public int RoleId { get; set; }
-        public List<RoleEntity> Roles { get; set; } = [];
+        public DateTime RegistrationDate { get; set; }
+        public string? LastJti { get; set; }
     }
 }
