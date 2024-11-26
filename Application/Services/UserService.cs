@@ -33,23 +33,12 @@ namespace Application.Services
             return user?.ToUserDto();
         }
 
-        public async Task<UserDto?> CreateUserAsync(RegisterUserDto createUserDto)
-        {
-            var userEntity = createUserDto.ToUserEntity();
-            var createdUserId = await _userRepository.CreateUserAsync(userEntity);
-            
-            if (createdUserId.HasValue)
-            {
-                
-                var createdUser = await _userRepository.GetUserByIdAsync(createdUserId.Value);
-                return createdUser?.ToUserDto();
-            }
-            return null;
-        }
-
 
         public async Task<UserDto?> UpdateUserAsync(int idCardNit, UpdateUserDto updateUserDto)
         {
+            //TODO: El nombre completo se puede repetir en la misma empresa?
+            //TODO: El email no se puede repetir en la misma empresa
+            //TODO: La identification no se puede repetir en la misma empresa
             var userEntity = updateUserDto.ToUserEntity();
             userEntity.IdCardNit = idCardNit;
 
@@ -73,12 +62,6 @@ namespace Application.Services
         {
             var userEntity = await _userRepository.GetUserByLastJtiAsync(lastJti);
             return userEntity?.ToUserDto();  
-        }
-
-        //TODO: Borrar metodo, el metodo exists hace esto
-        public async Task<bool> IsIdCardNitUniqueAsync(int idCardNit)
-        {
-            return !await _userRepository.IdCardNitExistsAsync(idCardNit);  // Devuelve true si no existe
         }
 
 
@@ -110,10 +93,6 @@ namespace Application.Services
         public async Task<bool> VerifyIdCardNitExistsAsync(int idCardNit)
         {
             var exists = await _userRepository.IdCardNitExistsAsync(idCardNit);
-
-            if (!exists)
-                return exists;
-
             return exists;
         }
 

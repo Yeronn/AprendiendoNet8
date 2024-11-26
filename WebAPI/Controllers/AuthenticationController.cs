@@ -39,24 +39,14 @@ namespace WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] RegisterUserDto newUser)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Datos inválidos: " + ModelState);
-            }
+            var registrationResponse = await _authService.RegisterUser(newUser);
 
-            try
-            {
-                var registrationResponse = await _authService.RegisterUser(newUser);
-
-                if (!registrationResponse.Success)
-                    return BadRequest(registrationResponse.Message);
-
-                return CreatedAtRoute("GetUserById", new { id = registrationResponse.UserDto!.Id }, registrationResponse); //TODO: Aplicar esto en los demás controladores que crean 
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Ocurrio un error no esperado al crear usuario: {ex.Message}");
-            }
+            if (registrationResponse.Success)
+                return CreatedAtRoute("GetUserById", new { id = registrationResponse.UserDto!.Id }, registrationResponse);
+            else if (registrationResponse.IsConflict) 
+                return Conflict(registrationResponse.Message);
+            else
+                return BadRequest(registrationResponse.Message);
         }
     }
 }

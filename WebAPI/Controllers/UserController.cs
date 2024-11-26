@@ -23,9 +23,7 @@ namespace WebAPI.Controllers
         {
             var user = await _userService.GetUserByIdCardNitAsync(idCardNit);
             if (user == null)
-            {
                 return NotFound(new { Message = "User not found." });
-            }
             return Ok(user);
         }
 
@@ -35,9 +33,7 @@ namespace WebAPI.Controllers
         {
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
-            {
                 return NotFound(new { Message = "User not found." });
-            }
             return Ok(user);
         }
 
@@ -46,21 +42,11 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> GetUsers()
         {
             var users = await _userService.GetUsersAsync();
+            if (!users.Any())
+                return NotFound("No hay usuarios en el sistema");
             return Ok(users);
         }
 
-        // POST: api/users
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] RegisterUserDto registerUserDto)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            var createdUser = await _userService.CreateUserAsync(registerUserDto);
-            return CreatedAtAction(nameof(GetUserByIdCardNit), new { idCardNit = createdUser!.IdCardNit }, createdUser);
-        }
 
         // PUT: api/users/{idCardNit}
         [HttpPut("{idCardNit:int}")]
@@ -86,9 +72,7 @@ namespace WebAPI.Controllers
         {
             var result = await _userService.DeleteUserAsync(idCardNit);
             if (!result)
-            {
                 return NotFound(new { Message = "User not found." });
-            }
 
             return NoContent();
         }

@@ -32,13 +32,16 @@ namespace Application.Services
 
         public async Task<RegistrationResponse> RegisterUser(RegisterUserDto newUser)
         {
-            bool isUnique = await _userService.IsIdCardNitUniqueAsync(newUser.IdCardNit);
-            if (!isUnique)
-                throw new Exception("El IdCardNit ya está registrado.");
+            //TODO: El nombre completo se puede repetir en la misma empresa?
+            //TODO: El email no se puede repetir en la misma empresa
+            //TODO: El identification no se puede repetir en la misma empresa
+            bool idCardNitExists = await _userService.VerifyIdCardNitExistsAsync(newUser.IdCardNit);
+            if (!idCardNitExists)
+                return new RegistrationResponse(false, "El IdCardNit no está disponible", IsConflict: true);
 
             var roleExists = await _roleService.ValidateRoleExistsByIdAsync(newUser.RoleId);
             if (!roleExists.Success)
-                throw new Exception("El rol del usuario no existe");
+                return new RegistrationResponse(false, "El rol no es válido", IsBadRequest:true);
             
             //TODO: Implementar el PasswordSalt
             
@@ -54,7 +57,7 @@ namespace Application.Services
                 var createdUser = await _userService.GetUserByIdAsync(createdUserId.Value);
                 return new RegistrationResponse(true, "El usuario se creó correctamente", createdUser);
             }
-                return new RegistrationResponse(false, "Hubo un error en el servidor al crear al usuario");
+                return new RegistrationResponse(false, "Error en el servidor al crear al usuario");
         }
 
 

@@ -55,7 +55,7 @@ namespace Infrastructure.Repositories
             using (var connection = _context.CreateConnection())
             {
                 var createdId = await connection.QuerySingleOrDefaultAsync<int?>(query, user);
-                return createdId;  // Devuelve el ID del usuario creado
+                return createdId;
             }
         }
 
