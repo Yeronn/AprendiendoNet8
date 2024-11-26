@@ -156,7 +156,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> IsRoleNameUniqueInCompanyAsync(string name, int companyId)
+        public async Task<bool> CheckRoleNameAvailabilityAsync(string name, int companyId)
         {
             var query = @"
                 SELECT COUNT(1) 
@@ -166,7 +166,7 @@ namespace Infrastructure.Repositories
             using (var connection = _context.CreateConnection())
             {
                 var count = await connection.ExecuteScalarAsync<int>(query, new { Name = name, CompanyId = companyId });
-                return count > 0;
+                return count == 0;
             }
         }
 

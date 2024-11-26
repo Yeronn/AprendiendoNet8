@@ -75,7 +75,7 @@ namespace Application.Services
                 return new RoleResponseDto(false, "El rol no existe.", IsNotFound: true);
             
             var availableName = await CheckRoleNameAvailabilityAsync(updateRoleDto.Name!, updateRoleDto.CompanyId!);
-            if (!availableName.Success)
+            if (!availableName.Success && (updateRoleDto.CompanyId != currentRole.CompanyId || updateRoleDto.Name != currentRole.Name) )
                 return availableName;
 
             var companyExists = await _companyService.ValidateCompanyExistsByIdAsync(updateRoleDto.CompanyId);
@@ -211,8 +211,8 @@ namespace Application.Services
 
         private async Task<RoleResponseDto> CheckRoleNameAvailabilityAsync(string roleName, int companyId)
         {
-            bool nameIsUnique = await _roleRepository.IsRoleNameUniqueInCompanyAsync(roleName, companyId);
-            if (nameIsUnique)
+            bool nameIsUnique = await _roleRepository.CheckRoleNameAvailabilityAsync(roleName, companyId);
+            if (!nameIsUnique)
                 return new RoleResponseDto(false, "Nombre no disponible", IsConflict: true);
 
             return new RoleResponseDto(true, "Nombre válido.");
