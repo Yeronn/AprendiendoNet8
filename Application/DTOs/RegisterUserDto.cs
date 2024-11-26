@@ -5,7 +5,7 @@ namespace Application.DTOs.User
     public class RegisterUserDto
     {
         [Required]
-        public int IdCardNit { get; set; }
+        public int CompanyNit { get; set; }
         [Required]
         public string FirstName { get; set; } = string.Empty;
         [Required]
@@ -13,7 +13,7 @@ namespace Application.DTOs.User
         [Required]
         public string Email { get; set; } = string.Empty;
         [Required]
-        public string Identification { get; set; } = string.Empty;
+        public int Identification { get; set; }
         [Required]
         public string Password { get; set; } = string.Empty;
         [Required]

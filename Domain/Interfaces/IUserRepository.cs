@@ -18,6 +18,7 @@ namespace Domain.Interfaces
         Task<UserEntity?> GetUserByLastJtiAsync(string lastJti);
         Task<bool> IdCardNitExistsAsync(int idCardNit);
         Task<string?> GetPasswordByIdCardNitAsync(int idCardNit);
+        Task<bool> IsEmailAvailableInCompanyAsync(string email, int companyId);
         Task<bool> UpdateLastJtiAsync(int idCardNit, string lastJti);
     }
 }

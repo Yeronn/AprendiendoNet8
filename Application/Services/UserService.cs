@@ -3,16 +3,21 @@ using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Mappers;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Identity;
 
 namespace Application.Services
 {
     public class UserService : IUserService
     {
         private readonly IUserRepository _userRepository;
+        private readonly IRoleService _roleService;
+        private readonly IPasswordHasherService _passwordHasher;
 
-        public UserService(IUserRepository userRepository)
+        public UserService(IUserRepository userRepository, IRoleService roleService, IPasswordHasherService passwordHasher)
         {
             _userRepository = userRepository;
+            _roleService = roleService;
+            _passwordHasher = passwordHasher;
         }
 
         public async Task<IEnumerable<UserDto>> GetUsersAsync()
@@ -34,11 +39,27 @@ namespace Application.Services
         }
 
 
-        public async Task<UserDto?> UpdateUserAsync(int idCardNit, UpdateUserDto updateUserDto)
+        public async Task<UserResponseDto> UpdateUserAsync(int idCardNit, UpdateUserDto updateUserDto)
         {
-            //TODO: El nombre completo se puede repetir en la misma empresa?
-            //TODO: El email no se puede repetir en la misma empresa
+            bool idCardNitExists = await VerifyIdCardNitExistsAsync(idCardNit);
+            if (!idCardNitExists)
+                return new UserResponseDto(false, "El IdCardNit no está disponible", IsBadRequest: true);
+
+            var roleExists = await _roleService.ValidateRoleExistsByIdAsync(updateUserDto.RoleId);
+            if (!roleExists.Success)
+                return new UserResponseDto(false, "El rol no es válido", IsBadRequest:true);
+            
+            var currentRole = await _roleService.GetRoleByIdAsync(updateUserDto.RoleId); // ? Se puede ahorrar esta consulta si se pide en el dto el id de la empresa
+            var availableEmail = await IsEmailAvailableInCompanyAsync(currentRole!.CompanyId, updateUserDto.Email);
+            var currentUser = await GetUserByIdCardNitAsync(idCardNit);
+            if (!availableEmail.Success && currentUser!.Email != updateUserDto.Email)
+                return availableEmail;
+
             //TODO: La identification no se puede repetir en la misma empresa
+
+            var hashedPassword = _passwordHasher.HashPassword(updateUserDto.Password);
+            updateUserDto.Password = hashedPassword;
+
             var userEntity = updateUserDto.ToUserEntity();
             userEntity.IdCardNit = idCardNit;
 
@@ -46,9 +67,9 @@ namespace Application.Services
             if (isUpdated)
             {
                 var updatedUser = await _userRepository.GetUserByIdCardNitAsync(idCardNit);
-                return updatedUser?.ToUserDto();
+                return new UserResponseDto(true, "Se actualizó el usuario", updatedUser?.ToUserDto());
             }
-            return null;
+            return new UserResponseDto(false, "No se pudo actualizar el usuario", IsBadRequest:true);
         }
 
 
@@ -110,6 +131,13 @@ namespace Application.Services
         }
 
 
+        public async Task<UserResponseDto> IsEmailAvailableInCompanyAsync(int companyId, string email)
+        {
+            var availability = await _userRepository.IsEmailAvailableInCompanyAsync(email, companyId);
+            return availability
+                        ? new UserResponseDto(true, "Email disponible en la empresa")
+                        : new UserResponseDto(false, "Email no disponible en la empresa", IsConflict: true);
+        }
 
 
     }

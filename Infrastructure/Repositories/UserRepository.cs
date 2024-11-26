@@ -134,5 +134,22 @@ namespace Infrastructure.Repositories
         }
 
 
+        public async Task<bool> IsEmailAvailableInCompanyAsync(string email, int companyId)
+        {
+            var query = @"
+                SELECT COUNT(1)
+                FROM Users U
+                INNER JOIN Roles R ON U.RoleId = R.Id
+                WHERE U.Email = @Email AND R.CompanyId = @CompanyId";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Email = email, CompanyId = companyId });
+                return count == 0;
+            }
+        }
+
+
+
     }
 }

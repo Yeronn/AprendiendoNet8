@@ -5,7 +5,7 @@ namespace Application.Interfaces
 {
     public interface IUserService
     {
-        Task<UserDto?> UpdateUserAsync(int idCardNit, UpdateUserDto updateUserDto);
+        Task<UserResponseDto> UpdateUserAsync(int idCardNit, UpdateUserDto updateUserDto);
         Task<IEnumerable<UserDto>> GetUsersAsync();
         Task<UserDto?> GetUserByIdCardNitAsync(int idCardNit);
         Task<UserDto?> GetUserByIdAsync(int id);
@@ -15,5 +15,6 @@ namespace Application.Interfaces
         Task<bool> UpdateLastJtiAsync(int idCardNit, string lastJti);
         Task<bool> VerifyIdCardNitExistsAsync(int idCardNit);
         Task<UserJwtTokenDto> GetUserJwtTokenByIdCardNitAsync(int idCardNit);
+        Task<UserResponseDto> IsEmailAvailableInCompanyAsync(int idCardNit, string email);
     }
 }

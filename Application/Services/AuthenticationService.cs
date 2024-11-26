@@ -32,16 +32,22 @@ namespace Application.Services
 
         public async Task<RegistrationResponse> RegisterUser(RegisterUserDto newUser)
         {
-            //TODO: El nombre completo se puede repetir en la misma empresa?
-            //TODO: El email no se puede repetir en la misma empresa
             //TODO: El identification no se puede repetir en la misma empresa
-            bool idCardNitExists = await _userService.VerifyIdCardNitExistsAsync(newUser.IdCardNit);
-            if (!idCardNitExists)
+            int IdCardNit = newUser.CompanyNit + newUser.Identification;
+            bool idCardNitExists = await _userService.VerifyIdCardNitExistsAsync(IdCardNit);
+            if (idCardNitExists)
                 return new RegistrationResponse(false, "El IdCardNit no está disponible", IsConflict: true);
 
             var roleExists = await _roleService.ValidateRoleExistsByIdAsync(newUser.RoleId);
             if (!roleExists.Success)
                 return new RegistrationResponse(false, "El rol no es válido", IsBadRequest:true);
+
+            //TODO: El email no se puede repetir en la misma empresa
+            var currentRole = await _roleService.GetRoleByIdAsync(newUser.RoleId); //? se puede ahorra si se envia en el dto el id de la empresa, ya que solo los admins pueden crear usuarios
+            var availableEmail = await _userService.IsEmailAvailableInCompanyAsync(currentRole!.CompanyId, newUser.Email);
+            if (!availableEmail.Success)
+                return new RegistrationResponse(false, availableEmail.Message, IsConflict: availableEmail.IsConflict);
+
             
             //TODO: Implementar el PasswordSalt
             
