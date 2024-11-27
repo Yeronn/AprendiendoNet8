@@ -10,7 +10,7 @@ namespace Application.Mappers
         {
             return new UserEntity
             {
-                IdCardNit = registerUserDto.IdCardNit,
+                IdCardNit = registerUserDto.CompanyNit,
                 FirstName = registerUserDto.FirstName,
                 LastName = registerUserDto.LastName,
                 Email = registerUserDto.Email,
@@ -33,8 +33,7 @@ namespace Application.Mappers
                 Identification = updateUserDto.Identification,
                 Password = updateUserDto.Password,
                 PasswordSalt = updateUserDto.PasswordSalt,
-                RoleId = updateUserDto.RoleId,
-                RegistrationDate = updateUserDto.RegistrationDate
+                RoleId = updateUserDto.RoleId
             };
         }
 

@@ -48,7 +48,7 @@ CREATE TABLE Users (
     FirstName VARCHAR(100) NOT NULL,
     LastName VARCHAR(100) NOT NULL,
     Email VARCHAR(100) NOT NULL,
-    Identification VARCHAR(50) NOT NULL,
+    Identification INT NOT NULL,
     Password VARCHAR(255) NOT NULL,  -- Assuming hashed password
     PasswordSalt VARCHAR(255) NOT NULL,  -- Assuming salt for password hashing
     RoleId INT NOT NULL,  -- Foreign key to Roles
@@ -99,10 +99,10 @@ VALUES
 -- Insertar datos en la tabla Users
 INSERT INTO Users (IdCardNit, FirstName, LastName, Email, Identification, Password, PasswordSalt, RoleId)
 VALUES
-    (10101010, 'John', 'Doe', 'john.doe@example.com', 'JD123456', 'hashedpassword1', 'salt1', 1),  -- Admin
-    (20202020, 'Jane', 'Smith', 'jane.smith@example.com', 'JS654321', 'hashedpassword2', 'salt2', 2),  -- Manager
-    (30303030, 'Alice', 'Johnson', 'alice.johnson@example.com', 'AJ987654', 'hashedpassword3', 'salt3', 3),  -- User
-    (40404040, 'Bob', 'Williams', 'bob.williams@example.com', 'BW111222', 'hashedpassword4', 'salt4', 3),  -- User sin permisos adicionales
+    (10101010, 'John', 'Doe', 'john.doe@example.com', 123456, 'hashedpassword1', 'salt1', 1),  -- Admin
+    (20202020, 'Jane', 'Smith', 'jane.smith@example.com', 654321, 'hashedpassword2', 'salt2', 2),  -- Manager
+    (30303030, 'Alice', 'Johnson', 'alice.johnson@example.com', 987654, 'hashedpassword3', 'salt3', 3),  -- User
+    (40404040, 'Bob', 'Williams', 'bob.williams@example.com', 111222, 'hashedpassword4', 'salt4', 3),  -- User sin permisos adicionales
     (12345, 'prueba', 'prueba', 'prueba@example.com', '123231', '$2a$11$VTDt63kAgy//Q2LankkKeerI3LDUsRjQDpZoAFAdvh4AtCOoOQWDi', 'salt4', 3);  -- User sin permisos adicionales
 
 -- Insertar datos en la tabla Tokens (vinculados a usuarios específicos)
