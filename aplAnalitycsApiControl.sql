@@ -7,66 +7,64 @@ GO
 USE aplAnalitycsApiControl;
 GO
 
--- Create Empresas table
+-- Crear tabla Companies
 CREATE TABLE Companies (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Name VARCHAR(100) NOT NULL UNIQUE,
     NIT INT NOT NULL UNIQUE
 );
 
--- Create Roles table (with new columns Status and CompanyId)
+-- Crear tabla Roles
 CREATE TABLE Roles (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Name VARCHAR(100) NOT NULL,
     Description TEXT,
-    Status BIT NOT NULL DEFAULT 1,  -- Active by default
+    Status BIT NOT NULL DEFAULT 1,
     CompanyId INT NOT NULL,
     FOREIGN KEY (CompanyId) REFERENCES Companies(Id)
 );
 
--- Create Permissions table
+-- Crear tabla Permissions
 CREATE TABLE Permissions (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Name VARCHAR(100) NOT NULL UNIQUE,
     Description TEXT
 );
 
--- Create RolePermission table (many-to-many relation between Roles and Permissions)
+-- Crear tabla RolePermissions
 CREATE TABLE RolePermissions (
     RoleId INT NOT NULL,
     PermissionId INT NOT NULL,
-    AssignmentDate DATE NOT NULL DEFAULT GETDATE(),
+    AssignmentDate DATETIME NOT NULL DEFAULT GETDATE(),
     PRIMARY KEY (RoleId, PermissionId),
     FOREIGN KEY (RoleId) REFERENCES Roles(Id),
     FOREIGN KEY (PermissionId) REFERENCES Permissions(Id)
 );
 
--- Create Users table with updated primary key (IdCardNit) and new fields
+-- Crear tabla Users
 CREATE TABLE Users (
-    IdCardNit INT NOT NULL PRIMARY KEY,  
+    IdCCNit INT NOT NULL PRIMARY KEY,  
     Id INT IDENTITY(1,1),  -- Auto-incrementing Id
     FirstName VARCHAR(100) NOT NULL,
     LastName VARCHAR(100) NOT NULL,
     Email VARCHAR(100) NOT NULL,
     Identification INT NOT NULL,
-    Password VARCHAR(255) NOT NULL,  -- Assuming hashed password
-    PasswordSalt VARCHAR(255) NOT NULL,  -- Assuming salt for password hashing
-    RoleId INT NOT NULL,  -- Foreign key to Roles
-    RegistrationDate DATETIME NOT NULL DEFAULT GETDATE(),  -- Date of registration
-    LastJti VARCHAR(255) NULL,  -- Assuming hashed password
+    HashedPassword VARCHAR(255) NOT NULL,  -- Contraseña hasheada
+    RoleId INT NOT NULL,  -- Clave foránea a Roles
+    RegistrationDate DATETIME NOT NULL DEFAULT GETDATE(),
+    LastJti VARCHAR(255) NULL,
     FOREIGN KEY (RoleId) REFERENCES Roles(Id)
 );
 
-
+-- Crear tabla Tokens
 CREATE TABLE Tokens (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    UserId INT NOT NULL,  -- Foreign key to Users
-    RecoveryToken VARCHAR(255) NULL,  -- Can be NULL if not provided
-    Jti VARCHAR(255) NULL,  -- Token identifier
-    DateCreated DATE NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (UserId) REFERENCES Users(IdCardNit)
+    IdCCNit INT NOT NULL,  -- Clave foránea a Users
+    RecoveryToken VARCHAR(255) NULL,  -- Puede ser NULL
+    Jti VARCHAR(255) NULL,
+    DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit)
 );
-
 
 -- Insertar datos en la tabla Companies
 INSERT INTO Companies (Name, NIT)
@@ -89,25 +87,25 @@ VALUES
     ('Write', 'Permission to write data'),
     ('Delete', 'Permission to delete data');
 
--- Insertar datos en la tabla RolePermissions (asignando permisos a roles)
+-- Insertar datos en la tabla RolePermissions
 INSERT INTO RolePermissions (RoleId, PermissionId, AssignmentDate)
 VALUES
-    (1, 1, '2024-10-01'),  -- Admin tiene permiso de lectura
-    (1, 2, '2024-10-02'),  -- Admin tiene permiso de escritura
-    (2, 1, '2024-10-03'),  -- Manager tiene permiso de lectura
-    (3, 1, '2024-10-04');  -- User tiene permiso de lectura
+    (1, 1, '2024-10-01 09:00:00'),  -- Admin tiene permiso de lectura
+    (1, 2, '2024-10-02 10:30:00'),  -- Admin tiene permiso de escritura
+    (2, 1, '2024-10-03 14:45:00'),  -- Manager tiene permiso de lectura
+    (3, 1, '2024-10-04 16:15:00');  -- User tiene permiso de lectura
 
 -- Insertar datos en la tabla Users
-INSERT INTO Users (IdCardNit, FirstName, LastName, Email, Identification, Password, PasswordSalt, RoleId)
+INSERT INTO Users (IdCCNit, FirstName, LastName, Email, Identification, HashedPassword, RoleId)
 VALUES
-    (10101010, 'John', 'Doe', 'john.doe@example.com', 123456, 'hashedpassword1', 'salt1', 1),  -- Admin
-    (20202020, 'Jane', 'Smith', 'jane.smith@example.com', 654321, 'hashedpassword2', 'salt2', 2),  -- Manager
-    (30303030, 'Alice', 'Johnson', 'alice.johnson@example.com', 987654, 'hashedpassword3', 'salt3', 3),  -- User
-    (40404040, 'Bob', 'Williams', 'bob.williams@example.com', 111222, 'hashedpassword4', 'salt4', 3),  -- User sin permisos adicionales
-    (12345, 'prueba', 'prueba', 'prueba@example.com', '123231', '$2a$11$VTDt63kAgy//Q2LankkKeerI3LDUsRjQDpZoAFAdvh4AtCOoOQWDi', 'salt4', 3);  -- User sin permisos adicionales
+    (10101010, 'John', 'Doe', 'john.doe@example.com', 123456, 'hashedpassword1', 1),  -- Admin
+    (20202020, 'Jane', 'Smith', 'jane.smith@example.com', 654321, 'hashedpassword2', 2),  -- Manager
+    (30303030, 'Alice', 'Johnson', 'alice.johnson@example.com', 987654, 'hashedpassword3', 3),  -- User
+    (40404040, 'Bob', 'Williams', 'bob.williams@example.com', 111222, 'hashedpassword4', 3),  -- User sin permisos adicionales
+    (12345, 'prueba', 'prueba', 'prueba@example.com', 123231, '$2a$11$VTDt63kAgy//Q2LankkKeerI3LDUsRjQDpZoAFAdvh4AtCOoOQWDi', 3);  -- Usuario de prueba
 
--- Insertar datos en la tabla Tokens (vinculados a usuarios específicos)
-INSERT INTO Tokens (UserId, RecoveryToken, Jti)
+-- Insertar datos en la tabla Tokens
+INSERT INTO Tokens (IdCCNit, RecoveryToken, Jti)
 VALUES
     (10101010, 'recovery-token-abc', 'jti-token-123'),  -- Token para John Doe (Admin)
     (20202020, NULL, 'jti-token-456'),  -- Token para Jane Smith (Manager)
