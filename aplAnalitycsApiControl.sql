@@ -57,12 +57,13 @@ CREATE TABLE Users (
     FOREIGN KEY (RoleId) REFERENCES Roles(Id)
 );
 
--- Create Tokens table with nullable token fields
+
 CREATE TABLE Tokens (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    LastJti VARCHAR(255) NULL,
-    RecoveryToken VARCHAR(255) NULL,  -- Can be NULL if not provided
     UserId INT NOT NULL,  -- Foreign key to Users
+    RecoveryToken VARCHAR(255) NULL,  -- Can be NULL if not provided
+    Jti VARCHAR(255) NULL,  -- Token identifier
+    DateCreated DATE NOT NULL DEFAULT GETDATE(),
     FOREIGN KEY (UserId) REFERENCES Users(IdCardNit)
 );
 
@@ -106,9 +107,9 @@ VALUES
     (12345, 'prueba', 'prueba', 'prueba@example.com', '123231', '$2a$11$VTDt63kAgy//Q2LankkKeerI3LDUsRjQDpZoAFAdvh4AtCOoOQWDi', 'salt4', 3);  -- User sin permisos adicionales
 
 -- Insertar datos en la tabla Tokens (vinculados a usuarios específicos)
-INSERT INTO Tokens (LastJti, RecoveryToken, UserId)
+INSERT INTO Tokens (UserId, RecoveryToken, Jti)
 VALUES
-    ('jti-token-123', 'recovery-token-abc', 10101010),  -- Token para John Doe (Admin)
-    ('jti-token-456', NULL, 20202020),  -- Token para Jane Smith (Manager)
-    ('jti-token-789', 'recovery-token-xyz', 30303030),  -- Token para Alice Johnson (User)
-    (NULL, NULL, 40404040);  -- Bob Williams sin tokens
+    (10101010, 'recovery-token-abc', 'jti-token-123'),  -- Token para John Doe (Admin)
+    (20202020, NULL, 'jti-token-456'),  -- Token para Jane Smith (Manager)
+    (30303030, 'recovery-token-xyz', 'jti-token-789'),  -- Token para Alice Johnson (User)
+    (40404040, NULL, NULL);  -- Bob Williams sin tokens
