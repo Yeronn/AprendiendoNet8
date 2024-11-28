@@ -95,7 +95,7 @@ namespace Application.Services
             // var roles = _roleRepository.GetAllRolesByUserIdAsync(user.Id);
             var claims = new[]
             {
-                new Claim(ClaimTypes.NameIdentifier, user.IdCardNit.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.IdCCNit.ToString()),
                 new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
                 new Claim(ClaimTypes.Email, user.Email),
                 // new Claim(ClaimTypes.Role, user.RoleId!),

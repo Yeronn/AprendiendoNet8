@@ -48,7 +48,7 @@ CREATE TABLE Users (
     FirstName VARCHAR(100) NOT NULL,
     LastName VARCHAR(100) NOT NULL,
     Email VARCHAR(100) NOT NULL,
-    Identification INT NOT NULL,
+    CCIdentification INT NOT NULL,
     HashedPassword VARCHAR(255) NOT NULL,  -- Contraseña hasheada
     RoleId INT NOT NULL,  -- Clave foránea a Roles
     RegistrationDate DATETIME NOT NULL DEFAULT GETDATE(),
@@ -96,7 +96,7 @@ VALUES
     (3, 1, '2024-10-04 16:15:00');  -- User tiene permiso de lectura
 
 -- Insertar datos en la tabla Users
-INSERT INTO Users (IdCCNit, FirstName, LastName, Email, Identification, HashedPassword, RoleId)
+INSERT INTO Users (IdCCNit, FirstName, LastName, Email, CCIdentification, HashedPassword, RoleId)
 VALUES
     (10101010, 'John', 'Doe', 'john.doe@example.com', 123456, 'hashedpassword1', 1),  -- Admin
     (20202020, 'Jane', 'Smith', 'jane.smith@example.com', 654321, 'hashedpassword2', 2),  -- Manager

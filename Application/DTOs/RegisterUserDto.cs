@@ -17,8 +17,6 @@ namespace Application.DTOs.User
         [Required]
         public string Password { get; set; } = string.Empty;
         [Required]
-        public string PasswordSalt { get; set; } = string.Empty;
-        [Required]
         public int RoleId { get; set; }
     }
 
