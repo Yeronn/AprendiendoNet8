@@ -26,12 +26,12 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<UserEntity?> GetUserByIdCardNitAsync(int idCardNit)
+        public async Task<UserEntity?> GetUserByIdCardNitAsync(int idCCNit)
         {
-            var query = "SELECT * FROM Users WHERE IdCardNit = @IdCardNit";
+            var query = "SELECT * FROM Users WHERE IdCCNit = @IdCCNit";
             using (var connection = _context.CreateConnection())
             {
-                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { IdCardNit = idCardNit });
+                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { IdCCNit = idCCNit });
             }
         }
 
@@ -48,9 +48,9 @@ namespace Infrastructure.Repositories
 
         public async Task<int?> CreateUserAsync(UserEntity user)
         {
-            var query = @"INSERT INTO Users (IdCardNit, FirstName, LastName, Email, Identification, Password, PasswordSalt, RoleId, RegistrationDate)
+            var query = @"INSERT INTO Users (IdCCNit, FirstName, LastName, Email, CCIdentification, HashedPassword, RoleId, RegistrationDate)
                         OUTPUT INSERTED.Id  -- Devolver el ID generado
-                        VALUES (@IdCardNit, @FirstName, @LastName, @Email, @Identification, @Password, @PasswordSalt, @RoleId, @RegistrationDate)";
+                        VALUES (@IdCCNit, @FirstName, @LastName, @Email, @CCIdentification, @HashedPassword, @RoleId, @RegistrationDate)";
 
             using (var connection = _context.CreateConnection())
             {
@@ -60,13 +60,13 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> UpdateUserAsync(UserEntity user)
+        public async Task<bool> UpdateUserAsync(UserEntity user) //*? Si actualiza la identificacion, es decir, la cédula, entonces hay que actualizar el IdCCNit
         {
             var query = @"UPDATE Users 
                         SET FirstName = @FirstName, LastName = @LastName, Email = @Email, 
-                            Identification = @Identification, Password = @Password, 
-                            PasswordSalt = @PasswordSalt, RoleId = @RoleId 
-                        WHERE IdCardNit = @IdCardNit";
+                            CCIdentification = @CCIdentification, HashedPassword = @HashedPassword, 
+                            RoleId = @RoleId 
+                        WHERE IdCCNit = @IdCCNit";
 
             using (var connection = _context.CreateConnection())
             {
@@ -78,7 +78,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> DeleteUserAsync(int idCardNit)
         {
-            var query = "DELETE FROM Users WHERE IdCardNit = @IdCardNit";
+            var query = "DELETE FROM Users WHERE IdCCNit = @IdCCNit";
 
             using (var connection = _context.CreateConnection())
             {
@@ -99,36 +99,36 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> IdCardNitExistsAsync(int idCardNit)
+        public async Task<bool> IdCardNitExistsAsync(int idCCNit)
         {
-            var query = "SELECT COUNT(1) FROM Users WHERE IdCardNit = @IdCardNit";
+            var query = "SELECT COUNT(1) FROM Users WHERE IdCCNit = @IdCCNit";
             
             using (var connection = _context.CreateConnection())
             {
-                var count = await connection.ExecuteScalarAsync<int>(query, new { IdCardNit = idCardNit });
+                var count = await connection.ExecuteScalarAsync<int>(query, new { IdCCNit = idCCNit });
                 return count > 0;
             }
         }
 
 
-        public async Task<string?> GetPasswordByIdCardNitAsync(int idCardNit)
+        public async Task<string?> GetPasswordByIdCardNitAsync(int idCCNit)
         {
-            var query = "SELECT Password FROM [Users] WHERE IdCardNit = @IdCardNit";
+            var query = "SELECT Password FROM [Users] WHERE IdCCNit = @IdCCNit";
 
             using (var connection = _context.CreateConnection())
             {
-                return await connection.QuerySingleOrDefaultAsync<string>(query, new { IdCardNit = idCardNit });
+                return await connection.QuerySingleOrDefaultAsync<string>(query, new { IdCCNit = idCCNit });
             }
         }
 
 
-        public async Task<bool> UpdateLastJtiAsync(int idCardNit, string lastJti)
+        public async Task<bool> UpdateLastJtiAsync(int idCCNit, string lastJti)
         {
-            var query = "UPDATE [Users] SET LastJti = @LastJti WHERE IdCardNit = @IdCardNit";
+            var query = "UPDATE [Users] SET LastJti = @LastJti WHERE IdCCNit = @IdCCNit";
 
             using (var connection = _context.CreateConnection())
             {
-                var affectedRows = await connection.ExecuteAsync(query, new { IdCardNit = idCardNit, LastJti = lastJti });
+                var affectedRows = await connection.ExecuteAsync(query, new { IdCCNit = idCCNit, LastJti = lastJti });
                 return affectedRows > 0;  // Devuelve true si se actualizó al menos una fila
             }
         }

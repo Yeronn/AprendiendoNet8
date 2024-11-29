@@ -36,10 +36,10 @@ namespace WebAPI.Controllers
 
 
         // [Authorize(Roles = "Admin")]
-        [HttpPost]
-        public async Task<IActionResult> CreateUser([FromBody] RegisterUserDto newUser)
+        [HttpPost("{companyNit}")]
+        public async Task<IActionResult> CreateUser(int companyNit, [FromBody] RegisterUserDto newUser)
         {
-            var registrationResponse = await _authService.RegisterUser(newUser);
+            var registrationResponse = await _authService.RegisterUser(companyNit, newUser);
 
             if (registrationResponse.Success)
                 return CreatedAtRoute("GetUserById", new { id = registrationResponse.UserDto!.Id }, registrationResponse);

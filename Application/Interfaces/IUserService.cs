@@ -13,7 +13,7 @@ namespace Application.Interfaces
         Task<UserDto?> GetUserByLastJtiAsync(string lastJti);
         Task<string?> GetPasswordByIdCardNitAsync(int idCardNit);
         Task<bool> UpdateLastJtiAsync(int idCardNit, string lastJti);
-        Task<bool> VerifyIdCardNitExistsAsync(int idCardNit);
+        Task<bool> VerifyIdCardNitExistsAsync(int idCardNit); //TODO: Cambiar nombre al método
         Task<UserJwtTokenDto> GetUserJwtTokenByIdCardNitAsync(int idCardNit);
         Task<UserResponseDto> IsEmailAvailableInCompanyAsync(int idCardNit, string email);
     }

@@ -10,13 +10,11 @@ namespace Application.Mappers
         {
             return new UserEntity
             {
-                IdCardNit = registerUserDto.CompanyNit,
                 FirstName = registerUserDto.FirstName,
                 LastName = registerUserDto.LastName,
                 Email = registerUserDto.Email,
-                Identification = registerUserDto.Identification,
-                Password = registerUserDto.Password,
-                PasswordSalt = registerUserDto.PasswordSalt,
+                CCIdentification = registerUserDto.CCIdentification,
+                HashedPassword = registerUserDto.Password,
                 RoleId = registerUserDto.RoleId,
                 RegistrationDate = DateTime.UtcNow 
             };
@@ -30,9 +28,8 @@ namespace Application.Mappers
                 FirstName = updateUserDto.FirstName,
                 LastName = updateUserDto.LastName,
                 Email = updateUserDto.Email,
-                Identification = updateUserDto.Identification,
-                Password = updateUserDto.Password,
-                PasswordSalt = updateUserDto.PasswordSalt,
+                CCIdentification = updateUserDto.CCIdentification,
+                HashedPassword = updateUserDto.Password,
                 RoleId = updateUserDto.RoleId
             };
         }
@@ -42,12 +39,12 @@ namespace Application.Mappers
         {
             return new UserDto
             {
-                IdCardNit = userEntity.IdCardNit,
+                IdCCNit = userEntity.IdCCNit,
                 Id = userEntity.Id,
                 FirstName = userEntity.FirstName!,
                 LastName = userEntity.LastName!,
                 Email = userEntity.Email!,
-                Identification = userEntity.Identification!,
+                CCIdentification = userEntity.CCIdentification!,
                 RoleId = userEntity.RoleId,
                 RegistrationDate = userEntity.RegistrationDate
             };
@@ -58,7 +55,7 @@ namespace Application.Mappers
         {
             return new UserJwtTokenDto
             {
-                IdCardNit = userDto.IdCardNit,
+                IdCCNit = userDto.IdCCNit,
                 FirstName = userDto.FirstName,
                 LastName = userDto.LastName,
                 Email = userDto.Email,

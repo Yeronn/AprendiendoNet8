@@ -61,7 +61,7 @@ namespace Application.Services
             updateUserDto.Password = hashedPassword;
 
             var userEntity = updateUserDto.ToUserEntity();
-            userEntity.IdCardNit = idCardNit;
+            userEntity.IdCCNit = idCardNit;
 
             var isUpdated = await _userRepository.UpdateUserAsync(userEntity);
             if (isUpdated)

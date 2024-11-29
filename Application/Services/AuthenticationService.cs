@@ -20,7 +20,13 @@ namespace Application.Services
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasherService _passwordHasher;
 
-        public AuthenticationService(IUserRepository userRepository, IConfiguration configuration, IPasswordHasherService passwordHasher, IUserService userService, IRoleService roleService)
+        public AuthenticationService(
+                IUserRepository userRepository, 
+                IConfiguration configuration, 
+                IPasswordHasherService passwordHasher, 
+                IUserService userService, 
+                IRoleService roleService
+            )
         {
             _userRepository = userRepository;
             _userService = userService;
@@ -30,11 +36,11 @@ namespace Application.Services
         }
 
 
-        public async Task<RegistrationResponse> RegisterUser(RegisterUserDto newUser)
+        public async Task<RegistrationResponse> RegisterUser(int companyNit, RegisterUserDto newUser)
         {
             //TODO: El identification no se puede repetir en la misma empresa
-            int IdCardNit = newUser.CompanyNit + newUser.Identification;
-            bool idCardNitExists = await _userService.VerifyIdCardNitExistsAsync(IdCardNit);
+            int IdCCNit = companyNit + newUser.CCIdentification; //TODO: Esta sumando y no concatenando
+            bool idCardNitExists = await _userService.VerifyIdCardNitExistsAsync(IdCCNit);
             if (idCardNitExists)
                 return new RegistrationResponse(false, "El IdCardNit no está disponible", IsConflict: true);
 
@@ -49,13 +55,11 @@ namespace Application.Services
                 return new RegistrationResponse(false, availableEmail.Message, IsConflict: availableEmail.IsConflict);
 
             
-            //TODO: Implementar el PasswordSalt
-            
-
             var hashedPassword = _passwordHasher.HashPassword(newUser.Password);
             newUser.Password = hashedPassword;
 
             var userEntity = newUser.ToUserEntity();
+            userEntity.IdCCNit = IdCCNit;
             var createdUserId  = await _userRepository.CreateUserAsync(userEntity);
 
             if (createdUserId.HasValue)
