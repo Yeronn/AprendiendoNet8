@@ -6,7 +6,7 @@ namespace Application.Interfaces
     public interface IRoleService
     {
         Task<RoleDto?> GetRoleByIdAsync(int id);
-        Task<IEnumerable<RoleDto>> GetRolesAsync();
+        Task<IEnumerable<RoleDto>> GetRolesAsync(int companyId);
         Task<RoleResponseDto> CreateRoleAsync(CreateUpdateRoleDto createRole);
         Task<RoleResponseDto> UpdateRoleAsync(int id, CreateUpdateRoleDto updateRoleDto);
         Task<RoleResponseDto> DeleteRoleAsync(int id);

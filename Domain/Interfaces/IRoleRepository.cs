@@ -4,7 +4,7 @@ namespace Domain.Interfaces
 {
     public interface IRoleRepository
     {
-        Task<IEnumerable<RoleEntity>> GetRolesAsync();
+        Task<IEnumerable<RoleEntity>> GetRolesAsync(int companyId);
         Task<RoleEntity?> GetRoleByIdAsync(int id);
         Task<int> CreateRoleAsync(RoleEntity role);
         Task<bool> UpdateRoleAsync(RoleEntity role);

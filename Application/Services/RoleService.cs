@@ -32,9 +32,9 @@ namespace Application.Services
         }
 
 
-        public async Task<IEnumerable<RoleDto>> GetRolesAsync()
+        public async Task<IEnumerable<RoleDto>> GetRolesAsync(int companyId)
         {
-            var roles = await _roleRepository.GetRolesAsync();
+            var roles = await _roleRepository.GetRolesAsync( companyId );
             var rolesDto = roles.Select(r => r.ToDto()).ToList();
             return rolesDto;
         }

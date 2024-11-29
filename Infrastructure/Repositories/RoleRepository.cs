@@ -15,7 +15,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<IEnumerable<RoleEntity>> GetRolesAsync()
+        public async Task<IEnumerable<RoleEntity>> GetRolesAsync(int companyId)
         {
             const string query = @"
                 SELECT 
@@ -25,15 +25,17 @@ namespace Infrastructure.Repositories
                     r.Status AS Status,
                     r.CompanyId AS CompanyId,
                     p.Id AS PermissionId,
-                    p.Id AS Id,
-                    p.Name AS Name,
-                    p.Description AS Description
+                    p.Id,
+                    p.Name,
+                    p.Description
                 FROM 
                     Roles r
                 LEFT JOIN 
                     RolePermissions rp ON r.Id = rp.RoleId
                 LEFT JOIN 
-                    Permissions p ON rp.PermissionId = p.Id";
+                    Permissions p ON rp.PermissionId = p.Id
+                WHERE 
+                    r.CompanyId = @CompanyId"; 
 
             using (var connection = _context.CreateConnection())
             {
@@ -70,12 +72,14 @@ namespace Infrastructure.Repositories
 
                         return currentRole;
                     },
-                    splitOn: "PermissionId"  // Indica a Dapper dónde dividir la fila en dos objetos
+                    new { CompanyId = companyId }, // Parámetro de la consulta SQL
+                    splitOn: "PermissionId"  // Divide la fila entre RoleEntity y PermissionEntity
                 );
 
                 return roleDictionary.Values;
             }
         }
+
 
 
         public async Task<RoleEntity?> GetRoleByIdAsync(int id)

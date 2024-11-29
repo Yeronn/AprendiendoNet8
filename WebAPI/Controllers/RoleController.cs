@@ -26,10 +26,10 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet]
-        public async Task<IActionResult> GetAllRoles()
+        [HttpGet("companyId")]
+        public async Task<IActionResult> GetAllRoles(int companyId)
         {
-            var roles = await _roleService.GetRolesAsync();
+            var roles = await _roleService.GetRolesAsync(companyId);
             if (!roles.Any())
                 return NotFound("No hay roles en el sistema");
             return Ok(roles);
