@@ -55,7 +55,7 @@ namespace Application.Services
             if(newRoleId == 0)
                 return new RoleResponseDto(false, "Error al crear el rol");
 
-            var assignedPermissions = await AssignPermissionsToRoleAsync(newRoleId, createRole.PermissionsIds);
+            var assignedPermissions = await UpdateRolePermissions(newRoleId, createRole.CompanyId, createRole.PermissionsIds);
             if(!assignedPermissions.Success)
             {
                 var deletedRole = await DeleteRoleAsync(newRoleId);
@@ -89,7 +89,7 @@ namespace Application.Services
             if(!updatedRole)
                 return new RoleResponseDto(false, "Error al actualizar el rol");
                 
-            var updatedPermissions = await UpdateRolePermissions(roleId, updateRoleDto.PermissionsIds);
+            var updatedPermissions = await UpdateRolePermissions(roleId, updateRoleDto.CompanyId, updateRoleDto.PermissionsIds);
             if(!updatedPermissions.Success)
             {
                 await _roleRepository.UpdateRoleAsync(currentRole.ToEntity());
@@ -140,9 +140,9 @@ namespace Application.Services
 
         public async Task<RoleResponseDto> AssignPermissionsToRoleAsync(int roleId, List<int> permissionIds)
         {
-            var roleExists = await ValidateRoleExistsByIdAsync(roleId);
-            if (!roleExists.Success)
-                return roleExists;
+            var roleExists = await GetRoleByIdAsync(roleId);
+            if (roleExists == null)
+                return new RoleResponseDto(false, "El rol no existe", IsNotFound: true);
 
             if(permissionIds.Count == 0)
                 return new RoleResponseDto(false, "Está tratando de añadir permisos al rol, pero no envió los permisos", IsBadRequest: true);
@@ -252,11 +252,19 @@ namespace Application.Services
 
 
 
-        private async Task<RoleResponseDto> UpdateRolePermissions(int roleId, List<int> permissionsIds) 
+        private async Task<RoleResponseDto> UpdateRolePermissions(int roleId, int companyId, List<int> permissionsIds) 
         {
             var validatedPermissions = await _permissionService.ValidatePermissionsExistAsync(permissionsIds);
             if (!validatedPermissions.Success)
                 return new RoleResponseDto(false, validatedPermissions.Message);
+
+            var roles = await GetRolesAsync(companyId);
+            foreach (var role in roles)
+            {
+                var rolePermissionIds = role.Permissions.Select(p => (int)p.Id!).ToList();
+                if (rolePermissionIds.OrderBy(p => p).SequenceEqual(permissionsIds.OrderBy(p => p)))
+                    return new RoleResponseDto(false, "Esta cambinacion de roles ya la tiene otro rol", IsBadRequest: true); 
+            }
 
             var currentPermissions = await _permissionService.GetPermissionsByRoleIdAsync(roleId);
             var currentPermissionsIds = currentPermissions.Select(p => (int)p.Id!).ToList();
