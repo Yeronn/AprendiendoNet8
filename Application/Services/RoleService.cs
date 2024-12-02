@@ -95,7 +95,6 @@ namespace Application.Services
                 await _roleRepository.UpdateRoleAsync(currentRole.ToEntity());
                 return new RoleResponseDto(false, "No se pudo actualizar el rol: " + updatedPermissions.Message);
             }
-            
             var updatedRol = await GetRoleByIdAsync(roleId);
             return new RoleResponseDto(true, "Rol actualizado exitosamente.", updatedRol);
         }
@@ -138,20 +137,22 @@ namespace Application.Services
         }
 
 
-        public async Task<RoleResponseDto> AssignPermissionsToRoleAsync(int roleId, List<int> permissionIds)
+        public async Task<RoleResponseDto> AssignPermissionsToRoleAsync(int roleId, List<int> newPermissionIds)
         {
             var roleExists = await GetRoleByIdAsync(roleId);
             if (roleExists == null)
                 return new RoleResponseDto(false, "El rol no existe", IsNotFound: true);
 
-            if(permissionIds.Count == 0)
+            if(newPermissionIds.Count == 0)
                 return new RoleResponseDto(false, "Está tratando de añadir permisos al rol, pero no envió los permisos", IsBadRequest: true);
             
-            var invalidPermissions = await GetInvalidPermissionsAsync(permissionIds);
+            var permissions = await _permissionService.GetPermissionsAsync();
+            var permissionIds = permissions!.Select(p => p.Id).ToHashSet();
+            var invalidPermissions = newPermissionIds.Where(pId => !permissionIds.Contains(pId)).ToList();
             if (invalidPermissions.Count != 0)
                 return new RoleResponseDto(false, $"Los siguientes permisos no existen: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
 
-            var newPermissions = await GetNewPermissionsAsync(roleId, permissionIds);
+            var newPermissions = await GetNewPermissionsAsync(roleId, newPermissionIds);
             if (newPermissions.Count == 0)
                 return new RoleResponseDto(false, "Todos los permisos ya están asignados al rol.", IsBadRequest: true);
 
@@ -174,7 +175,7 @@ namespace Application.Services
             var currentPermissions = await _permissionService.GetPermissionsByRoleIdAsync(roleId);
             var currentPermissionIds = currentPermissions.Select(cp => cp.Id).ToHashSet();
 
-            var invalidPermissions = permissionIds.Where(pid => !currentPermissionIds.Contains(pid)).ToList();
+            var invalidPermissions = permissionIds.Where(pId => !currentPermissionIds.Contains(pId)).ToList();
             if (invalidPermissions.Any())
                 return new RoleResponseDto(false, $"El rol no tiene los siguientes permisos: {string.Join(", ", invalidPermissions)}", IsBadRequest: true);
 
@@ -219,20 +220,6 @@ namespace Application.Services
         }
 
 
-        private async Task<List<int>> GetInvalidPermissionsAsync(List<int> permissionIds)
-        {
-            var invalidPermissions = new List<int>();
-            //TODO: Cambiar este foreach por una consulta en el repositorio que reciba una lsita de permisos
-            foreach (var permissionId in permissionIds)
-            {
-                var permissionExists = await _permissionService.ValidatePermissionExistsByIdAsync(permissionId);
-                if (!permissionExists.Success)
-                    invalidPermissions.Add(permissionId);
-            }
-            return invalidPermissions;
-        }
-
-
         private async Task<List<int>> GetNewPermissionsAsync(int roleId, List<int> permissionIds)
         {
             var existingPermissions = await _permissionService.GetPermissionsByRoleIdAsync(roleId);
@@ -251,20 +238,11 @@ namespace Application.Services
         }
 
 
-
         private async Task<RoleResponseDto> UpdateRolePermissions(int roleId, int companyId, List<int> permissionsIds) 
         {
-            var validatedPermissions = await _permissionService.ValidatePermissionsExistAsync(permissionsIds);
-            if (!validatedPermissions.Success)
-                return new RoleResponseDto(false, validatedPermissions.Message);
-
-            var roles = await GetRolesAsync(companyId);
-            foreach (var role in roles)
-            {
-                var rolePermissionIds = role.Permissions.Select(p => (int)p.Id!).ToList();
-                if (rolePermissionIds.OrderBy(p => p).SequenceEqual(permissionsIds.OrderBy(p => p)))
-                    return new RoleResponseDto(false, "Esta cambinacion de roles ya la tiene otro rol", IsBadRequest: true); 
-            }
+            var response = await ValidateUniquePermissionsCombinationAsync(companyId, permissionsIds);
+            if (!response.Success)
+                return response;
 
             var currentPermissions = await _permissionService.GetPermissionsByRoleIdAsync(roleId);
             var currentPermissionsIds = currentPermissions.Select(p => (int)p.Id!).ToList();
@@ -288,25 +266,21 @@ namespace Application.Services
         }
 
 
-        private async Task<RoleResponseDto> UpdateRoleNameAsync(int roleId, string name)
+        public async Task<RoleResponseDto> ValidateUniquePermissionsCombinationAsync(int companyId, List<int> permissionsIds)
         {
-            // var availableName = await CheckRoleNameAvailabilityAsync(name);
-            // if (!availableName.Success)
-            //     return availableName;
-            var updatedRoleName = await _roleRepository.UpdateRoleNameAsync(roleId, name);
-            if (updatedRoleName)
-                return new RoleResponseDto(true, "Nombre del rol actualizado");
-            return new RoleResponseDto(false, "Error al actualizar el nombre del rol");
+            var roles = await GetRolesAsync(companyId);
+            foreach (var role in roles)
+            {
+                var rolePermissionIds = role.Permissions.Select(p => (int)p.Id!).ToList();
+                if (rolePermissionIds.OrderBy(p => p).SequenceEqual(permissionsIds.OrderBy(p => p)))
+                    return new RoleResponseDto(false, "Esta combinación de permisos ya la tiene otro rol", IsConflict: true);
+            }
+            return new RoleResponseDto(true, "Combinación de permisos válida");
         }
 
 
-        private async Task<RoleResponseDto> UpdateRoleDescriptionAsync(int roleId, string description)
-        {
-            bool updatedDescription = await _roleRepository.UpdateRoleDescriptionAsync(roleId, description);
-            if (updatedDescription)
-                return new RoleResponseDto(true, "La descripción se actualizó correctamente");
-            return new RoleResponseDto(false, "Error al actualizar la descripción");
-        }
+
+
 
 
     }
