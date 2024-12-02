@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.DTOs.Role;
 using Application.Interfaces;
 using Application.Mappers;
 using Domain.Interfaces;
@@ -40,7 +41,7 @@ namespace Application.Services
         }
 
 
-        public async Task<RoleResponseDto> CreateRoleAsync(CreateUpdateRoleDto createRole)
+        public async Task<RoleResponseDto> CreateRoleAsync(CreateRoleDto createRole)
         {
             var nameAvalible = await CheckRoleNameAvailabilityAsync(createRole.Name!, createRole.CompanyId!);
             if (!nameAvalible.Success)
@@ -68,28 +69,30 @@ namespace Application.Services
         }
 
 
-        public async Task<RoleResponseDto> UpdateRoleAsync(int roleId, CreateUpdateRoleDto updateRoleDto)
+        public async Task<RoleResponseDto> UpdateRoleAsync(int roleId, UpdateRoleDto updateRoleDto)
         {
             var currentRole = await GetRoleWithoutPermissionsByIdAsync(roleId);
             if (currentRole == null)
                 return new RoleResponseDto(false, "El rol no existe.", IsNotFound: true);
-            
-            var availableName = await CheckRoleNameAvailabilityAsync(updateRoleDto.Name!, updateRoleDto.CompanyId!);
-            if (!availableName.Success && (updateRoleDto.CompanyId != currentRole.CompanyId || updateRoleDto.Name != currentRole.Name) )
-                return availableName;
-
-            var companyExists = await _companyService.ValidateCompanyExistsByIdAsync(updateRoleDto.CompanyId);
-            if(companyExists.Success == false)
-                return new RoleResponseDto(false, "La empresa no es válida");
 
             var updateRoleEntity = updateRoleDto.ToEntity();
             updateRoleEntity.Id = roleId;
+            updateRoleEntity.CompanyId = currentRole.CompanyId;
+            
+            var availableName = await CheckRoleNameAvailabilityAsync(updateRoleDto.Name!, updateRoleEntity.CompanyId!);
+            if (!availableName.Success && (updateRoleEntity.CompanyId != currentRole.CompanyId || updateRoleDto.Name != currentRole.Name) )
+                return availableName;
+
+            var companyExists = await _companyService.ValidateCompanyExistsByIdAsync(updateRoleEntity.CompanyId);
+            if(companyExists.Success == false)
+                return new RoleResponseDto(false, "La empresa no es válida");
+
 
             bool updatedRole = await _roleRepository.UpdateRoleAsync(updateRoleEntity);
             if(!updatedRole)
                 return new RoleResponseDto(false, "Error al actualizar el rol");
                 
-            var updatedPermissions = await UpdateRolePermissions(roleId, updateRoleDto.CompanyId, updateRoleDto.PermissionsIds);
+            var updatedPermissions = await UpdateRolePermissions(roleId, updateRoleEntity.CompanyId, updateRoleDto.PermissionsIds);
             if(!updatedPermissions.Success)
             {
                 await _roleRepository.UpdateRoleAsync(currentRole.ToEntity());

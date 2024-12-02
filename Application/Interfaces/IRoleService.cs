@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.DTOs.Role;
 using Domain.Entities;
 
 namespace Application.Interfaces
@@ -7,8 +8,8 @@ namespace Application.Interfaces
     {
         Task<RoleDto?> GetRoleByIdAsync(int id);
         Task<IEnumerable<RoleDto>> GetRolesAsync(int companyId);
-        Task<RoleResponseDto> CreateRoleAsync(CreateUpdateRoleDto createRole);
-        Task<RoleResponseDto> UpdateRoleAsync(int id, CreateUpdateRoleDto updateRoleDto);
+        Task<RoleResponseDto> CreateRoleAsync(CreateRoleDto createRole);
+        Task<RoleResponseDto> UpdateRoleAsync(int id, UpdateRoleDto updateRoleDto);
         Task<RoleResponseDto> DeleteRoleAsync(int id);
         Task<RoleWithoutPermissionsDto?> GetRoleWithoutPermissionsByIdAsync(int id);
         Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesWithoutPermissionsByPermissionIdAsync(int permissionId);

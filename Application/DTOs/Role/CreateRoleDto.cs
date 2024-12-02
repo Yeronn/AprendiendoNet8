@@ -2,7 +2,7 @@
 
 namespace Application.DTOs
 {
-    public class CreateUpdateRoleDto
+    public class CreateRoleDto
     {
         [StringLength(50, ErrorMessage = "El nombre no puede exceder los 50 caracteres.")]
         [Required(ErrorMessage = "El campo Name es obligatorio.")]

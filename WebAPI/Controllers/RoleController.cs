@@ -1,4 +1,5 @@
 ﻿using Application.DTOs;
+using Application.DTOs.Role;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -37,7 +38,7 @@ namespace WebAPI.Controllers
 
 
         [HttpPost]
-        public async Task<IActionResult> CreateRol([FromBody] CreateUpdateRoleDto createRole)
+        public async Task<IActionResult> CreateRol([FromBody] CreateRoleDto createRole)
         {
             var result = await _roleService.CreateRoleAsync(createRole);
 
@@ -52,7 +53,7 @@ namespace WebAPI.Controllers
 
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRol(int id, [FromBody] CreateUpdateRoleDto updateRoleDto)
+        public async Task<IActionResult> UpdateRol(int id, [FromBody] UpdateRoleDto updateRoleDto)
         {
             var result = await _roleService.UpdateRoleAsync(id, updateRoleDto);
             if (result.Success)

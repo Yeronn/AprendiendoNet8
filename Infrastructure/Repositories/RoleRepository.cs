@@ -105,7 +105,7 @@ namespace Infrastructure.Repositories
 
         public async Task<bool> UpdateRoleAsync(RoleEntity role)
         {
-            var query = "UPDATE Roles SET Name = @Name, Description = @Description, Status = @Status, CompanyId = @CompanyId WHERE Id = @Id";
+            var query = "UPDATE Roles SET Name = @Name, Description = @Description, Status = @Status WHERE Id = @Id";
             using (var connection = _context.CreateConnection())
             {
                 var affectedRows = await connection.ExecuteAsync(query, role);

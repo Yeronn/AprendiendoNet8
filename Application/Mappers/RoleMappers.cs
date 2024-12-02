@@ -1,11 +1,12 @@
 ﻿using Application.DTOs;
+using Application.DTOs.Role;
 using Domain.Entities;
 
 namespace Application.Mappers
 {
     public static class RoleMappers
     {
-        public static RoleEntity ToEntity(this CreateUpdateRoleDto createRoleDto)
+        public static RoleEntity ToEntity(this CreateRoleDto createRoleDto)
         {
             return new RoleEntity
             {
@@ -13,6 +14,18 @@ namespace Application.Mappers
                 Description = createRoleDto.Description,
                 Status = createRoleDto.Status,
                 CompanyId = createRoleDto.CompanyId,
+                Permissions = []
+            };
+        }
+
+
+        public static RoleEntity ToEntity(this UpdateRoleDto createRoleDto)
+        {
+            return new RoleEntity
+            {
+                Name = createRoleDto.Name,
+                Description = createRoleDto.Description,
+                Status = createRoleDto.Status,
                 Permissions = []
             };
         }
