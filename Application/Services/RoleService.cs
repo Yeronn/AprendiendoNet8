@@ -43,6 +43,9 @@ namespace Application.Services
 
         public async Task<RoleResponseDto> CreateRoleAsync(CreateRoleDto createRole)
         {
+            if (createRole.PermissionsIds.Count == 0)
+                return new RoleResponseDto(false, "No envió los permisos", IsBadRequest: true);
+
             var nameAvalible = await CheckRoleNameAvailabilityAsync(createRole.Name!, createRole.CompanyId!);
             if (!nameAvalible.Success)
                 return nameAvalible;
@@ -71,6 +74,9 @@ namespace Application.Services
 
         public async Task<RoleResponseDto> UpdateRoleAsync(int roleId, UpdateRoleDto updateRoleDto)
         {
+            if (updateRoleDto.PermissionsIds.Count == 0)
+                return new RoleResponseDto(false, "No envió los permisos", IsBadRequest: true);
+
             var currentRole = await GetRoleWithoutPermissionsByIdAsync(roleId);
             if (currentRole == null)
                 return new RoleResponseDto(false, "El rol no existe.", IsNotFound: true);
@@ -86,7 +92,6 @@ namespace Application.Services
             var companyExists = await _companyService.ValidateCompanyExistsByIdAsync(updateRoleEntity.CompanyId);
             if(companyExists.Success == false)
                 return new RoleResponseDto(false, "La empresa no es válida");
-
 
             bool updatedRole = await _roleRepository.UpdateRoleAsync(updateRoleEntity);
             if(!updatedRole)
@@ -272,6 +277,7 @@ namespace Application.Services
         public async Task<RoleResponseDto> ValidateUniquePermissionsCombinationAsync(int companyId, List<int> permissionsIds)
         {
             var roles = await GetRolesAsync(companyId);
+
             foreach (var role in roles)
             {
                 var rolePermissionIds = role.Permissions.Select(p => (int)p.Id!).ToList();
