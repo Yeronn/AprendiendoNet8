@@ -26,7 +26,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<UserEntity?> GetUserByIdCardNitAsync(int idCCNit)
+        public async Task<UserEntity?> GetUserByIdCCNitAsync(int idCCNit)
         {
             var query = "SELECT * FROM Users WHERE IdCCNit = @IdCCNit";
             using (var connection = _context.CreateConnection())
@@ -76,13 +76,13 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> DeleteUserAsync(int idCardNit)
+        public async Task<bool> DeleteUserAsync(int IdCCNit)
         {
             var query = "DELETE FROM Users WHERE IdCCNit = @IdCCNit";
 
             using (var connection = _context.CreateConnection())
             {
-                var result = await connection.ExecuteAsync(query, new { IdCardNit = idCardNit });
+                var result = await connection.ExecuteAsync(query, new { IdCCNit = IdCCNit });
                 return result > 0;
             }
         }
@@ -99,7 +99,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> IdCardNitExistsAsync(int idCCNit)
+        public async Task<bool> IdCCNitExistsAsync(int idCCNit)
         {
             var query = "SELECT COUNT(1) FROM Users WHERE IdCCNit = @IdCCNit";
             
@@ -111,9 +111,9 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<string?> GetPasswordByIdCardNitAsync(int idCCNit)
+        public async Task<string?> GetPasswordByIdCCNitAsync(int idCCNit)
         {
-            var query = "SELECT Password FROM [Users] WHERE IdCCNit = @IdCCNit";
+            var query = "SELECT HashedPassword FROM [Users] WHERE IdCCNit = @IdCCNit";
 
             using (var connection = _context.CreateConnection())
             {
@@ -148,8 +148,5 @@ namespace Infrastructure.Repositories
                 return count == 0;
             }
         }
-
-
-
     }
 }

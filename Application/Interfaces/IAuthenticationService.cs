@@ -11,9 +11,8 @@ namespace Application.Interfaces
 {
     public interface IAuthenticationService
     {
-        Task<RegistrationResponse> RegisterUser(int companyId, RegisterUserDto newUser);
         Task<LoginResponse> Login(LoginDto login);
-        string GenerateJWTToken(UserJwtTokenDto user, string jti);
+        Task<string> GenerateJWTToken(UserJwtTokenDto user, string jti);
         Task<bool> ValidateToken(string token);
     }
 }

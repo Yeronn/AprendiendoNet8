@@ -58,7 +58,6 @@ namespace Application.Mappers
                 IdCCNit = userDto.IdCCNit,
                 FirstName = userDto.FirstName,
                 LastName = userDto.LastName,
-                Email = userDto.Email,
                 RoleId = userDto.RoleId
             };
         }

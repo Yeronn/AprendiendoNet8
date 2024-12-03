@@ -1,6 +1,5 @@
 ﻿using Application.DTOs.User;
 using Application.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -34,19 +33,5 @@ namespace WebAPI.Controllers
             return Ok(new { message = loginResponse.Message, Token = loginResponse.token });
         }
 
-
-        // [Authorize(Roles = "Admin")]
-        [HttpPost("{companyNit}")]
-        public async Task<IActionResult> CreateUser(int companyNit, [FromBody] RegisterUserDto newUser)
-        {
-            var registrationResponse = await _authService.RegisterUser(companyNit, newUser);
-
-            if (registrationResponse.Success)
-                return CreatedAtRoute("GetUserById", new { id = registrationResponse.UserDto!.Id }, registrationResponse);
-            else if (registrationResponse.IsConflict) 
-                return Conflict(registrationResponse.Message);
-            else
-                return BadRequest(registrationResponse.Message);
-        }
     }
 }

@@ -48,7 +48,6 @@ namespace WebAPI.Controllers
                 return Conflict(result.Message);
             else
                 return BadRequest(result.Message);
-            
         }
 
 

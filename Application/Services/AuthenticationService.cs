@@ -1,9 +1,6 @@
-﻿using Application.DTOs;
-using Application.DTOs.User;
+﻿using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Mappers;
-using Domain.Entities;
-using Domain.Interfaces;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,97 +11,62 @@ namespace Application.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly IUserRepository _userRepository;
         private readonly IUserService _userService;
-        private readonly IRoleService _roleService;
+        private readonly IPermissionService _permissionService;
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasherService _passwordHasher;
 
         public AuthenticationService(
-                IUserRepository userRepository, 
                 IConfiguration configuration, 
                 IPasswordHasherService passwordHasher, 
                 IUserService userService, 
-                IRoleService roleService
+                IRoleService roleService,
+                IPermissionService permissionService
             )
         {
-            _userRepository = userRepository;
             _userService = userService;
-            _roleService = roleService;
             _passwordHasher = passwordHasher;
             _configuration = configuration;
-        }
-
-
-        public async Task<RegistrationResponse> RegisterUser(int companyNit, RegisterUserDto newUser)
-        {
-            //TODO: El identification no se puede repetir en la misma empresa
-            int IdCCNit = companyNit + newUser.CCIdentification; //TODO: Esta sumando y no concatenando
-            bool idCardNitExists = await _userService.VerifyIdCardNitExistsAsync(IdCCNit);
-            if (idCardNitExists)
-                return new RegistrationResponse(false, "El IdCardNit no está disponible", IsConflict: true);
-
-            var roleExists = await _roleService.ValidateRoleExistsByIdAsync(newUser.RoleId);
-            if (!roleExists.Success)
-                return new RegistrationResponse(false, "El rol no es válido", IsBadRequest:true);
-
-            //TODO: El email no se puede repetir en la misma empresa
-            var currentRole = await _roleService.GetRoleByIdAsync(newUser.RoleId); //? se puede ahorra si se envia en el dto el id de la empresa, ya que solo los admins pueden crear usuarios
-            var availableEmail = await _userService.IsEmailAvailableInCompanyAsync(currentRole!.CompanyId, newUser.Email);
-            if (!availableEmail.Success)
-                return new RegistrationResponse(false, availableEmail.Message, IsConflict: availableEmail.IsConflict);
-
-            
-            var hashedPassword = _passwordHasher.HashPassword(newUser.Password);
-            newUser.Password = hashedPassword;
-
-            var userEntity = newUser.ToUserEntity();
-            userEntity.IdCCNit = IdCCNit;
-            var createdUserId  = await _userRepository.CreateUserAsync(userEntity);
-
-            if (createdUserId.HasValue)
-            {
-                var createdUser = await _userService.GetUserByIdAsync(createdUserId.Value);
-                return new RegistrationResponse(true, "El usuario se creó correctamente", createdUser);
-            }
-                return new RegistrationResponse(false, "Error en el servidor al crear al usuario");
+            _permissionService = permissionService;
         }
 
 
         public async Task<LoginResponse> Login(LoginDto login)
         {
-            bool userExists = await _userService.VerifyIdCardNitExistsAsync(login.IdCardNit);
+            bool userExists = await _userService.VerifyIdCCNitExistsAsync(login.IdCCNit);
             if (!userExists)
                 return new LoginResponse(false, "El usuario no existe");
 
-            var hashedPassword = await _userService.GetPasswordByIdCardNitAsync(login.IdCardNit);
+            var hashedPassword = await _userService.GetPasswordByIdCCNitAsync(login.IdCCNit);
             bool checkPassword = _passwordHasher.VerifyPassword(login.Password, hashedPassword!);
 
             if (checkPassword)
             {
                 var newJti = Guid.NewGuid().ToString();
-                bool updatedJti = await _userService.UpdateLastJtiAsync(login.IdCardNit, newJti);
+                bool updatedJti = await _userService.UpdateLastJtiAsync(login.IdCCNit, newJti);
                 if (!updatedJti)
                     return new LoginResponse(false, "Ocurrió un error al actualizar la sesión");
-                var userJwtTokenDto = await _userService.GetUserJwtTokenByIdCardNitAsync(login.IdCardNit);
-                return new LoginResponse(checkPassword, "Inicio de sesión exitoso", GenerateJWTToken(userJwtTokenDto, newJti));
+                var user = await _userService.GetUserByIdCCNitAsync(login.IdCCNit);
+                var userToken = user!.ToUserJwtTokenDto();
+                var token = await GenerateJWTToken(userToken, newJti);
+                return new LoginResponse(checkPassword, "Inicio de sesión exitoso", token);
             }
             else
                 return new LoginResponse(checkPassword, "Credenciales Inválidas", IsBadRequest: true);
         }
 
 
-        public string GenerateJWTToken(UserJwtTokenDto user, string jti)
+        public async Task<string> GenerateJWTToken(UserJwtTokenDto user, string jti)
         {
-            // var roles = _roleRepository.GetAllRolesByUserIdAsync(user.Id);
-            var claims = new[]
+            var permissions = await _permissionService.GetPermissionsByRoleIdAsync(user.RoleId);
+            var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.IdCCNit.ToString()),
                 new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
-                new Claim(ClaimTypes.Email, user.Email),
-                // new Claim(ClaimTypes.Role, user.RoleId!),
                 new Claim(JwtRegisteredClaimNames.Jti, jti)
             };
+
+            claims.AddRange(permissions.Select(permission => new Claim("Permission", permission.Name)));
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
@@ -116,6 +78,7 @@ namespace Application.Services
                 expires: DateTime.UtcNow.AddMinutes(60),
                 signingCredentials: credentials
                 );
+            
             string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
             return tokenValue;
         }

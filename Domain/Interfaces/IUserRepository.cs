@@ -11,14 +11,14 @@ namespace Domain.Interfaces
     {
         Task<IEnumerable<UserEntity>> GetUsersAsync();
         Task<UserEntity?> GetUserByIdAsync(int id);
-        Task<UserEntity?> GetUserByIdCardNitAsync(int idCardNit);
+        Task<UserEntity?> GetUserByIdCCNitAsync(int idCCNit);
         Task<int?> CreateUserAsync(UserEntity user);
         Task<bool> UpdateUserAsync(UserEntity user);
         Task<bool> DeleteUserAsync(int id); 
         Task<UserEntity?> GetUserByLastJtiAsync(string lastJti);
-        Task<bool> IdCardNitExistsAsync(int idCardNit);
-        Task<string?> GetPasswordByIdCardNitAsync(int idCardNit);
+        Task<bool> IdCCNitExistsAsync(int idCCNit);
+        Task<string?> GetPasswordByIdCCNitAsync(int idCCNit);
         Task<bool> IsEmailAvailableInCompanyAsync(string email, int companyId);
-        Task<bool> UpdateLastJtiAsync(int idCardNit, string lastJti);
+        Task<bool> UpdateLastJtiAsync(int idCCNit, string lastJti);
     }
 }

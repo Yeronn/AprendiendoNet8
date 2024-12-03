@@ -5,16 +5,16 @@ namespace Application.Interfaces
 {
     public interface IUserService
     {
-        Task<UserResponseDto> UpdateUserAsync(int idCardNit, UpdateUserDto updateUserDto);
         Task<IEnumerable<UserDto>> GetUsersAsync();
-        Task<UserDto?> GetUserByIdCardNitAsync(int idCardNit);
         Task<UserDto?> GetUserByIdAsync(int id);
-        Task<bool> DeleteUserAsync(int idCardNit);
+        Task<UserResponseDto> CreateUserAsync(RegisterUserDto newUser, int companyId);
+        Task<UserResponseDto> UpdateUserAsync(int IdCCNit, UpdateUserDto updateUserDto);
+        Task<bool> DeleteUserAsync(int IdCCNit);
+        Task<UserDto?> GetUserByIdCCNitAsync(int IdCCNit);
         Task<UserDto?> GetUserByLastJtiAsync(string lastJti);
-        Task<string?> GetPasswordByIdCardNitAsync(int idCardNit);
-        Task<bool> UpdateLastJtiAsync(int idCardNit, string lastJti);
-        Task<bool> VerifyIdCardNitExistsAsync(int idCardNit); //TODO: Cambiar nombre al método
-        Task<UserJwtTokenDto> GetUserJwtTokenByIdCardNitAsync(int idCardNit);
-        Task<UserResponseDto> IsEmailAvailableInCompanyAsync(int idCardNit, string email);
+        Task<string?> GetPasswordByIdCCNitAsync(int IdCCNit);
+        Task<bool> UpdateLastJtiAsync(int IdCCNit, string lastJti);
+        Task<bool> VerifyIdCCNitExistsAsync(int IdCCNit);
+        Task<UserResponseDto> IsEmailAvailableInCompanyAsync(int IdCCNit, string email);
     }
 }

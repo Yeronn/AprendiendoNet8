@@ -5,7 +5,7 @@ namespace Application.DTOs.User
     public class LoginDto
     {
         [Required]
-        public int IdCardNit { get; set; }
+        public int IdCCNit { get; set; }
         [Required]
         public string Password { get; set; } = string.Empty;
     }
