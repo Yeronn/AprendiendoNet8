@@ -14,5 +14,6 @@ namespace Domain.Interfaces
         Task<bool> CompanyExistsByIdAsync(int id);
         Task<bool> UpdateCompanyNameAsync(int companyId, string newName);
         Task<bool> UpdateCompanyNitAsync(int companyId, int newNIT);
+        Task<CompanyEntity?> GetCompanyByRoleIdAsync(int roleId);
     }
 }

@@ -50,9 +50,7 @@ namespace Application.Services
         public async Task<CompanyDto?> GetCompanyByIdAsync(int id)
         {
             var companyEntity = await _companyRepository.GetCompanyByIdAsync(id);
-            if (companyEntity == null)
-                return null;
-            return companyEntity.ToDto();
+            return companyEntity?.ToDto();
         }
 
         
@@ -106,6 +104,13 @@ namespace Application.Services
         }
 
 
+        public async Task<CompanyDto?> GetCompanyByRoleIdAsync(int roleId)
+        {
+            var company = await _companyRepository.GetCompanyByRoleIdAsync(roleId);
+            return company?.ToDto();
+        }
+
+
 
 
         private async Task<CompanyResponseDto> CheckCompanyNameAvailabilityAsync(string companyName)
@@ -150,6 +155,8 @@ namespace Application.Services
                 return new CompanyResponseDto(true, "Nit actualizado");
             return new CompanyResponseDto(false, "Error al actualizar el NIT");
         }
+
+
 
     }
 }

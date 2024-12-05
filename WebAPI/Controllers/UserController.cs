@@ -40,10 +40,10 @@ namespace WebAPI.Controllers
 
 
         // [Authorize(Roles = "Admin")]
-        [HttpPost("{companyNit}")]
-        public async Task<IActionResult> CreateUser(int companyNit, [FromBody] RegisterUserDto newUser)
+        [HttpPost]
+        public async Task<IActionResult> CreateUser([FromBody] RegisterUserDto newUser)
         {
-            var createdResponse = await _userService.CreateUserAsync(newUser, companyNit);
+            var createdResponse = await _userService.CreateUserAsync(newUser);
 
             if (createdResponse.Success)
                 return CreatedAtRoute("GetUserById", new { id = createdResponse.User!.Id }, createdResponse);
@@ -59,15 +59,12 @@ namespace WebAPI.Controllers
         public async Task<IActionResult> UpdateUser(int IdCCNit, [FromBody] UpdateUserDto updateUserDto)
         {
             if (!ModelState.IsValid)
-            {
                 return BadRequest(ModelState);
-            }
 
             var updatedUser = await _userService.UpdateUserAsync(IdCCNit, updateUserDto);
             if (updatedUser == null)
-            {
                 return NotFound(new { Message = "User not found." });
-            }
+            
 
             return Ok(updatedUser);
         }

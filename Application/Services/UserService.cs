@@ -10,12 +10,14 @@ namespace Application.Services
     {
         private readonly IUserRepository _userRepository;
         private readonly IRoleService _roleService;
+        private readonly ICompanyService _companyService;
         private readonly IPasswordHasherService _passwordHasher;
 
-        public UserService(IUserRepository userRepository, IRoleService roleService, IPasswordHasherService passwordHasher)
+        public UserService(IUserRepository userRepository, IRoleService roleService, ICompanyService companyService, IPasswordHasherService passwordHasher)
         {
             _userRepository = userRepository;
             _roleService = roleService;
+            _companyService = companyService;
             _passwordHasher = passwordHasher;
         }
 
@@ -37,22 +39,23 @@ namespace Application.Services
             return user?.ToUserDto();
         }
 
-        //TODO: Probar el codigo
-        public async Task<UserResponseDto> CreateUserAsync(RegisterUserDto newUser, int companyNit)
-        {
-            //TODO: El identification no se puede repetir en la misma empresa
-            int IdCCNit = companyNit + newUser.CCIdentification; //TODO: Esta sumando y no concatenando
-            bool IdCCNitExists = await VerifyIdCCNitExistsAsync(IdCCNit);
-            if (IdCCNitExists)
-                return new UserResponseDto(false, "El IdCCNit no está disponible", IsConflict: true);
 
+        public async Task<UserResponseDto> CreateUserAsync(RegisterUserDto newUser)
+        {
             var roleExists = await _roleService.ValidateRoleExistsByIdAsync(newUser.RoleId);
             if (!roleExists.Success)
                 return new UserResponseDto(false, "El rol no es válido", IsBadRequest:true);
 
-            //TODO: El email no se puede repetir en la misma empresa
-            var currentRole = await _roleService.GetRoleByIdAsync(newUser.RoleId); //? se puede ahorra si se envia en el dto el id de la empresa, ya que solo los admins pueden crear usuarios
-            var availableEmail = await IsEmailAvailableInCompanyAsync(currentRole!.CompanyId, newUser.Email);
+            var company = await _companyService.GetCompanyByRoleIdAsync(newUser.RoleId);
+            if (company == null)
+                return new UserResponseDto(false, "La empresa a la que esta asociada el rol no existe: ");
+
+            int idCCNit = newUser.CCIdentification + (int) company.NIT!; //TODO: Esta sumando y no concatenando
+            bool IdCCNitExists = await VerifyIdCCNitExistsAsync(idCCNit);
+            if (IdCCNitExists)
+                return new UserResponseDto(false, "El IdCCNit no está disponible", IsConflict: true);
+
+            var availableEmail = await IsEmailAvailableInCompanyAsync((int)company.Id!, newUser.Email);
             if (!availableEmail.Success)
                 return new UserResponseDto(false, availableEmail.Message, IsConflict: availableEmail.IsConflict);
 
@@ -60,7 +63,7 @@ namespace Application.Services
             newUser.Password = hashedPassword;
 
             var userEntity = newUser.ToUserEntity();
-            userEntity.IdCCNit = IdCCNit;
+            userEntity.IdCCNit = idCCNit;
             var createdUserId  = await _userRepository.CreateUserAsync(userEntity);
 
             if (createdUserId.HasValue)
@@ -72,34 +75,36 @@ namespace Application.Services
         }
 
 
-        public async Task<UserResponseDto> UpdateUserAsync(int IdCCNit, UpdateUserDto updateUserDto)
+        public async Task<UserResponseDto> UpdateUserAsync(int idCCNit, UpdateUserDto updateUserDto)
         {
-            bool IdCCNitExists = await VerifyIdCCNitExistsAsync(IdCCNit);
-            if (!IdCCNitExists)
-                return new UserResponseDto(false, "El IdCCNit no está disponible", IsBadRequest: true);
-
             var roleExists = await _roleService.ValidateRoleExistsByIdAsync(updateUserDto.RoleId);
             if (!roleExists.Success)
                 return new UserResponseDto(false, "El rol no es válido", IsBadRequest:true);
             
-            var currentRole = await _roleService.GetRoleByIdAsync(updateUserDto.RoleId); // ? Se puede ahorrar esta consulta si se pide en el dto el id de la empresa
-            var availableEmail = await IsEmailAvailableInCompanyAsync(currentRole!.CompanyId, updateUserDto.Email);
-            var currentUser = await GetUserByIdCCNitAsync(IdCCNit);
+            var company = await _companyService.GetCompanyByRoleIdAsync(updateUserDto.RoleId);
+            if (company == null)
+                return new UserResponseDto(false, "La empresa a la que esta asociada el rol no existe: ");
+            
+            // int newIdCCNit = updateUserDto.CCIdentification + (int) company.NIT!;
+            bool idCCNitExists = await VerifyIdCCNitExistsAsync(idCCNit);
+            if (!idCCNitExists)
+                return new UserResponseDto(false, "El IdCCNit no está disponible", IsBadRequest: true);
+    
+            var availableEmail = await IsEmailAvailableInCompanyAsync((int)company.Id!, updateUserDto.Email);
+            var currentUser = await GetUserByIdCCNitAsync(idCCNit);
             if (!availableEmail.Success && currentUser!.Email != updateUserDto.Email)
                 return availableEmail;
-
-            //TODO: La identification no se puede repetir en la misma empresa
 
             var hashedPassword = _passwordHasher.HashPassword(updateUserDto.Password);
             updateUserDto.Password = hashedPassword;
 
             var userEntity = updateUserDto.ToUserEntity();
-            userEntity.IdCCNit = IdCCNit;
+            userEntity.IdCCNit = idCCNit;
 
             var isUpdated = await _userRepository.UpdateUserAsync(userEntity);
             if (isUpdated)
             {
-                var updatedUser = await _userRepository.GetUserByIdCCNitAsync(IdCCNit);
+                var updatedUser = await _userRepository.GetUserByIdCCNitAsync(idCCNit);
                 return new UserResponseDto(true, "Se actualizó el usuario", updatedUser?.ToUserDto());
             }
             return new UserResponseDto(false, "No se pudo actualizar el usuario", IsBadRequest:true);

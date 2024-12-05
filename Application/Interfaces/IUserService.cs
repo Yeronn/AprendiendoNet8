@@ -7,8 +7,8 @@ namespace Application.Interfaces
     {
         Task<IEnumerable<UserDto>> GetUsersAsync();
         Task<UserDto?> GetUserByIdAsync(int id);
-        Task<UserResponseDto> CreateUserAsync(RegisterUserDto newUser, int companyId);
-        Task<UserResponseDto> UpdateUserAsync(int IdCCNit, UpdateUserDto updateUserDto);
+        Task<UserResponseDto> CreateUserAsync(RegisterUserDto newUser);
+        Task<UserResponseDto> UpdateUserAsync(int idCCNit, UpdateUserDto updateUserDto);
         Task<bool> DeleteUserAsync(int IdCCNit);
         Task<UserDto?> GetUserByIdCCNitAsync(int IdCCNit);
         Task<UserDto?> GetUserByLastJtiAsync(string lastJti);

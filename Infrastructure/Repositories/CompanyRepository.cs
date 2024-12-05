@@ -132,5 +132,21 @@ namespace Infrastructure.Repositories
             }
         }
 
+
+        public async Task<CompanyEntity?> GetCompanyByRoleIdAsync(int roleId)
+        {
+            var query = @"
+                SELECT c.* 
+                FROM Companies c
+                INNER JOIN Roles r ON c.Id = r.CompanyId
+                WHERE r.Id = @RoleId";
+
+            using (var connection = _context.CreateConnection())
+            {
+                return await connection.QuerySingleOrDefaultAsync<CompanyEntity>(query, new { RoleId = roleId });
+                
+            }
+
+        }
     }
 }
