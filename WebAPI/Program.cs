@@ -23,7 +23,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseMiddleware<JwtMiddleware>();
+//TODO: El middleware que verifica que solo haya una sesion abierta no deja que funcione la autorizacion en los controladores
+// app.UseMiddleware<JwtMiddleware>();
 
 app.UseAuthentication();
 

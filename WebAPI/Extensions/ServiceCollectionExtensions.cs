@@ -32,9 +32,11 @@ namespace WebAPI.Extensions
         {
             services.AddAuthorization(options =>
             {
-                //TODO: Las empresas podrán crear sus propios roles con sus permisos, entonces hay que extraer eso de la base de datos y detallarlo en el backend
-                options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-                options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
+                //TODO: Hacer un enum de los permisos del sistema, que se itere y añada los permisos
+                options.AddPolicy("Read", policy => policy.RequireClaim("Permission", "Read"));
+                options.AddPolicy("Write", policy => policy.RequireClaim("Permission", "Write"));
+                options.AddPolicy("Delete", policy => policy.RequireClaim("Permission", "Delete"));
+                options.AddPolicy("prueba", policy => policy.RequireClaim("Permission", "prueba"));
             });
 
             return services;

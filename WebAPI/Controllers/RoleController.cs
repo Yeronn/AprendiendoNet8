@@ -1,6 +1,7 @@
 ﻿using Application.DTOs;
 using Application.DTOs.Role;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -17,6 +18,7 @@ namespace WebAPI.Controllers
         }
 
 
+        [Authorize(Policy = "prueba")]
         [HttpGet("{id}", Name = "GetRole")]
         public async Task<IActionResult> GetRoleById(int id)
         {
@@ -27,7 +29,8 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("companyId")]
+        [Authorize(Policy = "Read")]
+        [HttpGet("RoleByCompany/{companyId}")]
         public async Task<IActionResult> GetAllRoles(int companyId)
         {
             var roles = await _roleService.GetRolesAsync(companyId);
@@ -37,6 +40,7 @@ namespace WebAPI.Controllers
         }
 
 
+        [Authorize(Policy = "Write")]
         [HttpPost]
         public async Task<IActionResult> CreateRol([FromBody] CreateRoleDto createRole)
         {
@@ -51,6 +55,7 @@ namespace WebAPI.Controllers
         }
 
 
+        [Authorize(Policy = "Write")]
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateRol(int id, [FromBody] UpdateRoleDto updateRoleDto)
         {
@@ -71,6 +76,7 @@ namespace WebAPI.Controllers
         }
 
 
+        [Authorize(Policy = "Delete")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteRol(int id)
         {

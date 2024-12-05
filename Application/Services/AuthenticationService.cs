@@ -33,8 +33,8 @@ namespace Application.Services
 
         public async Task<LoginResponse> Login(LoginDto login)
         {
-            bool userExists = await _userService.VerifyIdCCNitExistsAsync(login.IdCCNit);
-            if (!userExists)
+            var user = await _userService.GetUserByIdCCNitAsync(login.IdCCNit);
+            if (user == null)
                 return new LoginResponse(false, "El usuario no existe");
 
             var hashedPassword = await _userService.GetPasswordByIdCCNitAsync(login.IdCCNit);
@@ -46,7 +46,7 @@ namespace Application.Services
                 bool updatedJti = await _userService.UpdateLastJtiAsync(login.IdCCNit, newJti);
                 if (!updatedJti)
                     return new LoginResponse(false, "Ocurrió un error al actualizar la sesión");
-                var user = await _userService.GetUserByIdCCNitAsync(login.IdCCNit);
+
                 var userToken = user!.ToUserJwtTokenDto();
                 var token = await GenerateJWTToken(userToken, newJti);
                 return new LoginResponse(checkPassword, "Inicio de sesión exitoso", token);
@@ -63,7 +63,7 @@ namespace Application.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.IdCCNit.ToString()),
                 new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
-                new Claim(JwtRegisteredClaimNames.Jti, jti)
+                new Claim(JwtRegisteredClaimNames.Jti, jti),
             };
 
             claims.AddRange(permissions.Select(permission => new Claim("Permission", permission.Name)));
