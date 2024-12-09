@@ -42,6 +42,7 @@ namespace Application.Services
 
             if (checkPassword)
             {
+                //TODO: Poner en la funcion que genera el token, validar que el token se haya creado correctamente antes de ingresar al sistema el nuevo jti
                 var newJti = Guid.NewGuid().ToString();
                 bool updatedJti = await _userService.UpdateLastJtiAsync(login.IdCCNit, newJti);
                 if (!updatedJti)
@@ -78,6 +79,18 @@ namespace Application.Services
                 expires: DateTime.UtcNow.AddMinutes(60),
                 signingCredentials: credentials
                 );
+
+            // TODO: Guarda en la base de datos el inicio de sesion
+            // await _auditRepository.SaveTokenAsync(new TokenAudit
+            // {
+            //     TokenId = jti,
+            //     UserId = user.IdCCNit,
+            //     IssuedAt = DateTime.UtcNow,
+            //     ExpiresAt = DateTime.UtcNow.AddMinutes(60),
+            //     IPAddress = GetClientIpAddress(),  // Método para obtener la IP
+            //     DeviceInfo = GetDeviceInfo(),      // Método opcional para info del dispositivo
+            //     Status = "Valid"
+            // });
             
             string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
             return tokenValue;
@@ -92,16 +105,15 @@ namespace Application.Services
             var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
 
             if (jti == null)
-            {
                 return false; // Token inválido
-            }
 
             // Obtener el usuario por el jti
             var user = await _userService.GetUserByLastJtiAsync(jti);
+
+            // TODO: Validar que el estado del token sea valid (true) y no revoked (false)
+            // var isRevoked = await _auditRepository.IsTokenRevokedAsync(jti);
             if (user == null || user.LastJti != jti)
-            {
                 return false; // Token no autorizado o ha expirado
-            }
 
             // Token es válido
             return true;

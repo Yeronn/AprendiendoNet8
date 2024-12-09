@@ -66,6 +66,18 @@ CREATE TABLE Tokens (
     FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit)
 );
 
+CREATE TABLE LoginAudit (
+    TokenId VARCHAR(50) PRIMARY KEY,  -- JTI del token
+    IdCCNit INT NOT NULL,              -- ID del usuario
+    IssuedAt DATETIME NOT NULL,       -- Fecha/hora de emisión
+    ExpiresAt DATETIME NOT NULL,      -- Fecha/hora de expiración
+    IPAddress VARCHAR(45),            -- Dirección IP del cliente
+    DeviceInfo VARCHAR(255),          -- Información del dispositivo
+    Status VARCHAR(10) DEFAULT 'Valid'-- Estado del token
+    FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit)
+);
+
+
 -- Insertar datos en la tabla Companies
 INSERT INTO Companies (Name, NIT)
 VALUES 
