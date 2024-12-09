@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 namespace WebAPI.Extensions
@@ -28,6 +29,7 @@ namespace WebAPI.Extensions
             return services;
         }
 
+
         public static IServiceCollection AddAuthorizationPolicies(this IServiceCollection services)
         {
             services.AddAuthorization(options =>
@@ -37,6 +39,47 @@ namespace WebAPI.Extensions
                 options.AddPolicy("Write", policy => policy.RequireClaim("Permission", "Write"));
                 options.AddPolicy("Delete", policy => policy.RequireClaim("Permission", "Delete"));
                 options.AddPolicy("prueba", policy => policy.RequireClaim("Permission", "prueba"));
+            });
+
+            return services;
+        }
+
+
+        public static IServiceCollection AddSwaggerWithJwtSupport(this IServiceCollection services)
+        {
+            services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "API Documentation",
+                    Version = "v1",
+                    Description = "API Documentation with JWT Authentication",
+                });
+
+                // Configurar el esquema de seguridad para JWT
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Bearer {token}\"",
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        Array.Empty<string>()
+                    }
+                });
             });
 
             return services;
