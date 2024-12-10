@@ -4,8 +4,9 @@ namespace Domain.Interfaces
 {
     public interface ILoginAuditRepository
     {
-        Task CreateLoginAuditAsync(LoginAuditEntity loginAudit);
-        Task RevokeTokenAsync(string tokenId);
+        Task<LoginAuditEntity?> GetLoginAuditByTokenIdAsync(string tokenId);
+        Task<bool> CreateLoginAuditAsync(LoginAuditEntity loginAudit);
+        Task<bool> RevokeTokenAsync(string tokenId);
         Task<bool> IsTokenValidAsync(string tokenId);
     }
 }

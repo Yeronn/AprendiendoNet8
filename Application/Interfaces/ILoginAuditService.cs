@@ -5,8 +5,9 @@ namespace Application.Interfaces
 {
     public interface ILoginAuditService
     {
-        Task CreateLoginAuditAsync(LoginAuditDto loginAudit);
-        Task RevokeTokenAsync(string tokenId);
+        Task<LoginAuditDto?> GetLoginAuditByTokenIdAsync(string tokenId);
+        Task<LoginAuditResponseDto> CreateLoginAuditAsync(LoginAuditDto loginAudit);
+        Task<LoginAuditResponseDto> RevokeTokenAsync(string tokenId);
         Task<bool> IsTokenValidAsync(string tokenId);
     }
 }

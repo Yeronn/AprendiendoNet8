@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using Application.DTOs.LoginAudit;
 using Application.Interfaces;
 using Application.Mappers;
@@ -14,17 +15,39 @@ namespace Application.Services
             _loginAuditRepository = loginAuditRepository;
         }
 
-        
-        public async Task CreateLoginAuditAsync(LoginAuditDto loginAudit)
+
+        public async Task<LoginAuditDto?> GetLoginAuditByTokenIdAsync(string tokenId)
         {
-            await _loginAuditRepository.CreateLoginAuditAsync(loginAudit.ToEntity());
-            //TODO: Al crear un nuevo token, el antiguo se revoca y no sirve
+            var loginAudit = await _loginAuditRepository.GetLoginAuditByTokenIdAsync(tokenId);
+            return loginAudit?.ToDto();
+        }
+
+
+        public async Task<LoginAuditResponseDto> CreateLoginAuditAsync(LoginAuditDto loginAudit)
+        {
+            var validationResults = ValidateLoginAuditDto(loginAudit);
+            if (!string.IsNullOrWhiteSpace(validationResults))
+            {
+                return new LoginAuditResponseDto(false, $"Errores de validación: {validationResults}");
+            }
+
+            bool createdLoginAudit = await _loginAuditRepository.CreateLoginAuditAsync(loginAudit.ToEntity());
+
+            if (createdLoginAudit)
+                return new LoginAuditResponseDto(true, "Se registró el inicio de sesión");
+    
+            return new LoginAuditResponseDto(false, "No se pudo registrar el inicio de sesión");
+            //TODO: Al crear un nuevo token, el antiguo se revoca
         }
 
         
-        public async Task RevokeTokenAsync(string tokenId)
+        public async Task<LoginAuditResponseDto> RevokeTokenAsync(string tokenId)
         {
-            await _loginAuditRepository.RevokeTokenAsync(tokenId);
+            bool revokedToken = await _loginAuditRepository.RevokeTokenAsync(tokenId);
+            if (revokedToken)
+                return new LoginAuditResponseDto(true, "El token anterior ahora es inválido");
+
+            return new LoginAuditResponseDto(false, "No se pudo invalidar el anterior token");
         }
 
         
@@ -32,5 +55,24 @@ namespace Application.Services
         {
             return await _loginAuditRepository.IsTokenValidAsync(tokenId);
         }
+
+
+
+
+        private string ValidateLoginAuditDto(LoginAuditDto loginAudit)
+        {
+            var validationResults = new List<ValidationResult>();
+            var context = new ValidationContext(loginAudit);
+            
+            if (!Validator.TryValidateObject(loginAudit, context, validationResults, true))
+            {
+                var errors = string.Join("; ", validationResults.Select(e => e.ErrorMessage));
+                return errors;
+            }
+
+            return "";
+        }
+
+        
     }
 }

@@ -14,40 +14,53 @@ namespace Infrastructure.Repositories
             _context = context;
         }
 
-        
-        public async Task CreateLoginAuditAsync(LoginAuditEntity loginAudit)
+    
+        public async Task<LoginAuditEntity?> GetLoginAuditByTokenIdAsync(string tokenId)
         {
-            var query = @"
-                INSERT INTO LoginAudit (TokenId, IdCCNit, IssuedAt, ExpiresAt, IPAddress, DeviceInfo, Status)
-                VALUES (@TokenId, @IdCCNit, @IssuedAt, @ExpiresAt, @IPAddress, @DeviceInfo, @Status)";
-            
+            var query = "SELECT * FROM LoginAudits WHERE TokenId = @TokenId";
+
             using (var connection = _context.CreateConnection())
             {
-                await connection.ExecuteAsync(query, loginAudit);
+                return await connection.QuerySingleOrDefaultAsync<LoginAuditEntity>(query, new { TokenId = tokenId });
+            }
+        }
+
+
+        public async Task<bool> CreateLoginAuditAsync(LoginAuditEntity loginAudit)
+        {
+            var query = @"
+                INSERT INTO LoginAudits (TokenId, IdCCNit, IssuedAt, ExpiresAt, IPAddress, DeviceInfo, Status)
+                VALUES (@TokenId, @IdCCNit, @IssuedAt, @ExpiresAt, @IPAddress, @DeviceInfo, @Status)";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var result = await connection.ExecuteAsync(query, loginAudit);
+                return result > 0; 
             }
         }
 
         
-        public async Task RevokeTokenAsync(string tokenId)
+        public async Task<bool> RevokeTokenAsync(string tokenId)
         {
-            var query = "UPDATE LoginAudit SET Status = 0 WHERE TokenId = @TokenId";
+            var query = "UPDATE LoginAudits SET Status = 0 WHERE TokenId = @TokenId";
 
             using (var connection = _context.CreateConnection())
             {
-                await connection.ExecuteAsync(query, new { TokenId = tokenId });
+                var result = await connection.ExecuteAsync(query, new { TokenId = tokenId });
+                return result > 0;
             }
         }
 
         
         public async Task<bool> IsTokenValidAsync(string tokenId)
         {
-            var query = "SELECT Status FROM LoginAudit WHERE TokenId = @TokenId";
+            var query = "SELECT Status FROM LoginAudits WHERE TokenId = @TokenId";
 
             using (var connection = _context.CreateConnection())
             {
                 var status = await connection.QuerySingleOrDefaultAsync<bool?>(query, new { TokenId = tokenId });
                 return status == true;
             }
-        } 
+        }
     }
 }

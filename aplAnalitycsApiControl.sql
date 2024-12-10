@@ -66,13 +66,13 @@ CREATE TABLE Tokens (
     FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit)
 );
 
-CREATE TABLE LoginAudit (
-    TokenId NVARCHAR(50) PRIMARY KEY, -- JTI del token
+CREATE TABLE LoginAudits (
+    TokenId VARCHAR(50) PRIMARY KEY, -- JTI del token
     IdCCNit INT NOT NULL,             -- ID del usuario
     IssuedAt DATETIME NOT NULL,       -- Fecha/hora de emisión
     ExpiresAt DATETIME NOT NULL,      -- Fecha/hora de expiración
-    IPAddress NVARCHAR(45),           -- Dirección IP del cliente
-    DeviceInfo NVARCHAR(255),         -- Información del dispositivo
+    IPAddress VARCHAR(45),           -- Dirección IP del cliente
+    DeviceInfo VARCHAR(255),         -- Información del dispositivo
     Status BIT DEFAULT 1 NOT NULL,             -- Estado del token (1 = válido, 0 = revocado)
     CONSTRAINT FK_LoginAudit_Users FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit)
 );

@@ -21,5 +21,19 @@ namespace Application.Mappers
                 DeviceInfo = loginAudit.DeviceInfo
             };
         }
+
+
+        public static LoginAuditDto ToDto(this LoginAuditEntity loginAudit)
+        {
+            return new LoginAuditDto
+            {
+                TokenId = loginAudit.TokenId,
+                IdCCNit = loginAudit.IdCCNit,
+                IssuedAt = loginAudit.IssuedAt,
+                ExpiresAt = loginAudit.ExpiresAt,   
+                IPAddress = loginAudit.IPAddress,
+                DeviceInfo = loginAudit.DeviceInfo
+            };
+        }
     }
 }

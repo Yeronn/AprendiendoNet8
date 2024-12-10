@@ -62,20 +62,23 @@ namespace Application.Services
             var hashedPassword = await _userService.GetPasswordByIdCCNitAsync(login.IdCCNit);
             bool checkPassword = _passwordHasher.VerifyPassword(login.Password, hashedPassword!);
 
-            if (checkPassword)
-            {
-                //TODO: Poner en la funcion que genera el token, validar que el token se haya creado correctamente antes de ingresar al sistema el nuevo jti
-                var newJti = Guid.NewGuid().ToString();
-                bool updatedJti = await _userService.UpdateLastJtiAsync(login.IdCCNit, newJti);
-                if (!updatedJti)
-                    return new LoginResponse(false, "Ocurrió un error al actualizar la sesión");
-
-                var userToken = user!.ToUserJwtTokenDto();
-                var token = await GenerateJWTToken(userToken, newJti);
-                return new LoginResponse(checkPassword, "Inicio de sesión exitoso", token);
-            }
-            else
+            if (!checkPassword)
                 return new LoginResponse(checkPassword, "Credenciales Inválidas", IsBadRequest: true);
+            
+            //TODO: Poner en la funcion que genera el token, validar que el token se haya creado correctamente antes de ingresar al sistema el nuevo jti
+            var newJti = Guid.NewGuid().ToString();
+            bool updatedJti = await _userService.UpdateLastJtiAsync(login.IdCCNit, newJti);
+            if (!updatedJti)
+                return new LoginResponse(false, "Ocurrió un error al actualizar la sesión");
+
+            var userToken = user!.ToUserJwtTokenDto();
+            var token = await GenerateJWTToken(userToken, newJti);
+
+            //Valida que se se haya registrado el inicio de sesión, es decir, que el objeto newLogin se haya creado con todos los campos requeridos 
+            if (string.IsNullOrWhiteSpace(token))
+                return new LoginResponse(false, "Error al registrar el inicio de sesión");
+
+            return new LoginResponse(checkPassword, "Inicio de sesión exitoso", token);
         }
 
 
@@ -104,8 +107,7 @@ namespace Application.Services
                 signingCredentials: credentials
                 );
 
-            // TODO: Guarda en la base de datos el inicio de sesion
-            var newToken = new LoginAuditDto
+            var newLogin = new LoginAuditDto
             {
                 TokenId = jti,
                 IdCCNit = user.IdCCNit,
@@ -115,7 +117,9 @@ namespace Application.Services
                 DeviceInfo = GetDeviceInfo(),
             };
 
-            await _loginAuditService.CreateLoginAuditAsync(newToken);
+            var createdLoginAudit = await _loginAuditService.CreateLoginAuditAsync(newLogin);
+            if(!createdLoginAudit.Success)
+                return "";
             
             string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
             return tokenValue;
