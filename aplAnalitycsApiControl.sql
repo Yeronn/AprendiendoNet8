@@ -73,7 +73,7 @@ CREATE TABLE LoginAudit (
     ExpiresAt DATETIME NOT NULL,      -- Fecha/hora de expiración
     IPAddress NVARCHAR(45),           -- Dirección IP del cliente
     DeviceInfo NVARCHAR(255),         -- Información del dispositivo
-    Status BIT DEFAULT 1,             -- Estado del token (1 = válido, 0 = revocado)
+    Status BIT DEFAULT 1 NOT NULL,             -- Estado del token (1 = válido, 0 = revocado)
     CONSTRAINT FK_LoginAudit_Users FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit)
 );
 

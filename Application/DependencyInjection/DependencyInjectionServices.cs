@@ -15,6 +15,7 @@ namespace Application.DependencyInjection
             services.AddScoped<IRoleService, RoleService>();
             services.AddScoped<ICompanyService, CompanyService>();
             services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<ILoginAuditService, LoginAuditService>();
             return services;
         }
     }

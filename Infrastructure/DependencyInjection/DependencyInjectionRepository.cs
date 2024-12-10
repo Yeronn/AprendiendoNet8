@@ -15,6 +15,8 @@ namespace Infrastructure.DependencyInjection
             services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<ICompanyRepository, CompanyRepository>();
             services.AddScoped<ITokenRepository, TokenRepository>();
+            services.AddScoped<ILoginAuditRepository, LoginAuditRepository>();
+
             return services;
         }
     }

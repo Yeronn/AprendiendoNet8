@@ -1,4 +1,5 @@
-﻿using Application.DTOs.User;
+﻿using Application.DTOs.LoginAudit;
+using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Mappers;
 using Microsoft.AspNetCore.Http;
@@ -14,6 +15,7 @@ namespace Application.Services
     {
         private readonly IUserService _userService;
         private readonly IPermissionService _permissionService;
+        private readonly ILoginAuditService _loginAuditService;
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasherService _passwordHasher;
         private readonly IHttpContextAccessor _httpContextAccessor;
@@ -23,6 +25,7 @@ namespace Application.Services
                 IPasswordHasherService passwordHasher, 
                 IUserService userService, 
                 IPermissionService permissionService,
+                ILoginAuditService loginAuditService,
                 IHttpContextAccessor httpContextAccessor
             )
         {
@@ -30,6 +33,7 @@ namespace Application.Services
             _passwordHasher = passwordHasher;
             _configuration = configuration;
             _permissionService = permissionService;
+            _loginAuditService = loginAuditService;
             _httpContextAccessor = httpContextAccessor;
         }
 
@@ -90,25 +94,28 @@ namespace Application.Services
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+            DateTime tokenExpiration = DateTime.UtcNow.AddMinutes(60);
+
             var token = new JwtSecurityToken(
                 _configuration["Jwt:Issuer"],
                 _configuration["Jwt:Audience"],
                 claims,
-                expires: DateTime.UtcNow.AddMinutes(60),
+                expires: tokenExpiration,
                 signingCredentials: credentials
                 );
 
             // TODO: Guarda en la base de datos el inicio de sesion
-            // await _auditRepository.SaveTokenAsync(new TokenAudit
-            // {
-            //     TokenId = jti,
-            //     UserId = user.IdCCNit,
-            //     IssuedAt = DateTime.UtcNow,
-            //     ExpiresAt = DateTime.UtcNow.AddMinutes(60),
-            //     IPAddress = GetClientIpAddress(),  // Método para obtener la IP
-            //     DeviceInfo = GetDeviceInfo(),      // Método opcional para info del dispositivo
-            //     Status = "Valid"
-            // });
+            var newToken = new LoginAuditDto
+            {
+                TokenId = jti,
+                IdCCNit = user.IdCCNit,
+                IssuedAt = DateTime.UtcNow,
+                ExpiresAt = tokenExpiration,
+                IPAddress = GetClientIpAddress(),  
+                DeviceInfo = GetDeviceInfo(),
+            };
+
+            await _loginAuditService.CreateLoginAuditAsync(newToken);
             
             string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
             return tokenValue;
