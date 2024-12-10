@@ -13,6 +13,9 @@ builder.Services.AddInfrastructure();
 builder.Services.AddJwtAuthentication(builder.Configuration);
 builder.Services.AddAuthorizationPolicies();
 builder.Services.AddSwaggerWithJwtSupport();
+builder.Services.AddHttpContextAccessor();
+
+
 builder.Services.AddEndpointsApiExplorer();
 
 

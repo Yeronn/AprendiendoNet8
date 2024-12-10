@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Mappers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -15,19 +16,36 @@ namespace Application.Services
         private readonly IPermissionService _permissionService;
         private readonly IConfiguration _configuration;
         private readonly IPasswordHasherService _passwordHasher;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
         public AuthenticationService(
                 IConfiguration configuration, 
                 IPasswordHasherService passwordHasher, 
                 IUserService userService, 
-                IRoleService roleService,
-                IPermissionService permissionService
+                IPermissionService permissionService,
+                IHttpContextAccessor httpContextAccessor
             )
         {
             _userService = userService;
             _passwordHasher = passwordHasher;
             _configuration = configuration;
             _permissionService = permissionService;
+            _httpContextAccessor = httpContextAccessor;
+        }
+
+
+        public string? GetClientIpAddress()
+        {
+            var context = _httpContextAccessor.HttpContext;
+            var ip = context?.Request.Headers["X-Forwarded-For"].FirstOrDefault();
+            return !string.IsNullOrEmpty(ip) ? ip : context?.Connection.RemoteIpAddress?.ToString();
+        }
+
+
+        public string GetDeviceInfo()
+        {
+            var context = _httpContextAccessor.HttpContext;
+            return context?.Request.Headers["User-Agent"].FirstOrDefault() ?? "Unknown";
         }
 
 
