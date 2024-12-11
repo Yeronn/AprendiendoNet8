@@ -11,7 +11,7 @@ namespace Application.DTOs.LoginAudit
 
         [Required(ErrorMessage = "El IdCCNit es obligatorio.")]
         [Range(1, int.MaxValue, ErrorMessage = "El IdCCNit debe ser un número positivo.")]
-        public int IdCCNit { get; set; } //TODO: Cambiar a string
+        public string IdCCNit { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "La fecha de emisión es obligatoria.")]
         public DateTime IssuedAt { get; set; }

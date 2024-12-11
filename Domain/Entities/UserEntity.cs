@@ -2,7 +2,7 @@
 {
     public class UserEntity
     {
-        public int IdCCNit { get; set; }
+        public required string IdCCNit { get; set; }
         public int Id { get; set; }
         public required string FirstName { get; set; }
         public required string LastName { get; set; }

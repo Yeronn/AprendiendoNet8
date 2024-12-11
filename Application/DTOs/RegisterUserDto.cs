@@ -4,6 +4,7 @@ namespace Application.DTOs.User
 {
     public class RegisterUserDto
     {
+        public string IdCCNit { get; set; } = string.Empty;
         [Required]
         public string FirstName { get; set; } = string.Empty;
         [Required]

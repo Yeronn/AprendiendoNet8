@@ -65,7 +65,7 @@ namespace Application.Services
         }
 
 
-        private async Task<bool> RevokeAllTokensAsync(int idCCNit)
+        private async Task<bool> RevokeAllTokensAsync(string idCCNit)
         {
             bool revokedToken = await _loginAuditRepository.RevokeAllTokensAsync(idCCNit);
             if (!revokedToken)

@@ -10,6 +10,7 @@ namespace Application.Mappers
         {
             return new UserEntity
             {
+                IdCCNit = registerUserDto.IdCCNit,
                 FirstName = registerUserDto.FirstName,
                 LastName = registerUserDto.LastName,
                 Email = registerUserDto.Email,
@@ -25,6 +26,7 @@ namespace Application.Mappers
         {
             return new UserEntity
             {
+                IdCCNit = updateUserDto.IdCCNit,
                 FirstName = updateUserDto.FirstName,
                 LastName = updateUserDto.LastName,
                 Email = updateUserDto.Email,

@@ -56,7 +56,7 @@ namespace WebAPI.Controllers
 
         // PUT: api/users/{IdCCNit}
         [HttpPut("{IdCCNit}")]
-        public async Task<IActionResult> UpdateUser(int IdCCNit, [FromBody] UpdateUserDto updateUserDto)
+        public async Task<IActionResult> UpdateUser(string IdCCNit, [FromBody] UpdateUserDto updateUserDto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
@@ -72,7 +72,7 @@ namespace WebAPI.Controllers
 
         // DELETE: api/users/{IdCCNit}
         [HttpDelete("{IdCCNit:int}")]
-        public async Task<IActionResult> DeleteUser(int IdCCNit)
+        public async Task<IActionResult> DeleteUser(string IdCCNit)
         {
             var result = await _userService.DeleteUserAsync(IdCCNit);
             if (!result)
@@ -84,7 +84,7 @@ namespace WebAPI.Controllers
 
         // GET: api/users/{IdCCNit}
         [HttpGet("{IdCCNit:int}")]
-        public async Task<IActionResult> GetUserByIdCCNit(int IdCCNit)
+        public async Task<IActionResult> GetUserByIdCCNit(string IdCCNit)
         {
             var user = await _userService.GetUserByIdCCNitAsync(IdCCNit);
             if (user == null)

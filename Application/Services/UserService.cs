@@ -27,7 +27,7 @@ namespace Application.Services
             return users.Select(u => u.ToUserDto());
         }
 
-        public async Task<UserDto?> GetUserByIdCCNitAsync(int IdCCNit)
+        public async Task<UserDto?> GetUserByIdCCNitAsync(string IdCCNit)
         {
             var user = await _userRepository.GetUserByIdCCNitAsync(IdCCNit);
             return user?.ToUserDto();
@@ -50,20 +50,20 @@ namespace Application.Services
             if (company == null)
                 return new UserResponseDto(false, "La empresa a la que esta asociada el rol no existe: ");
 
-            int idCCNit = newUser.CCIdentification + (int) company.NIT!; //TODO: Esta sumando y no concatenando
+            string idCCNit = newUser.CCIdentification.ToString() + "-" + company.NIT.ToString();
             bool IdCCNitExists = await VerifyIdCCNitExistsAsync(idCCNit);
             if (IdCCNitExists)
                 return new UserResponseDto(false, "El IdCCNit no está disponible", IsConflict: true);
 
-            var availableEmail = await IsEmailAvailableInCompanyAsync((int)company.Id!, newUser.Email);
+            var availableEmail = await IsEmailAvailableInCompanyAsync(newUser.Email, (int)company.Id!);
             if (!availableEmail.Success)
                 return new UserResponseDto(false, availableEmail.Message, IsConflict: availableEmail.IsConflict);
 
             var hashedPassword = _passwordHasher.HashPassword(newUser.Password);
             newUser.Password = hashedPassword;
 
+            newUser.IdCCNit = idCCNit;
             var userEntity = newUser.ToUserEntity();
-            userEntity.IdCCNit = idCCNit;
             var createdUserId  = await _userRepository.CreateUserAsync(userEntity);
 
             if (createdUserId.HasValue)
@@ -75,7 +75,7 @@ namespace Application.Services
         }
 
 
-        public async Task<UserResponseDto> UpdateUserAsync(int idCCNit, UpdateUserDto updateUserDto)
+        public async Task<UserResponseDto> UpdateUserAsync(string idCCNit, UpdateUserDto updateUserDto)
         {
             var roleExists = await _roleService.ValidateRoleExistsByIdAsync(updateUserDto.RoleId);
             if (!roleExists.Success)
@@ -90,7 +90,7 @@ namespace Application.Services
             if (!idCCNitExists)
                 return new UserResponseDto(false, "El IdCCNit no está disponible", IsBadRequest: true);
     
-            var availableEmail = await IsEmailAvailableInCompanyAsync((int)company.Id!, updateUserDto.Email);
+            var availableEmail = await IsEmailAvailableInCompanyAsync(updateUserDto.Email, (int)company.Id!);
             var currentUser = await GetUserByIdCCNitAsync(idCCNit);
             if (!availableEmail.Success && currentUser!.Email != updateUserDto.Email)
                 return availableEmail;
@@ -98,8 +98,8 @@ namespace Application.Services
             var hashedPassword = _passwordHasher.HashPassword(updateUserDto.Password);
             updateUserDto.Password = hashedPassword;
 
+            updateUserDto.IdCCNit = idCCNit;
             var userEntity = updateUserDto.ToUserEntity();
-            userEntity.IdCCNit = idCCNit;
 
             var isUpdated = await _userRepository.UpdateUserAsync(userEntity);
             if (isUpdated)
@@ -111,13 +111,13 @@ namespace Application.Services
         }
 
 
-        public async Task<bool> DeleteUserAsync(int IdCCNit)
+        public async Task<bool> DeleteUserAsync(string IdCCNit)
         {
             return await _userRepository.DeleteUserAsync(IdCCNit);
         }
 
 
-        public async Task<string?> GetPasswordByIdCCNitAsync(int IdCCNit)
+        public async Task<string?> GetPasswordByIdCCNitAsync(string IdCCNit)
         {
             var password = await _userRepository.GetPasswordByIdCCNitAsync(IdCCNit);
             if (password == null)
@@ -128,21 +128,20 @@ namespace Application.Services
         }
 
 
-        public async Task<bool> VerifyIdCCNitExistsAsync(int IdCCNit)
+        public async Task<bool> VerifyIdCCNitExistsAsync(string IdCCNit)
         {
             var exists = await _userRepository.IdCCNitExistsAsync(IdCCNit);
             return exists;
         }
 
 
-        public async Task<UserResponseDto> IsEmailAvailableInCompanyAsync(int companyId, string email)
+        public async Task<UserResponseDto> IsEmailAvailableInCompanyAsync(string email, int companyId)
         {
             var availability = await _userRepository.IsEmailAvailableInCompanyAsync(email, companyId);
             return availability
                         ? new UserResponseDto(true, "Email disponible en la empresa")
                         : new UserResponseDto(false, "Email no disponible en la empresa", IsConflict: true);
         }
-
     }
 
 }

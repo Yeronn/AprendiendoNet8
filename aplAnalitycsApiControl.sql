@@ -43,7 +43,7 @@ CREATE TABLE RolePermissions (
 
 -- Crear tabla Users
 CREATE TABLE Users (
-    IdCCNit INT NOT NULL PRIMARY KEY,  
+    IdCCNit VARCHAR(50) NOT NULL PRIMARY KEY,  
     Id INT IDENTITY(1,1),  -- Auto-incrementing Id
     FirstName VARCHAR(100) NOT NULL,
     LastName VARCHAR(100) NOT NULL,
@@ -58,7 +58,7 @@ CREATE TABLE Users (
 -- Crear tabla Tokens
 CREATE TABLE Tokens (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    IdCCNit INT NOT NULL,  -- Clave foránea a Users
+    IdCCNit VARCHAR(50) NOT NULL,  -- Clave foránea a Users
     RecoveryToken VARCHAR(255) NULL,  -- Puede ser NULL
     Jti VARCHAR(255) NULL,
     DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
@@ -67,13 +67,13 @@ CREATE TABLE Tokens (
 
 CREATE TABLE LoginAudits (
     TokenId VARCHAR(50) PRIMARY KEY, -- JTI del token
-    IdCCNit INT NOT NULL,             -- ID del usuario
+    IdCCNit VARCHAR(50) NOT NULL,             -- ID del usuario
     IssuedAt DATETIME NOT NULL,       -- Fecha/hora de emisión
     ExpiresAt DATETIME NOT NULL,      -- Fecha/hora de expiración
     IPAddress VARCHAR(45),           -- Dirección IP del cliente
     DeviceInfo VARCHAR(255),         -- Información del dispositivo
     Status BIT DEFAULT 1 NOT NULL,             -- Estado del token (1 = válido, 0 = revocado)
-    CONSTRAINT FK_LoginAudit_Users FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit)
+    FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit)
 );
 
 
@@ -109,16 +109,16 @@ VALUES
 -- Insertar datos en la tabla Users
 INSERT INTO Users (IdCCNit, FirstName, LastName, Email, CCIdentification, HashedPassword, RoleId)
 VALUES
-    (10101010, 'John', 'Doe', 'john.doe@example.com', 123456, 'hashedpassword1', 1),  -- Admin
-    (20202020, 'Jane', 'Smith', 'jane.smith@example.com', 654321, 'hashedpassword2', 2),  -- Manager
-    (30303030, 'Alice', 'Johnson', 'alice.johnson@example.com', 987654, 'hashedpassword3', 3),  -- User
-    (40404040, 'Bob', 'Williams', 'bob.williams@example.com', 111222, 'hashedpassword4', 3),  -- User sin permisos adicionales
-    (12345, 'prueba', 'prueba', 'prueba@example.com', 123231, '$2a$11$VTDt63kAgy//Q2LankkKeerI3LDUsRjQDpZoAFAdvh4AtCOoOQWDi', 3);  -- Usuario de prueba
+    ('10101010', 'John', 'Doe', 'john.doe@example.com', 123456, 'hashedpassword1', 1),  -- Admin
+    ('20202020', 'Jane', 'Smith', 'jane.smith@example.com', 654321, 'hashedpassword2', 2),  -- Manager
+    ('30303030', 'Alice', 'Johnson', 'alice.johnson@example.com', 987654, 'hashedpassword3', 3),  -- User
+    ('40404040', 'Bob', 'Williams', 'bob.williams@example.com', 111222, 'hashedpassword4', 3),  -- User sin permisos adicionales
+    ('12345', 'prueba', 'prueba', 'prueba@example.com', 123231, '$2a$11$VTDt63kAgy//Q2LankkKeerI3LDUsRjQDpZoAFAdvh4AtCOoOQWDi', 3);  -- Usuario de prueba
 
 -- Insertar datos en la tabla Tokens
 INSERT INTO Tokens (IdCCNit, RecoveryToken, Jti)
 VALUES
-    (10101010, 'recovery-token-abc', 'jti-token-123'),  -- Token para John Doe (Admin)
-    (20202020, NULL, 'jti-token-456'),  -- Token para Jane Smith (Manager)
-    (30303030, 'recovery-token-xyz', 'jti-token-789'),  -- Token para Alice Johnson (User)
-    (40404040, NULL, NULL);  -- Bob Williams sin tokens
+    ('10101010', 'recovery-token-abc', 'jti-token-123'),  -- Token para John Doe (Admin)
+    ('20202020', NULL, 'jti-token-456'),  -- Token para Jane Smith (Manager)
+    ('30303030', 'recovery-token-xyz', 'jti-token-789'),  -- Token para Alice Johnson (User)
+    ('40404040', NULL, NULL);  -- Bob Williams sin tokens

@@ -40,7 +40,7 @@ namespace Infrastructure.Repositories
         }
 
         
-        public async Task<bool> RevokeAllTokensAsync(int idCCNit)
+        public async Task<bool> RevokeAllTokensAsync(string idCCNit)
         {
             var query = "UPDATE LoginAudits SET Status = 0 WHERE IdCCNit = @IdCCNit AND Status = 1";
 
@@ -64,7 +64,7 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> HasActiveTokensAsync(int idCCNit)
+        public async Task<bool> HasActiveTokensAsync(string idCCNit)
         {
             var query = "SELECT COUNT(1) FROM LoginAudits WHERE IdCCNit = @IdCCNit AND Status = 1";
 
