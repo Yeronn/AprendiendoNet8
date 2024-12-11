@@ -25,11 +25,13 @@ namespace Application.Services
 
         public async Task<LoginAuditResponseDto> CreateLoginAuditAsync(LoginAuditDto loginAudit)
         {
-            var validationResults = ValidateLoginAuditDto(loginAudit);
+            string validationResults = ValidateLoginAuditDto(loginAudit);
             if (!string.IsNullOrWhiteSpace(validationResults))
-            {
                 return new LoginAuditResponseDto(false, $"Errores de validación: {validationResults}");
-            }
+            
+            bool revokedPreviousTokens = await RevokeAllTokensAsync(loginAudit.IdCCNit);
+            if (!revokedPreviousTokens)
+                return new LoginAuditResponseDto(false, "No se pudo revocar los anteriores tokens de acceso");
 
             bool createdLoginAudit = await _loginAuditRepository.CreateLoginAuditAsync(loginAudit.ToEntity());
 
@@ -37,17 +39,6 @@ namespace Application.Services
                 return new LoginAuditResponseDto(true, "Se registró el inicio de sesión");
     
             return new LoginAuditResponseDto(false, "No se pudo registrar el inicio de sesión");
-            //TODO: Al crear un nuevo token, el antiguo se revoca
-        }
-
-        
-        public async Task<LoginAuditResponseDto> RevokeTokenAsync(string tokenId)
-        {
-            bool revokedToken = await _loginAuditRepository.RevokeTokenAsync(tokenId);
-            if (revokedToken)
-                return new LoginAuditResponseDto(true, "El token anterior ahora es inválido");
-
-            return new LoginAuditResponseDto(false, "No se pudo invalidar el anterior token");
         }
 
         
@@ -73,6 +64,17 @@ namespace Application.Services
             return "";
         }
 
+
+        private async Task<bool> RevokeAllTokensAsync(int idCCNit)
+        {
+            bool revokedToken = await _loginAuditRepository.RevokeAllTokensAsync(idCCNit);
+            if (!revokedToken)
+            {
+                bool hasActiveTokens = await _loginAuditRepository.HasActiveTokensAsync(idCCNit);
+                return !hasActiveTokens;
+            }
+            return revokedToken;
+        }
         
     }
 }

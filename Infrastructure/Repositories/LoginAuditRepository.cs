@@ -40,13 +40,13 @@ namespace Infrastructure.Repositories
         }
 
         
-        public async Task<bool> RevokeTokenAsync(string tokenId)
+        public async Task<bool> RevokeAllTokensAsync(int idCCNit)
         {
-            var query = "UPDATE LoginAudits SET Status = 0 WHERE TokenId = @TokenId";
+            var query = "UPDATE LoginAudits SET Status = 0 WHERE IdCCNit = @IdCCNit AND Status = 1";
 
             using (var connection = _context.CreateConnection())
             {
-                var result = await connection.ExecuteAsync(query, new { TokenId = tokenId });
+                var result = await connection.ExecuteAsync(query, new { IdCCNit = idCCNit });
                 return result > 0;
             }
         }
@@ -62,5 +62,18 @@ namespace Infrastructure.Repositories
                 return status == true;
             }
         }
+
+
+        public async Task<bool> HasActiveTokensAsync(int idCCNit)
+        {
+            var query = "SELECT COUNT(1) FROM LoginAudits WHERE IdCCNit = @IdCCNit AND Status = 1";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { IdCCNit = idCCNit });
+                return count > 0;
+            }
+        }
+
     }
 }
