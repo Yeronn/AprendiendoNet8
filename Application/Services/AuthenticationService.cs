@@ -64,17 +64,10 @@ namespace Application.Services
 
             if (!checkPassword)
                 return new LoginResponse(checkPassword, "Credenciales Inválidas", IsBadRequest: true);
-            
-            //TODO: Poner en la funcion que genera el token, validar que el token se haya creado correctamente antes de ingresar al sistema el nuevo jti
-            var newJti = Guid.NewGuid().ToString();
-            bool updatedJti = await _userService.UpdateLastJtiAsync(login.IdCCNit, newJti);
-            if (!updatedJti)
-                return new LoginResponse(false, "Ocurrió un error al actualizar la sesión");
 
             var userToken = user!.ToUserJwtTokenDto();
-            var token = await GenerateJWTToken(userToken, newJti);
+            var token = await GenerateJWTToken(userToken);
 
-            //Valida que se se haya registrado el inicio de sesión, es decir, que el objeto newLogin se haya creado con todos los campos requeridos 
             if (string.IsNullOrWhiteSpace(token))
                 return new LoginResponse(false, "Error al registrar el inicio de sesión");
 
@@ -82,8 +75,10 @@ namespace Application.Services
         }
 
 
-        public async Task<string> GenerateJWTToken(UserJwtTokenDto user, string jti)
+        public async Task<string> GenerateJWTToken(UserJwtTokenDto user)
         {
+            var jti = Guid.NewGuid().ToString();
+
             var permissions = await _permissionService.GetPermissionsByRoleIdAsync(user.RoleId);
             var claims = new List<Claim>
             {
@@ -120,7 +115,7 @@ namespace Application.Services
             var createdLoginAudit = await _loginAuditService.CreateLoginAuditAsync(newLogin);
             if(!createdLoginAudit.Success)
                 return "";
-            
+
             string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
             return tokenValue;
         }
@@ -134,17 +129,12 @@ namespace Application.Services
             var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
 
             if (jti == null)
-                return false; // Token inválido
+                return false;
 
-            // Obtener el usuario por el jti
-            var user = await _userService.GetUserByLastJtiAsync(jti);
+            var loginRecord = await _loginAuditService.GetLoginAuditByTokenIdAsync(jti);
+            if (loginRecord == null || !loginRecord.Status)
+                return false;
 
-            // TODO: Validar que el estado del token sea valid (true) y no revoked (false)
-            // var isRevoked = await _auditRepository.IsTokenRevokedAsync(jti);
-            if (user == null || user.LastJti != jti)
-                return false; // Token no autorizado o ha expirado
-
-            // Token es válido
             return true;
         }
 
