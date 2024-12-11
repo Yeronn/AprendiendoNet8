@@ -10,7 +10,6 @@
         public int CCIdentification { get; set; }
         public int RoleId { get; set; }
         public DateTime RegistrationDate { get; set; }
-        public string LastJti { get; set; } = string.Empty;
     }
 
 

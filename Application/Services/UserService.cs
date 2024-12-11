@@ -115,13 +115,6 @@ namespace Application.Services
         {
             return await _userRepository.DeleteUserAsync(IdCCNit);
         }
-        
-
-        public async Task<UserDto?> GetUserByLastJtiAsync(string lastJti)
-        {
-            var userEntity = await _userRepository.GetUserByLastJtiAsync(lastJti);
-            return userEntity?.ToUserDto();  
-        }
 
 
         public async Task<string?> GetPasswordByIdCCNitAsync(int IdCCNit)
@@ -132,20 +125,6 @@ namespace Application.Services
                 throw new Exception("Usuario no encontrado.");
             }
             return password;
-        }
-
-
-        public async Task<bool> UpdateLastJtiAsync(int IdCCNit, string lastJti)
-        {
-            // Verifica si el usuario existe con el IdCCNit (opcional)
-            var user = await _userRepository.GetUserByIdCCNitAsync(IdCCNit);
-            if (user == null)
-            {
-                throw new Exception("Usuario no encontrado.");
-            }
-
-            // Llama al repositorio para actualizar el LastJti
-            return await _userRepository.UpdateLastJtiAsync(IdCCNit, lastJti);
         }
 
 

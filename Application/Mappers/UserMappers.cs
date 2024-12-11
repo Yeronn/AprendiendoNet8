@@ -46,8 +46,7 @@ namespace Application.Mappers
                 Email = userEntity.Email!,
                 CCIdentification = userEntity.CCIdentification!,
                 RoleId = userEntity.RoleId,
-                RegistrationDate = userEntity.RegistrationDate,
-                LastJti = userEntity.LastJti!
+                RegistrationDate = userEntity.RegistrationDate
             };
         }
 

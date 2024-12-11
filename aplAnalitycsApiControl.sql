@@ -52,7 +52,6 @@ CREATE TABLE Users (
     HashedPassword VARCHAR(255) NOT NULL,  -- Contraseña hasheada
     RoleId INT NOT NULL,  -- Clave foránea a Roles
     RegistrationDate DATETIME NOT NULL DEFAULT GETDATE(),
-    LastJti VARCHAR(255) NULL,
     FOREIGN KEY (RoleId) REFERENCES Roles(Id)
 );
 

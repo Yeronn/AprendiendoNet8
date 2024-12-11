@@ -2,7 +2,6 @@
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
-using System.Data;
 
 namespace Infrastructure.Repositories
 {
@@ -88,17 +87,6 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<UserEntity?> GetUserByLastJtiAsync(string lastJti)
-        {
-            var query = "SELECT * FROM Users WHERE LastJti = @LastJti";
-            
-            using (var connection = _context.CreateConnection())
-            {
-                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { LastJti = lastJti });
-            }
-        }
-
-
         public async Task<bool> IdCCNitExistsAsync(int idCCNit)
         {
             var query = "SELECT COUNT(1) FROM Users WHERE IdCCNit = @IdCCNit";
@@ -118,18 +106,6 @@ namespace Infrastructure.Repositories
             using (var connection = _context.CreateConnection())
             {
                 return await connection.QuerySingleOrDefaultAsync<string>(query, new { IdCCNit = idCCNit });
-            }
-        }
-
-
-        public async Task<bool> UpdateLastJtiAsync(int idCCNit, string lastJti)
-        {
-            var query = "UPDATE [Users] SET LastJti = @LastJti WHERE IdCCNit = @IdCCNit";
-
-            using (var connection = _context.CreateConnection())
-            {
-                var affectedRows = await connection.ExecuteAsync(query, new { IdCCNit = idCCNit, LastJti = lastJti });
-                return affectedRows > 0;  // Devuelve true si se actualizó al menos una fila
             }
         }
 
