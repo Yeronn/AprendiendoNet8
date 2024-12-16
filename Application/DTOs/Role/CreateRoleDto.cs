@@ -12,7 +12,7 @@ namespace Application.DTOs
         [Required]
         public bool Status { get; set; } = true;
         [Required(ErrorMessage = "El campo CompanyId es obligatorio.")]
-        public int CompanyId { get; set; }
+        public int CompanyId { get; set; } //? Se puede quitar si el id de la empresa está en el token
         [Required]
         public List<int> PermissionsIds { get; set; } = [];
     }

@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [Authorize(Policy = "Write")]
+        // [Authorize(Policy = "Write")]
         [HttpPost]
         public async Task<IActionResult> CreateRol([FromBody] CreateRoleDto createRole)
         {

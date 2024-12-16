@@ -46,13 +46,13 @@ namespace Application.Services
             if (createRole.PermissionsIds.Count == 0)
                 return new RoleResponseDto(false, "No envió los permisos", IsBadRequest: true);
 
+            var companyExists = await _companyService.ValidateCompanyExistsByIdAsync(createRole.CompanyId);
+            if(companyExists.Success == false)
+                return new RoleResponseDto(false, companyExists.Message);
+
             var nameAvalible = await CheckRoleNameAvailabilityAsync(createRole.Name!, createRole.CompanyId!);
             if (!nameAvalible.Success)
                 return nameAvalible;
-
-            var companyExists = await _companyService.ValidateCompanyExistsByIdAsync(createRole.CompanyId);
-            if(companyExists.Success == false)
-                return new RoleResponseDto(false, "La empresa no es válida");
 
             var newRoleId = await _roleRepository.CreateRoleAsync(createRole.ToEntity());
 
@@ -89,14 +89,11 @@ namespace Application.Services
             if (!availableName.Success && (updateRoleEntity.CompanyId != currentRole.CompanyId || updateRoleDto.Name != currentRole.Name) )
                 return availableName;
 
-            var companyExists = await _companyService.ValidateCompanyExistsByIdAsync(updateRoleEntity.CompanyId);
-            if(companyExists.Success == false)
-                return new RoleResponseDto(false, "La empresa no es válida");
-
             bool updatedRole = await _roleRepository.UpdateRoleAsync(updateRoleEntity);
             if(!updatedRole)
                 return new RoleResponseDto(false, "Error al actualizar el rol");
-                
+            
+            //TODO: Cuando se realiza una peticion con los mismos permisos del rol, no se procesa la peticion
             var updatedPermissions = await UpdateRolePermissions(roleId, updateRoleEntity.CompanyId, updateRoleDto.PermissionsIds);
             if(!updatedPermissions.Success)
             {
@@ -147,13 +144,13 @@ namespace Application.Services
 
         public async Task<RoleResponseDto> AssignPermissionsToRoleAsync(int roleId, List<int> newPermissionIds)
         {
-            var roleExists = await GetRoleByIdAsync(roleId);
-            if (roleExists == null)
-                return new RoleResponseDto(false, "El rol no existe", IsNotFound: true);
-
             if(newPermissionIds.Count == 0)
                 return new RoleResponseDto(false, "Está tratando de añadir permisos al rol, pero no envió los permisos", IsBadRequest: true);
-            
+
+            var roleExists = await ValidateRoleExistsByIdAsync(roleId);
+            if (!roleExists.Success)
+                return roleExists;
+
             var permissions = await _permissionService.GetPermissionsAsync();
             var permissionIds = permissions!.Select(p => p.Id).ToHashSet();
             var invalidPermissions = newPermissionIds.Where(pId => !permissionIds.Contains(pId)).ToList();
@@ -276,6 +273,7 @@ namespace Application.Services
 
         public async Task<RoleResponseDto> ValidateUniquePermissionsCombinationAsync(int companyId, List<int> permissionsIds)
         {
+            //TODO: Crear metodo en el repo que me traiga solo los ids de los permisos en la tabla RolePermissions y que los agrupe en una lista segun el id del rol al que estan asignados
             var roles = await GetRolesAsync(companyId);
 
             foreach (var role in roles)
