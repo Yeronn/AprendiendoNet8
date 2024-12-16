@@ -131,6 +131,7 @@ namespace Application.Services
             return tokenValue;
         }
 
+
         public async Task<bool> ValidateToken(string token)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
@@ -146,6 +147,46 @@ namespace Application.Services
                 return false;
 
             return true;
+        }
+
+
+        public UserJwtTokenDto ExtractUserFromToken(JwtSecurityToken jwtToken)
+        {
+            var idCCNit = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value;
+            var firstName = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)!.Value;
+            var lastName = jwtToken.Claims.FirstOrDefault(c => c.Type == "LastName")!.Value;
+            var roleId = jwtToken.Claims.FirstOrDefault(c => c.Type == "RoleId")!.Value;
+
+            return new UserJwtTokenDto
+            {
+                IdCCNit = idCCNit,
+                FirstName = firstName,
+                LastName = lastName,
+                RoleId = Convert.ToInt32(roleId)
+            };
+        }
+
+
+        public async Task<RefreshTokenResponseDto> RefreshToken(string refreshToken)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var jwtToken = tokenHandler.ReadJwtToken(refreshToken);
+
+            // Verificar si el refresh token es válido (no expirado)
+            if (jwtToken.ValidTo < DateTime.UtcNow)
+            {
+                return new RefreshTokenResponseDto(false, "El RefreshToken ha expirado", IsBadRequest: true);
+            }
+
+            // Extraer los datos del usuario del refresh token
+            var user = ExtractUserFromToken(jwtToken); 
+
+            // Generar nuevos tokens (Access Token y Refresh Token)
+            var newAccessToken = await GenerateJWTToken(user, true); // Generar Access Token
+            var newRefreshToken = await GenerateJWTToken(user, false); // Generar Refresh Token
+
+            // Retornar los nuevos tokens
+            return new RefreshTokenResponseDto(true, "");//TODO: Hacer esto
         }
 
 
