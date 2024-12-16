@@ -57,7 +57,7 @@ namespace Application.Services
         {
             var user = await _userService.GetUserByIdCCNitAsync(login.IdCCNit);
             if (user == null)
-                return new LoginResponse(false, "El usuario no existe");
+                return new LoginResponse(false, "Credenciales Inválidas", IsBadRequest: true);
 
             var hashedPassword = await _userService.GetPasswordByIdCCNitAsync(login.IdCCNit);
             bool checkPassword = _passwordHasher.VerifyPassword(login.Password, hashedPassword!);
@@ -66,60 +66,70 @@ namespace Application.Services
                 return new LoginResponse(checkPassword, "Credenciales Inválidas", IsBadRequest: true);
 
             var userToken = user!.ToUserJwtTokenDto();
-            var token = await GenerateJWTToken(userToken);
+            string token = await GenerateJWTToken(userToken);
+            string refreshToken = await GenerateJWTToken(userToken, false);
 
             if (string.IsNullOrWhiteSpace(token))
                 return new LoginResponse(false, "Error al registrar el inicio de sesión");
 
-            return new LoginResponse(checkPassword, "Inicio de sesión exitoso", token);
+            return new LoginResponse(checkPassword, "Inicio de sesión exitoso", token, refreshToken);
         }
 
 
-        public async Task<string> GenerateJWTToken(UserJwtTokenDto user)
+        public async Task<string> GenerateJWTToken(UserJwtTokenDto user, bool isAccessToken = true)
         {
             var jti = Guid.NewGuid().ToString();
-
-            var permissions = await _permissionService.GetPermissionsByRoleIdAsync(user.RoleId);
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.IdCCNit.ToString()),
-                new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
-                new Claim(JwtRegisteredClaimNames.Jti, jti),
-            };
-
-            claims.AddRange(permissions.Select(permission => new Claim("Permission", permission.Name)));
 
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            DateTime tokenExpiration = DateTime.UtcNow.AddMinutes(60);
+            var claims = new List<Claim>();
+            DateTime tokenExpiration;
 
-            var token = new JwtSecurityToken(
-                _configuration["Jwt:Issuer"],
-                _configuration["Jwt:Audience"],
-                claims,
-                expires: tokenExpiration,
-                signingCredentials: credentials
-                );
-
-            var newLogin = new LoginAuditDto
+            if (isAccessToken)
             {
-                TokenId = jti,
-                IdCCNit = user.IdCCNit,
-                IssuedAt = DateTime.UtcNow,
-                ExpiresAt = tokenExpiration,
-                IPAddress = GetClientIpAddress(),  
-                DeviceInfo = GetDeviceInfo(),
-            };
+                var permissions = await _permissionService.GetPermissionsByRoleIdAsync(user.RoleId);
+                claims =
+                [
+                    new Claim(ClaimTypes.NameIdentifier, user.IdCCNit.ToString()),
+                    new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
+                    new Claim(JwtRegisteredClaimNames.Jti, jti),
+                    .. permissions.Select(permission => new Claim("Permissions", permission.Name)),
+                ];
 
-            var createdLoginAudit = await _loginAuditService.CreateLoginAuditAsync(newLogin);
-            if(!createdLoginAudit.Success)
-                return "";
+                tokenExpiration = DateTime.UtcNow.AddMinutes(60);
+
+                var newLogin = new LoginAuditDto
+                {
+                    TokenId = jti,
+                    IdCCNit = user.IdCCNit,
+                    IssuedAt = DateTime.UtcNow,
+                    ExpiresAt = tokenExpiration,
+                    IPAddress = GetClientIpAddress(),  
+                    DeviceInfo = GetDeviceInfo(),
+                };
+
+                var createdLoginAudit = await _loginAuditService.CreateLoginAuditAsync(newLogin);
+                if(!createdLoginAudit.Success)
+                    return "";
+            }
+            else
+            {
+                tokenExpiration = DateTime.UtcNow.AddMinutes(120);
+                claims.Add(new Claim(JwtRegisteredClaimNames.Jti, jti));
+            }
+            
+            var token = new JwtSecurityToken(
+                    _configuration["Jwt:Issuer"],
+                    _configuration["Jwt:Audience"],
+                    claims,
+                    expires: tokenExpiration,
+                    signingCredentials: credentials
+                    );
 
             string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
             return tokenValue;
         }
-
 
         public async Task<bool> ValidateToken(string token)
         {

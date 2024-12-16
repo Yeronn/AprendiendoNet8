@@ -7,7 +7,7 @@ namespace Application.Interfaces
         string? GetClientIpAddress();
         string GetDeviceInfo();
         Task<LoginResponse> Login(LoginDto login);
-        Task<string> GenerateJWTToken(UserJwtTokenDto user);
+        Task<string> GenerateJWTToken(UserJwtTokenDto user, bool isAccessToken);
         Task<bool> ValidateToken(string token);
     }
 }

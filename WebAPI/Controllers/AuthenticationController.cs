@@ -25,12 +25,10 @@ namespace WebAPI.Controllers
 
             var loginResponse = await _authService.Login(loginDto);
 
-            if (loginResponse.IsNotFound)
-                return NotFound(new { message = loginResponse.Message });
-            else if (loginResponse.IsBadRequest)
+            if (loginResponse.IsBadRequest)
                 return BadRequest(loginResponse.Message);
 
-            return Ok(new { message = loginResponse.Message, Token = loginResponse.token });
+            return Ok(new { message = loginResponse.Message, loginResponse.Token, loginResponse.RefreshTokenToken});
         }
 
     }

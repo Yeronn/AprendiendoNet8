@@ -35,10 +35,10 @@ namespace WebAPI.Extensions
             services.AddAuthorization(options =>
             {
                 //TODO: Hacer un enum de los permisos del sistema, que se itere y añada los permisos
-                options.AddPolicy("Read", policy => policy.RequireClaim("Permission", "Read"));
-                options.AddPolicy("Write", policy => policy.RequireClaim("Permission", "Write"));
-                options.AddPolicy("Delete", policy => policy.RequireClaim("Permission", "Delete"));
-                options.AddPolicy("prueba", policy => policy.RequireClaim("Permission", "prueba"));
+                options.AddPolicy("Read", policy => policy.RequireClaim("Permissions", "Read"));
+                options.AddPolicy("Write", policy => policy.RequireClaim("Permissions", "Write"));
+                options.AddPolicy("Delete", policy => policy.RequireClaim("Permissions", "Delete"));
+                options.AddPolicy("prueba", policy => policy.RequireClaim("Permissions", "prueba"));
             });
 
             return services;
