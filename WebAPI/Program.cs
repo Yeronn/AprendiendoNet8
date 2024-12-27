@@ -1,6 +1,5 @@
 using Application.DependencyInjection;
 using Infrastructure.DependencyInjection;
-using Microsoft.OpenApi.Models;
 using WebAPI.Extensions;
 using WebAPI.Middleware;
 

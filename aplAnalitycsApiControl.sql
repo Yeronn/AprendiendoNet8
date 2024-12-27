@@ -130,3 +130,9 @@ VALUES
     ('20202020', NULL, 'jti-token-456'),  -- Token para Jane Smith (Manager)
     ('30303030', 'recovery-token-xyz', 'jti-token-789'),  -- Token para Alice Johnson (User)
     ('40404040', NULL, NULL);  -- Bob Williams sin tokens
+
+
+CREATE LOGIN [IIS APPPOOL\.NET Core 8.0] FROM WINDOWS;
+USE aplAnalitycsApiControl;
+CREATE USER [IIS APPPOOL\.NET Core 8.0] FOR LOGIN [IIS APPPOOL\.NET Core 8.0];
+ALTER ROLE db_owner ADD MEMBER [IIS APPPOOL\.NET Core 8.0];
