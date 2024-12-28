@@ -32,21 +32,19 @@ namespace WebAPI.Controllers
         }
 
 
-        // [HttpPost("refresh-token")]
-        // public async Task<IActionResult> RefreshToken([FromBody] string refreshToken)
-        // {
-        //     var tokenHandler = new JwtSecurityTokenHandler();
-        //     var jwtToken = tokenHandler.ReadJwtToken(refreshToken);
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken()
+        {
+            var refreshToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
+            if (string.IsNullOrWhiteSpace(refreshToken))
+                return BadRequest(new { Mesagge = "Refresh token no proporcionado"});
 
-        //     if (jwtToken.ValidTo < DateTime.UtcNow)
-        //         return Unauthorized("Refresh token has expired");
+            var generatedTokens = await _authService.RefreshTokens(refreshToken);
+            if (!generatedTokens.Success)
+                return Unauthorized(new { generatedTokens.Message });
 
-        //     // Aquí generas un nuevo Access Token
-        //     var user = ExtractUserFromToken(jwtToken); // Implementa esto según tu lógica
-        //     var newAccessToken = await _authenticationService.GenerateJWTToken(user, true);
-
-        //     return Ok(new { AccessToken = newAccessToken });
-        // }
+            return Ok( generatedTokens );
+        }
 
 
     }

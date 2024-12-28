@@ -83,19 +83,20 @@ namespace Application.Services
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var claims = new List<Claim>();
+            var claims = new List<Claim>
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.IdCCNit.ToString()),
+                new Claim(JwtRegisteredClaimNames.Jti, jti)
+            };
+
             DateTime tokenExpiration;
 
             if (isAccessToken)
             {
                 var permissions = await _permissionService.GetPermissionsByRoleIdAsync(user.RoleId);
-                claims =
-                [
-                    new Claim(ClaimTypes.NameIdentifier, user.IdCCNit.ToString()),
-                    new Claim(ClaimTypes.Name, user.FirstName + " " + user.LastName),
-                    new Claim(JwtRegisteredClaimNames.Jti, jti),
-                    .. permissions.Select(permission => new Claim("Permissions", permission.Name)),
-                ];
+
+                claims.Add(new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"));
+                claims.AddRange(permissions.Select(permission => new Claim("Permissions", permission.Name)));
 
                 tokenExpiration = DateTime.UtcNow.AddMinutes(60);
 
@@ -116,7 +117,6 @@ namespace Application.Services
             else
             {
                 tokenExpiration = DateTime.UtcNow.AddMinutes(120);
-                claims.Add(new Claim(JwtRegisteredClaimNames.Jti, jti));
             }
             
             var token = new JwtSecurityToken(
@@ -150,43 +150,26 @@ namespace Application.Services
         }
 
 
-        public UserJwtTokenDto ExtractUserFromToken(JwtSecurityToken jwtToken)
-        {
-            var idCCNit = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)!.Value;
-            var firstName = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Name)!.Value;
-            var lastName = jwtToken.Claims.FirstOrDefault(c => c.Type == "LastName")!.Value;
-            var roleId = jwtToken.Claims.FirstOrDefault(c => c.Type == "RoleId")!.Value;
-
-            return new UserJwtTokenDto
-            {
-                IdCCNit = idCCNit,
-                FirstName = firstName,
-                LastName = lastName,
-                RoleId = Convert.ToInt32(roleId)
-            };
-        }
-
-
-        public async Task<RefreshTokenResponseDto> RefreshToken(string refreshToken)
+        public async Task<RefreshTokenResponseDto> RefreshTokens(string refreshToken)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtToken = tokenHandler.ReadJwtToken(refreshToken);
+            var jwtRefreshToken = tokenHandler.ReadJwtToken(refreshToken);
 
-            // Verificar si el refresh token es válido (no expirado)
-            if (jwtToken.ValidTo < DateTime.UtcNow)
-            {
-                return new RefreshTokenResponseDto(false, "El RefreshToken ha expirado", IsBadRequest: true);
-            }
+            string? idCCNit = jwtRefreshToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-            // Extraer los datos del usuario del refresh token
-            var user = ExtractUserFromToken(jwtToken); 
+            if (idCCNit == null)
+                return new RefreshTokenResponseDto(false, "El refresh token no tiene el idCCNit");
 
-            // Generar nuevos tokens (Access Token y Refresh Token)
-            var newAccessToken = await GenerateJWTToken(user, true); // Generar Access Token
-            var newRefreshToken = await GenerateJWTToken(user, false); // Generar Refresh Token
+            var user = await _userService.GetUserByIdCCNitAsync(idCCNit);
+            if (user == null)
+                return new RefreshTokenResponseDto(false, "No se pudo refrescar los tokens, el usuario no existe");
 
-            // Retornar los nuevos tokens
-            return new RefreshTokenResponseDto(true, "");//TODO: Hacer esto
+            var userToken = user!.ToUserJwtTokenDto();
+
+            var newAccessToken = await GenerateJWTToken(userToken);
+            var newRefreshToken = await GenerateJWTToken(userToken, false);
+        
+            return new RefreshTokenResponseDto(true, "Tokens generados", newAccessToken, newRefreshToken);
         }
 
 

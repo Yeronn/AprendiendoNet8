@@ -10,6 +10,6 @@ namespace Application.Interfaces
         Task<LoginResponse> Login(LoginDto login);
         Task<string> GenerateJWTToken(UserJwtTokenDto user, bool isAccessToken);
         Task<bool> ValidateToken(string token);
-        UserJwtTokenDto ExtractUserFromToken(JwtSecurityToken jwtToken);
+        Task<RefreshTokenResponseDto> RefreshTokens(string idCCNit);
     }
 }
