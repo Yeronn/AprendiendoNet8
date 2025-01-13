@@ -29,35 +29,35 @@ namespace WebAPI.Middleware
                     {
                         var jwtToken = tokenHandler.ReadJwtToken(token);
                         var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+                        var tokenType = jwtToken.Claims.FirstOrDefault(c => c.Type == "TokenType")?.Value;
 
-                        if (jti == null)
+                        if (jti == null || string.IsNullOrEmpty(tokenType))
                         {
                             context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                             return;
                         }
 
-                        // Validar Access Token en la base de datos
-                        var isAccessTokenValid = await authenticationService.ValidateToken(token);
-
-                        if (isAccessTokenValid)
+                        bool isTokenValid = await authenticationService.ValidateToken(token);
+                        if (!isTokenValid)
                         {
-                            // Access Token válido: continuar con la solicitud
+                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                            return;
+                        }
+
+                        bool refreshPath = context.Request.Path.StartsWithSegments("/api/auth/refresh-token");
+                        //TODO: Hacer enums con tipos de token
+                        if (tokenType == "Access" && !refreshPath)
+                        {
                             await _next(context);
                             return;
                         }
 
-                        // Si el Access Token no es válido, intentamos validar como Refresh Token
-                        if (IsRefreshToken(jwtToken))
+                        if (tokenType == "Refresh" && refreshPath)
                         {
-                            // Permitir acceso al endpoint de refresco
-                            if (context.Request.Path.StartsWithSegments("/api/auth/refresh-token"))
-                            {
-                                await _next(context);
-                                return;
-                            }
+                            await _next(context);
+                            return;
                         }
 
-                        // Ningún token válido
                         context.Response.StatusCode = StatusCodes.Status401Unauthorized;
                         return;
                     }
@@ -68,15 +68,7 @@ namespace WebAPI.Middleware
                     }
                 }
             }
-
             await _next(context);
-        }
-
-        private bool IsRefreshToken(JwtSecurityToken jwtToken)
-        {
-            // Verifica si el token aún está dentro del tiempo de expiración (120 minutos)
-            var expiration = jwtToken.ValidTo;
-            return expiration > DateTime.UtcNow;
         }
 
     }

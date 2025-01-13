@@ -28,5 +28,6 @@ namespace Application.DTOs.LoginAudit
         public string? DeviceInfo { get; set; }
 
         public bool Status { get; set; } = true;
+        public bool IsAccessToken { get; set; } = true;
     }
 }

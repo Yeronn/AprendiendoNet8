@@ -73,6 +73,7 @@ CREATE TABLE LoginAudits (
     IPAddress VARCHAR(45),           -- Dirección IP del cliente
     DeviceInfo VARCHAR(255),         -- Información del dispositivo
     Status BIT DEFAULT 1 NOT NULL,             -- Estado del token (1 = válido, 0 = revocado)
+    IsAccessToken BIT DEFAULT 1 NOT NULL,
     FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit)
 );
 

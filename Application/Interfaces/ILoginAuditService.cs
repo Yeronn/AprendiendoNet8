@@ -8,5 +8,7 @@ namespace Application.Interfaces
         Task<LoginAuditDto?> GetLoginAuditByTokenIdAsync(string tokenId);
         Task<LoginAuditResponseDto> CreateLoginAuditAsync(LoginAuditDto loginAudit);
         Task<bool> IsTokenValidAsync(string tokenId);
+        Task<bool> RevokeAllTokensAsync(string idCCNit);
+        Task<bool> RevokeTokenAsync(string tokenId);
     }
 }

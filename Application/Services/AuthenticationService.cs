@@ -69,8 +69,11 @@ namespace Application.Services
             string token = await GenerateJWTToken(userToken);
             string refreshToken = await GenerateJWTToken(userToken, false);
 
-            if (string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(refreshToken))
+            {
+                await _loginAuditService.RevokeAllTokensAsync(userToken.IdCCNit);
                 return new LoginResponse(false, "Error al registrar el inicio de sesión");
+            }
 
             return new LoginResponse(checkPassword, "Inicio de sesión exitoso", token, refreshToken);
         }
@@ -86,7 +89,8 @@ namespace Application.Services
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.IdCCNit.ToString()),
-                new Claim(JwtRegisteredClaimNames.Jti, jti)
+                new Claim(JwtRegisteredClaimNames.Jti, jti),
+                new Claim("TokenType", isAccessToken ? "Access" : "Refresh")
             };
 
             DateTime tokenExpiration;
@@ -98,27 +102,28 @@ namespace Application.Services
                 claims.Add(new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"));
                 claims.AddRange(permissions.Select(permission => new Claim("Permissions", permission.Name)));
 
-                tokenExpiration = DateTime.UtcNow.AddMinutes(60);
-
-                var newLogin = new LoginAuditDto
-                {
-                    TokenId = jti,
-                    IdCCNit = user.IdCCNit,
-                    IssuedAt = DateTime.UtcNow,
-                    ExpiresAt = tokenExpiration,
-                    IPAddress = GetClientIpAddress(),  
-                    DeviceInfo = GetDeviceInfo(),
-                };
-
-                var createdLoginAudit = await _loginAuditService.CreateLoginAuditAsync(newLogin);
-                if(!createdLoginAudit.Success)
-                    return "";
+                tokenExpiration = DateTime.UtcNow.AddMinutes(1);
             }
             else
             {
-                tokenExpiration = DateTime.UtcNow.AddMinutes(120);
+                tokenExpiration = DateTime.UtcNow.AddMinutes(2);
             }
-            
+
+            var newLogin = new LoginAuditDto
+            {
+                TokenId = jti,
+                IdCCNit = user.IdCCNit,
+                IssuedAt = DateTime.UtcNow,
+                ExpiresAt = tokenExpiration,
+                IPAddress = GetClientIpAddress(),
+                DeviceInfo = GetDeviceInfo(),
+                IsAccessToken = isAccessToken,
+            };
+
+            var createdLoginAudit = await _loginAuditService.CreateLoginAuditAsync(newLogin);
+            if (!createdLoginAudit.Success)
+                return "";
+
             var token = new JwtSecurityToken(
                     _configuration["Jwt:Issuer"],
                     _configuration["Jwt:Audience"],
@@ -138,13 +143,19 @@ namespace Application.Services
             var jwtToken = tokenHandler.ReadJwtToken(token);
 
             var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
-
             if (jti == null)
                 return false;
 
             var loginRecord = await _loginAuditService.GetLoginAuditByTokenIdAsync(jti);
             if (loginRecord == null || !loginRecord.Status)
                 return false;
+
+            bool expiredToken = loginRecord.ExpiresAt < DateTime.UtcNow;
+            if (expiredToken)
+            {
+                await _loginAuditService.RevokeTokenAsync(jti);
+                return false;
+            }
 
             return true;
         }

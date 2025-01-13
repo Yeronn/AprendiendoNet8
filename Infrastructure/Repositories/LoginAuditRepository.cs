@@ -29,8 +29,8 @@ namespace Infrastructure.Repositories
         public async Task<bool> CreateLoginAuditAsync(LoginAuditEntity loginAudit)
         {
             var query = @"
-                INSERT INTO LoginAudits (TokenId, IdCCNit, IssuedAt, ExpiresAt, IPAddress, DeviceInfo, Status)
-                VALUES (@TokenId, @IdCCNit, @IssuedAt, @ExpiresAt, @IPAddress, @DeviceInfo, @Status)";
+                INSERT INTO LoginAudits (TokenId, IdCCNit, IssuedAt, ExpiresAt, IPAddress, DeviceInfo, Status, IsAccessToken)
+                VALUES (@TokenId, @IdCCNit, @IssuedAt, @ExpiresAt, @IPAddress, @DeviceInfo, @Status, @IsAccessToken)";
 
             using (var connection = _context.CreateConnection())
             {
@@ -51,7 +51,19 @@ namespace Infrastructure.Repositories
             }
         }
 
-        
+
+        public async Task<bool> RevokeTokenAsync(string tokenId)
+        {
+            var query = "UPDATE LoginAudits SET Status = 0 WHERE TokenId = @TokenId";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var result = await connection.ExecuteAsync(query, new { TokenId = tokenId });
+                return result > 0;
+            }
+        }
+
+
         public async Task<bool> IsTokenValidAsync(string tokenId)
         {
             var query = "SELECT Status FROM LoginAudits WHERE TokenId = @TokenId";

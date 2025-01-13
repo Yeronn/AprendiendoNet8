@@ -29,9 +29,12 @@ namespace Application.Services
             if (!string.IsNullOrWhiteSpace(validationResults))
                 return new LoginAuditResponseDto(false, $"Errores de validación: {validationResults}");
             
-            bool revokedPreviousTokens = await RevokeAllTokensAsync(loginAudit.IdCCNit);
-            if (!revokedPreviousTokens)
-                return new LoginAuditResponseDto(false, "No se pudo revocar los anteriores tokens de acceso");
+            if (loginAudit.IsAccessToken)
+            {
+                bool revokedPreviousTokens = await RevokeAllTokensAsync(loginAudit.IdCCNit);
+                if (!revokedPreviousTokens)
+                    return new LoginAuditResponseDto(false, "No se pudo revocar los anteriores tokens de acceso");
+            }
 
             bool createdLoginAudit = await _loginAuditRepository.CreateLoginAuditAsync(loginAudit.ToEntity());
 
@@ -45,6 +48,24 @@ namespace Application.Services
         public async Task<bool> IsTokenValidAsync(string tokenId)
         {
             return await _loginAuditRepository.IsTokenValidAsync(tokenId);
+        }
+
+
+        public async Task<bool> RevokeAllTokensAsync(string idCCNit)
+        {
+            bool hasActiveTokens = await _loginAuditRepository.HasActiveTokensAsync(idCCNit);
+            if (!hasActiveTokens)
+                return true;
+
+            bool revokedTokens = await _loginAuditRepository.RevokeAllTokensAsync(idCCNit);
+            return revokedTokens;
+        }
+
+
+        public async Task<bool> RevokeTokenAsync(string tokenId)
+        {
+            bool revokedToken = await _loginAuditRepository.RevokeTokenAsync(tokenId);
+            return revokedToken;
         }
 
 
@@ -62,18 +83,6 @@ namespace Application.Services
             }
 
             return "";
-        }
-
-
-        private async Task<bool> RevokeAllTokensAsync(string idCCNit)
-        {
-            bool revokedToken = await _loginAuditRepository.RevokeAllTokensAsync(idCCNit);
-            if (!revokedToken)
-            {
-                bool hasActiveTokens = await _loginAuditRepository.HasActiveTokensAsync(idCCNit);
-                return !hasActiveTokens;
-            }
-            return revokedToken;
         }
         
     }

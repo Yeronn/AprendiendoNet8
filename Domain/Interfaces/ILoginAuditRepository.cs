@@ -7,6 +7,7 @@ namespace Domain.Interfaces
         Task<LoginAuditEntity?> GetLoginAuditByTokenIdAsync(string tokenId);
         Task<bool> CreateLoginAuditAsync(LoginAuditEntity loginAudit);
         Task<bool> RevokeAllTokensAsync(string idCCNit);
+        Task<bool> RevokeTokenAsync(string tokenId);
         Task<bool> IsTokenValidAsync(string tokenId);
         Task<bool> HasActiveTokensAsync(string idCCNit);
     }
