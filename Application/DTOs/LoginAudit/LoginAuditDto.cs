@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Application.Validators.Attributes;
+using Domain.Enums;
 
 namespace Application.DTOs.LoginAudit
 {
@@ -27,7 +28,8 @@ namespace Application.DTOs.LoginAudit
         [MaxLength(255, ErrorMessage = "La información del dispositivo no puede exceder los 255 caracteres.")]
         public string? DeviceInfo { get; set; }
 
-        public bool Status { get; set; } = true;
-        public bool IsAccessToken { get; set; } = true;
+        [Required(ErrorMessage = "El tipo de token es obligatorio")]
+        public int TokenTypeId { get; set; }
+        public int TokenStatusId { get; set; } = (int)TokenStatus.Valid;
     }
 }

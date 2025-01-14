@@ -2,6 +2,7 @@
 using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Mappers;
+using Domain.Enums;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -90,7 +91,7 @@ namespace Application.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.IdCCNit.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, jti),
-                new Claim("TokenType", isAccessToken ? "Access" : "Refresh")
+                new Claim("TokenType", isAccessToken ? TokenType.Access.ToString() : TokenType.Refresh.ToString())
             };
 
             DateTime tokenExpiration;
@@ -117,7 +118,8 @@ namespace Application.Services
                 ExpiresAt = tokenExpiration,
                 IPAddress = GetClientIpAddress(),
                 DeviceInfo = GetDeviceInfo(),
-                IsAccessToken = isAccessToken,
+                TokenStatusId = (int)TokenStatus.Valid,
+                TokenTypeId =  isAccessToken ? (int)TokenType.Access : (int)TokenType.Refresh,
             };
 
             var createdLoginAudit = await _loginAuditService.CreateLoginAuditAsync(newLogin);
@@ -147,10 +149,10 @@ namespace Application.Services
                 return false;
 
             var loginRecord = await _loginAuditService.GetLoginAuditByTokenIdAsync(jti);
-            if (loginRecord == null || !loginRecord.Status)
+            if (loginRecord == null || loginRecord.TokenStatusId == (int)TokenStatus.Revoked)
                 return false;
 
-            bool expiredToken = loginRecord.ExpiresAt < DateTime.UtcNow;
+            bool expiredToken = loginRecord!.ExpiresAt < DateTime.UtcNow;
             if (expiredToken)
             {
                 await _loginAuditService.RevokeTokenAsync(jti);

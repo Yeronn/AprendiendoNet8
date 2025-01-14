@@ -19,7 +19,8 @@ namespace Application.Mappers
                 ExpiresAt = loginAudit.ExpiresAt,   
                 IPAddress = loginAudit.IPAddress,
                 DeviceInfo = loginAudit.DeviceInfo,
-                IsAccessToken = loginAudit.IsAccessToken,
+                TokenStatusId = loginAudit.TokenStatusId,
+                TokenTypeId = loginAudit.TokenTypeId,
             };
         }
 
@@ -34,8 +35,8 @@ namespace Application.Mappers
                 ExpiresAt = loginAudit.ExpiresAt,   
                 IPAddress = loginAudit.IPAddress,
                 DeviceInfo = loginAudit.DeviceInfo,
-                Status = loginAudit.Status,
-                IsAccessToken = loginAudit.IsAccessToken,
+                TokenStatusId = loginAudit.TokenStatusId,
+                TokenTypeId = loginAudit.TokenTypeId,
             };
         }
     }

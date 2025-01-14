@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using Application.DTOs.LoginAudit;
 using Application.Interfaces;
 using Application.Mappers;
+using Domain.Enums;
 using Domain.Interfaces;
 
 namespace Application.Services
@@ -29,13 +30,13 @@ namespace Application.Services
             if (!string.IsNullOrWhiteSpace(validationResults))
                 return new LoginAuditResponseDto(false, $"Errores de validación: {validationResults}");
             
-            if (loginAudit.IsAccessToken)
+            if (loginAudit.TokenTypeId == (int)TokenType.Access)
             {
                 bool revokedPreviousTokens = await RevokeAllTokensAsync(loginAudit.IdCCNit);
                 if (!revokedPreviousTokens)
                     return new LoginAuditResponseDto(false, "No se pudo revocar los anteriores tokens");
             }
-            else if (!loginAudit.IsAccessToken)
+            else if (loginAudit.TokenTypeId == (int)TokenType.Refresh)
             {
                 bool deletedRefreshTokens = await DeleteRefreshTokensAsync(loginAudit.IdCCNit);
                 if (!deletedRefreshTokens)

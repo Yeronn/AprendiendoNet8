@@ -13,7 +13,7 @@ namespace Domain.Entities
         public DateTime ExpiresAt { get; set; }
         public string? IPAddress { get; set; }
         public string? DeviceInfo { get; set; }
-        public bool Status { get; set; } = true;
-        public bool IsAccessToken { get; set; } = true;
+        public int TokenStatusId { get; set; }
+        public int TokenTypeId { get; set; }
     }
 }

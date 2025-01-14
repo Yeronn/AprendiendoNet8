@@ -1,5 +1,6 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using Application.Interfaces;
+using Domain.Enums;
 
 namespace WebAPI.Middleware
 {
@@ -45,14 +46,14 @@ namespace WebAPI.Middleware
                         }
 
                         bool refreshPath = context.Request.Path.StartsWithSegments("/api/auth/refresh-token");
-                        //TODO: Hacer enums con tipos de token
-                        if (tokenType == "Access" && !refreshPath)
+                        
+                        if (tokenType == TokenType.Access.ToString() && !refreshPath)
                         {
                             await _next(context);
                             return;
                         }
 
-                        if (tokenType == "Refresh" && refreshPath)
+                        if (tokenType == TokenType.Refresh.ToString() && refreshPath)
                         {
                             await _next(context);
                             return;
