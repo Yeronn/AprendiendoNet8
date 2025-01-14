@@ -1,4 +1,3 @@
--- Crear la base de datos si no existe
 IF DB_ID('aplAnalitycsApiControl') IS NULL
     CREATE DATABASE aplAnalitycsApiControl;
 GO
@@ -55,26 +54,32 @@ CREATE TABLE Users (
     FOREIGN KEY (RoleId) REFERENCES Roles(Id)
 );
 
--- Crear tabla Tokens
-CREATE TABLE Tokens (
+-- Crear la nueva tabla para los tipos de token
+CREATE TABLE TokenTypes (
     Id INT IDENTITY(1,1) PRIMARY KEY,
-    IdCCNit VARCHAR(50) NOT NULL,  -- Clave foránea a Users
-    RecoveryToken VARCHAR(255) NULL,  -- Puede ser NULL
-    Jti VARCHAR(255) NULL,
-    DateCreated DATETIME NOT NULL DEFAULT GETDATE(),
-    FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit)
+    Name VARCHAR(100) NOT NULL
 );
 
+-- Crear tabla TokenStatuses para los diferentes estados de los tokens
+CREATE TABLE TokenStatuses (
+    Id INT IDENTITY(1,1) PRIMARY KEY,
+    Name VARCHAR(50) NOT NULL UNIQUE -- Nombre del estado del token (ejemplo: "Válido", "Revocado")
+);
+
+
+-- Crear la tabla LoginAudits 
 CREATE TABLE LoginAudits (
     TokenId VARCHAR(50) PRIMARY KEY, -- JTI del token
-    IdCCNit VARCHAR(50) NOT NULL,             -- ID del usuario
-    IssuedAt DATETIME NOT NULL,       -- Fecha/hora de emisión
-    ExpiresAt DATETIME NOT NULL,      -- Fecha/hora de expiración
-    IPAddress VARCHAR(45),           -- Dirección IP del cliente
-    DeviceInfo VARCHAR(255),         -- Información del dispositivo
-    Status BIT DEFAULT 1 NOT NULL,             -- Estado del token (1 = válido, 0 = revocado)
-    IsAccessToken BIT DEFAULT 1 NOT NULL,
-    FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit)
+    IdCCNit VARCHAR(50) NOT NULL,   -- ID del usuario
+    IssuedAt DATETIME NOT NULL,     -- Fecha/hora de emisión
+    ExpiresAt DATETIME NOT NULL,    -- Fecha/hora de expiración
+    IPAddress VARCHAR(45),          -- Dirección IP del cliente
+    DeviceInfo VARCHAR(255),        -- Información del dispositivo
+    TokenStatusId INT NOT NULL,     -- ID del estado del token
+    TokenTypeId INT NOT NULL,       -- ID del tipo de token (conectado con la tabla TokenTypes)
+    FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit),
+    FOREIGN KEY (TokenStatusId) REFERENCES TokenStatuses(Id),
+    FOREIGN KEY (TokenTypeId) REFERENCES TokenTypes(Id) -- Relación con la tabla de tipos de token
 );
 
 ----Vaciar las tablas
@@ -92,6 +97,18 @@ CREATE TABLE LoginAudits (
 --DBCC CHECKIDENT ('Permissions', RESEED, 0);
 --DBCC CHECKIDENT ('Users', RESEED, 0);
 --DBCC CHECKIDENT ('Tokens', RESEED, 0);
+
+-- Insertar los tipos de token
+INSERT INTO TokenTypes (Name)
+VALUES
+    ('Access'),
+    ('Refresh');
+
+-- Insertar los estados básicos en la tabla TokenStatuses
+INSERT INTO TokenStatuses (Name)
+VALUES 
+    ('Valid'), 
+    ('Revoked');
 
 
 -- Insertar datos en la tabla Companies
@@ -132,15 +149,6 @@ VALUES
     ('12345679-123456789', 'ReaderUser', 'ReadOnly', 'reader@techsolutions.com', 12345679, '$2a$11$hBpNanyk4DjzEeN.UzUlN.EHPZXWwGly7D31FvyMfzGajzXVCoOhO', 2),  -- Usuario con permiso de lectura
     ('12345680-123456789', 'WriterUser', 'WriteOnly', 'writer@techsolutions.com', 12345680, '$2a$11$Cbym63.EY0oXvUB.lmaKd.AYj0/IaA1vRPFjiCiSFeg79/3C/PbYG', 3),  -- Usuario con permiso de escritura
     ('12345681-123456789', 'DeleterUser', 'DeleteOnly', 'deleter@techsolutions.com', 12345681, '$2a$11$38do9f0M6WLc6nw6NwbIeOrfx3GHraN4rmpTuK4fs3NsmudrRTIeK', 4);  -- Usuario con permiso de eliminación
-
--- Insertar datos en la tabla Tokens
-INSERT INTO Tokens (IdCCNit, RecoveryToken, Jti)
-VALUES
-    ('12345678-123456789', 'recovery-token-admin', 'jti-admin'),
-    ('12345679-123456789', 'recovery-token-reader', 'jti-reader'),
-    ('12345680-123456789', 'recovery-token-writer', 'jti-writer'),
-    ('12345681-123456789', 'recovery-token-deleter', 'jti-deleter');
-
 
 
 CREATE LOGIN [IIS APPPOOL\.NET Core 8.0] FROM WINDOWS;
