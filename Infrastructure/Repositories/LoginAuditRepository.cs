@@ -87,5 +87,30 @@ namespace Infrastructure.Repositories
             }
         }
 
+
+        public async Task<bool> DeleteRefreshTokensAsync(string idCCNit)
+        {
+            var query = "DELETE FROM LoginAudits WHERE IdCCNit = @IdCCNit AND IsAccessToken = 0";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var result = await connection.ExecuteAsync(query, new { IdCCNit = idCCNit });
+                return result > 0;
+            }
+        }
+
+
+        public async Task<bool> HasActiveRefreshTokensAsync(string idCCNit)
+        {
+            var query = "SELECT COUNT(1) FROM LoginAudits WHERE IdCCNit = @IdCCNit AND IsAccessToken = 0";
+
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { IdCCNit = idCCNit });
+                return count > 0;
+            }
+        }
+
+
     }
 }

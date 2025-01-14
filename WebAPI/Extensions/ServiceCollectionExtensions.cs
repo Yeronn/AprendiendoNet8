@@ -84,5 +84,22 @@ namespace WebAPI.Extensions
 
             return services;
         }
+
+
+        public static IServiceCollection AddCorsConfiguration(this IServiceCollection services)
+        {
+            services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", policy =>
+                {
+                    policy.WithOrigins("http://localhost:5173") // Aquí va la URL del frontend
+                          .AllowAnyHeader()
+                          .AllowAnyMethod();
+                });
+            });
+
+            return services;
+        }
+
     }
 }

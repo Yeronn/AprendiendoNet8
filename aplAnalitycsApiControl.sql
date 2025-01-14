@@ -77,63 +77,76 @@ CREATE TABLE LoginAudits (
     FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit)
 );
 
+----Vaciar las tablas
+--DELETE FROM RolePermissions;
+--DELETE FROM Tokens;
+--DELETE FROM LoginAudits;
+--DELETE FROM Users;
+--DELETE FROM Roles;
+--DELETE FROM Companies;
+--DELETE FROM Permissions;
+
+---- Reiniciar los IDs de las tablas
+--DBCC CHECKIDENT ('Companies', RESEED, 0);
+--DBCC CHECKIDENT ('Roles', RESEED, 0);
+--DBCC CHECKIDENT ('Permissions', RESEED, 0);
+--DBCC CHECKIDENT ('Users', RESEED, 0);
+--DBCC CHECKIDENT ('Tokens', RESEED, 0);
+
 
 -- Insertar datos en la tabla Companies
 INSERT INTO Companies (Name, NIT)
 VALUES 
     ('Tech Solutions Inc.', 123456789),
-    ('Global Enterprises', 987654321),
-    ('Innovatech Ltd.', 567890123),
-    ('prueba', 12345631);
+    ('Global Enterprises', 987654321);
 
 -- Insertar datos en la tabla Roles
 INSERT INTO Roles (Name, Description, Status, CompanyId)
 VALUES
     ('Admin', 'Administrator Role', 1, 1),
-    ('Manager', 'Manager Role', 1, 2),
-    ('User', 'Regular User Role', 1, 3),
-    ('prueba', 'prueba', 1, 4);
+    ('Reader', 'Read-only Role', 1, 1),
+    ('Writer', 'Write-only Role', 1, 1),
+    ('Deleter', 'Delete-only Role', 1, 1);
 
 -- Insertar datos en la tabla Permissions
 INSERT INTO Permissions (Name, Description)
 VALUES
     ('Read', 'Permission to read data'),
     ('Write', 'Permission to write data'),
-    ('Delete', 'Permission to delete data'),
-    ('prueba', 'prueba');
+    ('Delete', 'Permission to delete data');
 
 -- Insertar datos en la tabla RolePermissions
 INSERT INTO RolePermissions (RoleId, PermissionId, AssignmentDate)
 VALUES
-    (1, 1, '2024-10-01 09:00:00'),  -- Admin tiene permiso de lectura
-    (1, 2, '2024-10-02 10:30:00'),  -- Admin tiene permiso de escritura
-    (2, 1, '2024-10-03 14:45:00'),  -- Manager tiene permiso de lectura
-    (3, 1, '2024-10-04 16:15:00'),  -- User tiene permiso de lectura
-    (4, 1, '2024-10-04 16:15:00'),
-    (4, 2, '2024-10-04 16:15:00'),
-    (4, 3, '2024-10-04 16:15:00'),
-    (4, 4, '2024-10-04 16:15:00');
+    (1, 1, GETDATE()),  -- Admin tiene permiso de lectura
+    (1, 2, GETDATE()),  -- Admin tiene permiso de escritura
+    (1, 3, GETDATE()),  -- Admin tiene permiso de eliminación
+    (2, 1, GETDATE()),  -- Reader tiene permiso de lectura
+    (3, 2, GETDATE()),  -- Writer tiene permiso de escritura
+    (4, 3, GETDATE());  -- Deleter tiene permiso de eliminación
 
 -- Insertar datos en la tabla Users
 INSERT INTO Users (IdCCNit, FirstName, LastName, Email, CCIdentification, HashedPassword, RoleId)
 VALUES
-    ('10101010', 'John', 'Doe', 'john.doe@example.com', 123456, 'hashedpassword1', 1),  -- Admin
-    ('20202020', 'Jane', 'Smith', 'jane.smith@example.com', 654321, 'hashedpassword2', 2),  -- Manager
-    ('30303030', 'Alice', 'Johnson', 'alice.johnson@example.com', 987654, 'hashedpassword3', 3),  -- User
-    ('40404040', 'Bob', 'Williams', 'bob.williams@example.com', 111222, 'hashedpassword4', 3),  -- User sin permisos adicionales
-    ('12345', 'prueba', 'prueba', 'prueba@example.com', 123231, '$2a$11$VTDt63kAgy//Q2LankkKeerI3LDUsRjQDpZoAFAdvh4AtCOoOQWDi', 3),  -- Usuario de prueba
-    ('12323145-12345631', 'AdminUser', 'AdminUser', 'admin@admin.com', 12323145, '$2a$11$sFM19dUTdJ2zea2HMgiAuO2UbyCej73dEPVvsRKareVyC/ZD30uXS', 4);  -- Usuario de prueba
+    ('12345678-123456789', 'AdminUser', 'Admin', 'admin@techsolutions.com', 12345678, '$2a$11$42SEpdmo4cqPU12WDidWCuD./tZ9FTKYqk.6yJR6rBXssNkNAjYum', 1),  -- Admin con todos los permisos
+    ('12345679-123456789', 'ReaderUser', 'ReadOnly', 'reader@techsolutions.com', 12345679, '$2a$11$hBpNanyk4DjzEeN.UzUlN.EHPZXWwGly7D31FvyMfzGajzXVCoOhO', 2),  -- Usuario con permiso de lectura
+    ('12345680-123456789', 'WriterUser', 'WriteOnly', 'writer@techsolutions.com', 12345680, '$2a$11$Cbym63.EY0oXvUB.lmaKd.AYj0/IaA1vRPFjiCiSFeg79/3C/PbYG', 3),  -- Usuario con permiso de escritura
+    ('12345681-123456789', 'DeleterUser', 'DeleteOnly', 'deleter@techsolutions.com', 12345681, '$2a$11$38do9f0M6WLc6nw6NwbIeOrfx3GHraN4rmpTuK4fs3NsmudrRTIeK', 4);  -- Usuario con permiso de eliminación
 
 -- Insertar datos en la tabla Tokens
 INSERT INTO Tokens (IdCCNit, RecoveryToken, Jti)
 VALUES
-    ('10101010', 'recovery-token-abc', 'jti-token-123'),  -- Token para John Doe (Admin)
-    ('20202020', NULL, 'jti-token-456'),  -- Token para Jane Smith (Manager)
-    ('30303030', 'recovery-token-xyz', 'jti-token-789'),  -- Token para Alice Johnson (User)
-    ('40404040', NULL, NULL);  -- Bob Williams sin tokens
+    ('12345678-123456789', 'recovery-token-admin', 'jti-admin'),
+    ('12345679-123456789', 'recovery-token-reader', 'jti-reader'),
+    ('12345680-123456789', 'recovery-token-writer', 'jti-writer'),
+    ('12345681-123456789', 'recovery-token-deleter', 'jti-deleter');
+
 
 
 CREATE LOGIN [IIS APPPOOL\.NET Core 8.0] FROM WINDOWS;
 USE aplAnalitycsApiControl;
 CREATE USER [IIS APPPOOL\.NET Core 8.0] FOR LOGIN [IIS APPPOOL\.NET Core 8.0];
 ALTER ROLE db_owner ADD MEMBER [IIS APPPOOL\.NET Core 8.0];
+
+
+ 

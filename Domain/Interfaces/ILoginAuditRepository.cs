@@ -10,5 +10,7 @@ namespace Domain.Interfaces
         Task<bool> RevokeTokenAsync(string tokenId);
         Task<bool> IsTokenValidAsync(string tokenId);
         Task<bool> HasActiveTokensAsync(string idCCNit);
+        Task<bool> DeleteRefreshTokensAsync(string idCCNit);
+        Task<bool> HasActiveRefreshTokensAsync(string idCCNit);
     }
 }

@@ -43,7 +43,12 @@ namespace WebAPI.Controllers
             if (!generatedTokens.Success)
                 return Unauthorized(new { generatedTokens.Message });
 
-            return Ok( generatedTokens );
+            return Ok( new
+            {
+                generatedTokens.Message,
+                generatedTokens.Token,
+                generatedTokens.RefreshToken,
+            } );
         }
 
 

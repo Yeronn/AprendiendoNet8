@@ -33,7 +33,13 @@ namespace Application.Services
             {
                 bool revokedPreviousTokens = await RevokeAllTokensAsync(loginAudit.IdCCNit);
                 if (!revokedPreviousTokens)
-                    return new LoginAuditResponseDto(false, "No se pudo revocar los anteriores tokens de acceso");
+                    return new LoginAuditResponseDto(false, "No se pudo revocar los anteriores tokens");
+            }
+            else if (!loginAudit.IsAccessToken)
+            {
+                bool deletedRefreshTokens = await DeleteRefreshTokensAsync(loginAudit.IdCCNit);
+                if (!deletedRefreshTokens)
+                    return new LoginAuditResponseDto(false, "No se pudo eliminar los anteriores refresh tokens");
             }
 
             bool createdLoginAudit = await _loginAuditRepository.CreateLoginAuditAsync(loginAudit.ToEntity());
@@ -44,7 +50,7 @@ namespace Application.Services
             return new LoginAuditResponseDto(false, "No se pudo registrar el inicio de sesión");
         }
 
-        
+
         public async Task<bool> IsTokenValidAsync(string tokenId)
         {
             return await _loginAuditRepository.IsTokenValidAsync(tokenId);
@@ -84,6 +90,15 @@ namespace Application.Services
 
             return "";
         }
-        
+
+
+        private async Task<bool> DeleteRefreshTokensAsync(string idCCNit)
+        {
+            bool hasActiveTokens = await _loginAuditRepository.HasActiveRefreshTokensAsync(idCCNit);
+            if (!hasActiveTokens)
+                return true;
+            bool deletedRefreshTokens = await _loginAuditRepository.DeleteRefreshTokensAsync(idCCNit);
+            return deletedRefreshTokens;
+        }
     }
 }

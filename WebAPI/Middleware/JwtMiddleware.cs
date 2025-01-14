@@ -58,7 +58,7 @@ namespace WebAPI.Middleware
                             return;
                         }
 
-                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
                         return;
                     }
                     catch (Exception)
