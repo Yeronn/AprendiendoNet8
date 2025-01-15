@@ -1,7 +1,6 @@
 using Application.DTOs.Company;
 using Application.Interfaces;
 using Application.Mappers;
-using Domain.Entities;
 using Domain.Interfaces;
 
 namespace Application.Services
@@ -13,16 +12,6 @@ namespace Application.Services
         public CompanyService(ICompanyRepository companyRepository)
         {
             _companyRepository = companyRepository;
-        }
-
-
-        public async Task<IEnumerable<CompanyDto>?> GetCompaniesAsync()
-        {
-            var companies = await _companyRepository.GetCompaniesAsync();
-            if (!companies.Any())
-                return null;
-            var companyDtos = companies.Select(company => company.ToDto());
-            return companyDtos;
         }
 
 
@@ -47,9 +36,9 @@ namespace Application.Services
         }
 
 
-        public async Task<CompanyDto?> GetCompanyByIdAsync(int id)
+        public async Task<CompanyDto?> GetCompanyByIdAsync(int companyId)
         {
-            var companyEntity = await _companyRepository.GetCompanyByIdAsync(id);
+            var companyEntity = await _companyRepository.GetCompanyByIdAsync(companyId);
             return companyEntity?.ToDto();
         }
 
@@ -78,25 +67,10 @@ namespace Application.Services
             return new CompanyResponseDto(true, "Empresa actualizada correctamente.", updatedCompany);
         }
 
-        // Eliminar compañía
-        public async Task<CompanyResponseDto> DeleteCompanyAsync(int id)
+
+        public async Task<CompanyResponseDto> ValidateCompanyExistsByIdAsync(int companyId)
         {
-            var companyExists = await ValidateCompanyExistsByIdAsync(id);
-            if (!companyExists.Success)
-                return companyExists;
-
-            var success = await _companyRepository.DeleteCompanyAsync(id);
-
-            if (!success)
-                return new CompanyResponseDto(false, "Error al intentar eliminar la empresa.");
-
-            return new CompanyResponseDto(true, "Empresa eliminada.");
-        }
-
-
-        public async Task<CompanyResponseDto> ValidateCompanyExistsByIdAsync(int id)
-        {
-            bool exists = await _companyRepository.CompanyExistsByIdAsync(id);
+            bool exists = await _companyRepository.CompanyExistsByIdAsync(companyId);
             if (!exists)
                 return new CompanyResponseDto(false, "La empresa no existe.", IsNotFound: true);
 

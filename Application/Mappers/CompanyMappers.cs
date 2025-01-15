@@ -5,17 +5,6 @@ namespace Application.Mappers
 {
     public static class CompanyMappers
     {
-        public static CompanyEntity ToEntity(this CompanyDto dto)
-        {
-            return new CompanyEntity
-            {
-                Id = dto.Id ?? 0, 
-                Name = dto.Name,
-                NIT = dto.NIT
-            };
-        }
-
-
         public static CompanyEntity ToEntity(this CreateUpdateCompanyDto dto)
         {
             return new CompanyEntity
