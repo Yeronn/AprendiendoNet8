@@ -130,6 +130,7 @@ namespace Application.Services
                 DeviceInfo = GetDeviceInfo(),
                 TokenStatusId = (int)TokenStatus.Valid,
                 TokenTypeId =  isAccessToken ? (int)TokenType.Access : (int)TokenType.Refresh,
+                CompanyId = companyId,
             };
             var createdLoginAudit = await _loginAuditService.CreateLoginAuditAsync(newLogin);
             if (!createdLoginAudit.Success)

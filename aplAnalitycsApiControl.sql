@@ -67,7 +67,7 @@ CREATE TABLE TokenStatuses (
 );
 
 
--- Crear la tabla LoginAudits 
+-- Crear la tabla LoginAudits con el campo CompanyId
 CREATE TABLE LoginAudits (
     TokenId VARCHAR(50) PRIMARY KEY, -- JTI del token
     IdCCNit VARCHAR(50) NOT NULL,   -- ID del usuario
@@ -77,10 +77,12 @@ CREATE TABLE LoginAudits (
     DeviceInfo VARCHAR(255),        -- Información del dispositivo
     TokenStatusId INT NOT NULL,     -- ID del estado del token
     TokenTypeId INT NOT NULL,       -- ID del tipo de token (conectado con la tabla TokenTypes)
+    CompanyId INT NOT NULL,         -- ID de la compañía, no se define como foreign key
     FOREIGN KEY (IdCCNit) REFERENCES Users(IdCCNit),
     FOREIGN KEY (TokenStatusId) REFERENCES TokenStatuses(Id),
-    FOREIGN KEY (TokenTypeId) REFERENCES TokenTypes(Id) -- Relación con la tabla de tipos de token
+    FOREIGN KEY (TokenTypeId) REFERENCES TokenTypes(Id)
 );
+
 
 ----Vaciar las tablas
 --DELETE FROM RolePermissions;

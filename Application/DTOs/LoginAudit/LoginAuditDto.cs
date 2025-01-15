@@ -30,6 +30,10 @@ namespace Application.DTOs.LoginAudit
 
         [Required(ErrorMessage = "El tipo de token es obligatorio")]
         public int TokenTypeId { get; set; }
+
+        [Required(ErrorMessage = "El campo companyId es obligatorio")]
+        public int CompanyId { get; set; }
+
         public int TokenStatusId { get; set; } = (int)TokenStatus.Valid;
     }
 }

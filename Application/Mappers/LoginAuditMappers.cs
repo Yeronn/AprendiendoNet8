@@ -21,6 +21,7 @@ namespace Application.Mappers
                 DeviceInfo = loginAudit.DeviceInfo,
                 TokenStatusId = loginAudit.TokenStatusId,
                 TokenTypeId = loginAudit.TokenTypeId,
+                CompanyId = loginAudit.CompanyId,
             };
         }
 
@@ -37,6 +38,7 @@ namespace Application.Mappers
                 DeviceInfo = loginAudit.DeviceInfo,
                 TokenStatusId = loginAudit.TokenStatusId,
                 TokenTypeId = loginAudit.TokenTypeId,
+                CompanyId = loginAudit.CompanyId
             };
         }
     }

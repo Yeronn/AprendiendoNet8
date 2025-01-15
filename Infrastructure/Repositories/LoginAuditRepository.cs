@@ -30,8 +30,8 @@ namespace Infrastructure.Repositories
         public async Task<bool> CreateLoginAuditAsync(LoginAuditEntity loginAudit)
         {
             var query = @"
-                INSERT INTO LoginAudits (TokenId, IdCCNit, IssuedAt, ExpiresAt, IPAddress, DeviceInfo, TokenStatusId, TokenTypeId)
-                VALUES (@TokenId, @IdCCNit, @IssuedAt, @ExpiresAt, @IPAddress, @DeviceInfo, @TokenStatusId, @TokenTypeId)";
+                INSERT INTO LoginAudits (TokenId, IdCCNit, IssuedAt, ExpiresAt, IPAddress, DeviceInfo, TokenStatusId, TokenTypeId, CompanyId)
+                VALUES (@TokenId, @IdCCNit, @IssuedAt, @ExpiresAt, @IPAddress, @DeviceInfo, @TokenStatusId, @TokenTypeId, @CompanyId)";
 
             using (var connection = _context.CreateConnection())
             {

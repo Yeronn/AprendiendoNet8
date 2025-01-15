@@ -15,5 +15,6 @@ namespace Domain.Entities
         public string? DeviceInfo { get; set; }
         public int TokenStatusId { get; set; }
         public int TokenTypeId { get; set; }
+        public int CompanyId { get; set; }
     }
 }
