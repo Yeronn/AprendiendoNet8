@@ -98,6 +98,7 @@ namespace Application.Services
 
             var claims = new List<Claim>
             {
+                //TODO: Hacer un enum para los claims
                 new Claim("CompanyId", $"{companyId}"),
                 new Claim("IdCCNIT", user.IdCCNit.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, jti),
@@ -178,7 +179,7 @@ namespace Application.Services
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtRefreshToken = tokenHandler.ReadJwtToken(refreshToken);
 
-            string? idCCNit = jwtRefreshToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
+            string? idCCNit = jwtRefreshToken.Claims.FirstOrDefault(c => c.Type == "IdCCNIT")?.Value;
 
             if (idCCNit == null)
                 return new RefreshTokenResponseDto(false, "El refresh token no tiene el idCCNit", IsBadRequest: true);
