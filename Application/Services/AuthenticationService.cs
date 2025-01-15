@@ -92,7 +92,7 @@ namespace Application.Services
 
             var claims = new List<Claim>
             {
-                new Claim(ClaimTypes.NameIdentifier, user.IdCCNit.ToString()),
+                new Claim("IdCCNIT", user.IdCCNit.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, jti),
                 new Claim("TokenType", isAccessToken ? TokenType.Access.ToString() : TokenType.Refresh.ToString())
             };
@@ -103,7 +103,7 @@ namespace Application.Services
             {
                 var permissions = await _permissionService.GetPermissionsByRoleIdAsync(user.RoleId);
 
-                claims.Add(new Claim(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"));
+                claims.Add(new Claim("Fullname", $"{user.FirstName} {user.LastName}"));
                 claims.AddRange(permissions.Select(permission => new Claim("Permissions", permission.Name)));
 
                 tokenExpiration = DateTime.UtcNow.AddMinutes(1);
