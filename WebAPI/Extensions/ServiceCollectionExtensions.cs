@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Application.Authorization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
@@ -34,11 +35,9 @@ namespace WebAPI.Extensions
         {
             services.AddAuthorization(options =>
             {
-                //TODO: Hacer un enum de los permisos del sistema, que se itere y añada los permisos
-                options.AddPolicy("Read", policy => policy.RequireClaim("Permissions", "Read"));
-                options.AddPolicy("Write", policy => policy.RequireClaim("Permissions", "Write"));
-                options.AddPolicy("Delete", policy => policy.RequireClaim("Permissions", "Delete"));
-                options.AddPolicy("prueba", policy => policy.RequireClaim("Permissions", "prueba"));
+                options.AddPolicy(PermissionPolicy.Read, policy => policy.RequireClaim("Permissions", PermissionPolicy.Read));
+                options.AddPolicy(PermissionPolicy.Write, policy => policy.RequireClaim("Permissions", PermissionPolicy.Write));
+                options.AddPolicy(PermissionPolicy.Delete, policy => policy.RequireClaim("Permissions", PermissionPolicy.Delete));
             });
 
             return services;
