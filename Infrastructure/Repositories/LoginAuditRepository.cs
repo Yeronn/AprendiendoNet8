@@ -36,7 +36,7 @@ namespace Infrastructure.Repositories
             using (var connection = _context.CreateConnection())
             {
                 var result = await connection.ExecuteAsync(query, loginAudit);
-                return result > 0; 
+                return result > 0;
             }
         }
 

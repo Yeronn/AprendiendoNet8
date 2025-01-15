@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Application.DTOs.User
+namespace Application.DTOs.Authentication
 {
     public class LoginDto
     {
-        [Required]
+        [Required(ErrorMessage = "La cédula y el NIT son obligatorios")]
         public string IdCCNit { get; set; } = string.Empty;
-        [Required]
+        [Required(ErrorMessage = "La contraseña es obligatoria")]
         public string Password { get; set; } = string.Empty;
     }
 }

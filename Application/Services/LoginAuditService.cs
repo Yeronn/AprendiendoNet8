@@ -28,19 +28,19 @@ namespace Application.Services
         {
             string validationResults = ValidateLoginAuditDto(loginAudit);
             if (!string.IsNullOrWhiteSpace(validationResults))
-                return new LoginAuditResponseDto(false, $"Errores de validación: {validationResults}");
+                return new LoginAuditResponseDto(false, $"Errores de validación: {validationResults}", IsBadRequest: true);
             
             if (loginAudit.TokenTypeId == (int)TokenType.Access)
             {
                 bool revokedPreviousTokens = await RevokeAllTokensAsync(loginAudit.IdCCNit);
                 if (!revokedPreviousTokens)
-                    return new LoginAuditResponseDto(false, "No se pudo revocar los anteriores tokens");
+                    return new LoginAuditResponseDto(false, "No se pudo revocar los anteriores tokens", IsInternalServerError: true);
             }
             else if (loginAudit.TokenTypeId == (int)TokenType.Refresh)
             {
                 bool deletedRefreshTokens = await DeleteRefreshTokensAsync(loginAudit.IdCCNit);
                 if (!deletedRefreshTokens)
-                    return new LoginAuditResponseDto(false, "No se pudo eliminar los anteriores refresh tokens");
+                    return new LoginAuditResponseDto(false, "No se pudo eliminar los anteriores refresh tokens", IsInternalServerError: true);
             }
 
             bool createdLoginAudit = await _loginAuditRepository.CreateLoginAuditAsync(loginAudit.ToEntity());
@@ -48,7 +48,7 @@ namespace Application.Services
             if (createdLoginAudit)
                 return new LoginAuditResponseDto(true, "Se registró el inicio de sesión");
     
-            return new LoginAuditResponseDto(false, "No se pudo registrar el inicio de sesión");
+            return new LoginAuditResponseDto(false, "No se pudo registrar el inicio de sesión", IsInternalServerError: true);
         }
 
 

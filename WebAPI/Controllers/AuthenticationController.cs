@@ -1,4 +1,4 @@
-﻿using Application.DTOs.User;
+﻿using Application.DTOs.Authentication;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,17 +18,16 @@ namespace WebAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Datos inválidos: " + ModelState);
-            }
-
             var loginResponse = await _authService.Login(loginDto);
 
-            if (loginResponse.IsBadRequest)
+            if(loginResponse.Success)
+                return Ok(new { message = loginResponse.Message, loginResponse.AccessToken, loginResponse.RefreshToken});
+
+            else if (loginResponse.IsBadRequest)
                 return BadRequest(loginResponse.Message);
 
-            return Ok(new { message = loginResponse.Message, loginResponse.Token, loginResponse.RefreshTokenToken});
+            return StatusCode(StatusCodes.Status500InternalServerError, "Ocurrió un error inesperado");
+
         }
 
 
@@ -40,17 +39,19 @@ namespace WebAPI.Controllers
                 return BadRequest(new { Mesagge = "Refresh token no proporcionado"});
 
             var generatedTokens = await _authService.RefreshTokens(refreshToken);
-            if (!generatedTokens.Success)
-                return Unauthorized(new { generatedTokens.Message });
 
-            return Ok( new
-            {
-                generatedTokens.Message,
-                generatedTokens.Token,
-                generatedTokens.RefreshToken,
-            } );
+            if (generatedTokens.Success)
+                return Ok( new
+                {
+                    generatedTokens.Message,
+                    generatedTokens.Token,
+                    generatedTokens.RefreshToken,
+                } );
+
+            else if (generatedTokens.IsBadRequest)
+                return BadRequest(generatedTokens.Message);
+            
+            return StatusCode(StatusCodes.Status500InternalServerError, $"Ocurrió un error inesperado: {generatedTokens.Message}");
         }
-
-
     }
 }

@@ -1,4 +1,5 @@
-﻿using Application.DTOs.LoginAudit;
+﻿using Application.DTOs.Authentication;
+using Application.DTOs.LoginAudit;
 using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Mappers;
@@ -67,20 +68,22 @@ namespace Application.Services
                 return new LoginResponse(checkPassword, "Credenciales Inválidas", IsBadRequest: true);
 
             var userToken = user!.ToUserJwtTokenDto();
-            string token = await GenerateJWTToken(userToken);
-            string refreshToken = await GenerateJWTToken(userToken, false);
+            var (accessTokenSuccess, accessTokenValue) = await GenerateJWTToken(userToken);
+            if (!accessTokenSuccess)
+                return new LoginResponse(false, accessTokenValue);
 
-            if (string.IsNullOrWhiteSpace(token) || string.IsNullOrWhiteSpace(refreshToken))
+            var (refreshTokenSuccess, refreshTokenValue) = await GenerateJWTToken(userToken, false);
+            if (!refreshTokenSuccess)
             {
                 await _loginAuditService.RevokeAllTokensAsync(userToken.IdCCNit);
-                return new LoginResponse(false, "Error al registrar el inicio de sesión");
+                return new LoginResponse(false, refreshTokenValue);
             }
 
-            return new LoginResponse(checkPassword, "Inicio de sesión exitoso", token, refreshToken);
+            return new LoginResponse(checkPassword, "Inicio de sesión exitoso", accessTokenValue, refreshTokenValue);
         }
 
 
-        public async Task<string> GenerateJWTToken(UserJwtTokenDto user, bool isAccessToken = true)
+        public async Task<(bool Success, string Message)> GenerateJWTToken(UserJwtTokenDto user, bool isAccessToken = true)
         {
             var jti = Guid.NewGuid().ToString();
 
@@ -121,10 +124,9 @@ namespace Application.Services
                 TokenStatusId = (int)TokenStatus.Valid,
                 TokenTypeId =  isAccessToken ? (int)TokenType.Access : (int)TokenType.Refresh,
             };
-
             var createdLoginAudit = await _loginAuditService.CreateLoginAuditAsync(newLogin);
             if (!createdLoginAudit.Success)
-                return "";
+                return (false, createdLoginAudit.Message);
 
             var token = new JwtSecurityToken(
                     _configuration["Jwt:Issuer"],
@@ -135,7 +137,7 @@ namespace Application.Services
                     );
 
             string tokenValue = new JwtSecurityTokenHandler().WriteToken(token);
-            return tokenValue;
+            return (true, tokenValue);
         }
 
 
@@ -171,19 +173,28 @@ namespace Application.Services
             string? idCCNit = jwtRefreshToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
             if (idCCNit == null)
-                return new RefreshTokenResponseDto(false, "El refresh token no tiene el idCCNit");
+                return new RefreshTokenResponseDto(false, "El refresh token no tiene el idCCNit", IsBadRequest: true);
 
             var user = await _userService.GetUserByIdCCNitAsync(idCCNit);
             if (user == null)
-                return new RefreshTokenResponseDto(false, "No se pudo refrescar los tokens, el usuario no existe");
+                return new RefreshTokenResponseDto(false, "No se pudo refrescar los tokens, el usuario no existe", IsBadRequest: true);
 
             var userToken = user!.ToUserJwtTokenDto();
 
-            var newAccessToken = await GenerateJWTToken(userToken);
-            var newRefreshToken = await GenerateJWTToken(userToken, false);
-        
+            var (accessTokenSuccess, newAccessToken) = await GenerateJWTToken(userToken);
+            if (!accessTokenSuccess)
+                return new RefreshTokenResponseDto(false, newAccessToken, IsBadRequest: true);
+
+            var (refreshTokenSuccess, newRefreshToken) = await GenerateJWTToken(userToken, false);
+            if (!refreshTokenSuccess)
+            {
+                await _loginAuditService.RevokeAllTokensAsync(userToken.IdCCNit);
+                return new RefreshTokenResponseDto(false, newRefreshToken, IsBadRequest: true);
+            }
+
             return new RefreshTokenResponseDto(true, "Tokens generados", newAccessToken, newRefreshToken);
         }
+
 
 
     }
