@@ -14,6 +14,6 @@ namespace Application.DTOs.Company
         
         [RegularExpression(@"^\d+$", ErrorMessage = "El campo debe contener solo números")]
         [Required(ErrorMessage = "El campo Description es obligatorio.")]
-        public int? NIT { get; set; }
+        public int NIT { get; set; }
     }
 }

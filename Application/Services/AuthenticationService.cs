@@ -15,28 +15,31 @@ namespace Application.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
+        private readonly IConfiguration _configuration;
+        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserService _userService;
         private readonly IPermissionService _permissionService;
         private readonly ILoginAuditService _loginAuditService;
-        private readonly IConfiguration _configuration;
         private readonly IPasswordHasherService _passwordHasher;
-        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ICompanyService _companyService;
 
         public AuthenticationService(
                 IConfiguration configuration, 
-                IPasswordHasherService passwordHasher, 
+                IHttpContextAccessor httpContextAccessor,
                 IUserService userService, 
                 IPermissionService permissionService,
                 ILoginAuditService loginAuditService,
-                IHttpContextAccessor httpContextAccessor
+                IPasswordHasherService passwordHasher,
+                ICompanyService companyService
             )
         {
-            _userService = userService;
-            _passwordHasher = passwordHasher;
             _configuration = configuration;
+            _httpContextAccessor = httpContextAccessor;
+            _userService = userService;
             _permissionService = permissionService;
             _loginAuditService = loginAuditService;
-            _httpContextAccessor = httpContextAccessor;
+            _passwordHasher = passwordHasher;
+            _companyService = companyService;
         }
 
 
@@ -90,19 +93,23 @@ namespace Application.Services
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
+            var company = await _companyService.GetCompanyByRoleIdAsync(user.RoleId);
+            int companyId = company!.Id;
+
             var claims = new List<Claim>
             {
+                new Claim("CompanyId", $"{companyId}"),
                 new Claim("IdCCNIT", user.IdCCNit.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, jti),
                 new Claim("TokenType", isAccessToken ? TokenType.Access.ToString() : TokenType.Refresh.ToString())
             };
 
+            
             DateTime tokenExpiration;
 
             if (isAccessToken)
             {
                 var permissions = await _permissionService.GetPermissionsByRoleIdAsync(user.RoleId);
-
                 claims.Add(new Claim("Fullname", $"{user.FirstName} {user.LastName}"));
                 claims.AddRange(permissions.Select(permission => new Claim("Permissions", permission.Name)));
 
