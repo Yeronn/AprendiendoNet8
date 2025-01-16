@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Application.DTOs.Company
 {
@@ -14,6 +10,6 @@ namespace Application.DTOs.Company
         
         [RegularExpression(@"^\d+$", ErrorMessage = "El campo debe contener solo números")]
         [Required(ErrorMessage = "El campo Description es obligatorio.")]
-        public int NIT { get; set; }
+        public int Nit { get; set; }
     }
 }

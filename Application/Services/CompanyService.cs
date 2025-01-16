@@ -21,7 +21,7 @@ namespace Application.Services
             if (!availableName.Success)
                 return availableName;
 
-            var availableNit = await CheckCompanyNitAvailabilityAsync((int)createDto.NIT!);
+            var availableNit = await CheckCompanyNitAvailabilityAsync((int)createDto.Nit!);
             if (!availableNit.Success)
                 return availableNit;
 
@@ -56,9 +56,9 @@ namespace Application.Services
                     return updatedName;
             }
 
-            if (companyDto.NIT != currentCompany.NIT)
+            if (companyDto.Nit != currentCompany.Nit)
             {
-                var updatedNit = await UpdateCompanyNitAsync(companyId, (int)companyDto.NIT!);
+                var updatedNit = await UpdateCompanyNitAsync(companyId, (int)companyDto.Nit!);
                 if (!updatedNit.Success)
                 return updatedNit;
             }

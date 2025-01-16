@@ -50,7 +50,7 @@ namespace Application.Services
             if (company == null)
                 return new UserResponseDto(false, "La empresa a la que esta asociada el rol no existe: ");
 
-            string idCCNit = newUser.CCIdentification.ToString() + "-" + company.NIT.ToString();
+            string idCCNit = newUser.CCIdentification.ToString() + "-" + company.Nit.ToString();
             bool IdCCNitExists = await VerifyIdCCNitExistsAsync(idCCNit);
             if (IdCCNitExists)
                 return new UserResponseDto(false, "El IdCCNit no está disponible", IsConflict: true);

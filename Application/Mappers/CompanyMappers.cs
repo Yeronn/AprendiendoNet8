@@ -10,7 +10,7 @@ namespace Application.Mappers
             return new CompanyEntity
             {
                 Name = dto.Name,
-                NIT = dto.NIT
+                Nit = dto.Nit
             };
         }
 
@@ -21,7 +21,7 @@ namespace Application.Mappers
             {
                 Id = company.Id,
                 Name = company.Name,
-                NIT = company.NIT
+                Nit = company.Nit
             };
         }
 

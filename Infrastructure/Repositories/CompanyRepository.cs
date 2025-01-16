@@ -33,7 +33,7 @@ namespace Infrastructure.Repositories
 
             using (var connection = _context.CreateConnection())
             {
-                var parameters = new { Name = company.Name, NIT = company.NIT };
+                var parameters = new { Name = company.Name, NIT = company.Nit };
                 int id = await connection.QuerySingleAsync<int>(query, parameters);
                 return id > 0 ? id : 0;
             }

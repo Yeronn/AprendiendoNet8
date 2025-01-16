@@ -4,6 +4,6 @@ namespace Application.DTOs.Company
     {
         public int Id { get; set; }
         public string? Name { get; set; } = string.Empty;
-        public int NIT { get; set; }
+        public int Nit { get; set; }
     }
 }

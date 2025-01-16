@@ -10,7 +10,7 @@ GO
 CREATE TABLE Companies (
     Id INT IDENTITY(1,1) PRIMARY KEY,
     Name VARCHAR(100) NOT NULL UNIQUE,
-    NIT INT NOT NULL UNIQUE
+    Nit INT NOT NULL UNIQUE
 );
 
 -- Crear tabla Roles
@@ -114,7 +114,7 @@ VALUES
 
 
 -- Insertar datos en la tabla Companies
-INSERT INTO Companies (Name, NIT)
+INSERT INTO Companies (Name, Nit)
 VALUES 
     ('Tech Solutions Inc.', 123456789),
     ('Global Enterprises', 987654321);
