@@ -18,7 +18,14 @@ namespace WebAPI.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
-            var loginResponse = await _authService.Login(loginDto);
+            var ipAddress = Request.Headers["X-Forwarded-For"].FirstOrDefault() 
+                            ?? HttpContext.Connection.RemoteIpAddress?.ToString()
+                            ?? "Unknown";
+
+            string deviceInfo = Request.Headers["User-Agent"].FirstOrDefault() 
+                                ?? "Unknown";
+
+            var loginResponse = await _authService.Login(loginDto, ipAddress, deviceInfo);
 
             if(loginResponse.Success)
                 return Ok(new { message = loginResponse.Message, loginResponse.AccessToken, loginResponse.RefreshToken});
@@ -38,7 +45,14 @@ namespace WebAPI.Controllers
             if (string.IsNullOrWhiteSpace(refreshToken))
                 return BadRequest(new { Mesagge = "Refresh token no proporcionado"});
 
-            var generatedTokens = await _authService.RefreshTokens(refreshToken);
+            var ipAddress = Request.Headers["X-Forwarded-For"].FirstOrDefault()
+                            ?? HttpContext.Connection.RemoteIpAddress?.ToString()
+                            ?? "Unknown";
+
+            string deviceInfo = Request.Headers["User-Agent"].FirstOrDefault()
+                                ?? "Unknown";
+
+            var generatedTokens = await _authService.RefreshTokens(refreshToken, ipAddress, deviceInfo);
 
             if (generatedTokens.Success)
                 return Ok( new

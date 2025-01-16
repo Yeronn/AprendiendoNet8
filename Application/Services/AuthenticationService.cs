@@ -4,7 +4,6 @@ using Application.DTOs.User;
 using Application.Interfaces;
 using Application.Mappers;
 using Domain.Enums;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -16,7 +15,6 @@ namespace Application.Services
     public class AuthenticationService : IAuthenticationService
     {
         private readonly IConfiguration _configuration;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IUserService _userService;
         private readonly IPermissionService _permissionService;
         private readonly ILoginAuditService _loginAuditService;
@@ -25,7 +23,6 @@ namespace Application.Services
 
         public AuthenticationService(
                 IConfiguration configuration, 
-                IHttpContextAccessor httpContextAccessor,
                 IUserService userService, 
                 IPermissionService permissionService,
                 ILoginAuditService loginAuditService,
@@ -34,7 +31,6 @@ namespace Application.Services
             )
         {
             _configuration = configuration;
-            _httpContextAccessor = httpContextAccessor;
             _userService = userService;
             _permissionService = permissionService;
             _loginAuditService = loginAuditService;
@@ -43,22 +39,7 @@ namespace Application.Services
         }
 
 
-        public string? GetClientIpAddress()
-        {
-            var context = _httpContextAccessor.HttpContext;
-            var ip = context?.Request.Headers["X-Forwarded-For"].FirstOrDefault();
-            return !string.IsNullOrEmpty(ip) ? ip : context?.Connection.RemoteIpAddress?.ToString();
-        }
-
-
-        public string GetDeviceInfo()
-        {
-            var context = _httpContextAccessor.HttpContext;
-            return context?.Request.Headers["User-Agent"].FirstOrDefault() ?? "Unknown";
-        }
-
-
-        public async Task<LoginResponse> Login(LoginDto login)
+        public async Task<LoginResponse> Login(LoginDto login, string ipAddress, string deviceInfo)
         {
             var user = await _userService.GetUserByIdCCNitAsync(login.IdCCNit);
             if (user == null)
@@ -71,6 +52,9 @@ namespace Application.Services
                 return new LoginResponse(checkPassword, "Credenciales Inválidas", IsBadRequest: true);
 
             var userToken = user!.ToUserJwtTokenDto();
+            userToken.IPAddress = ipAddress;
+            userToken.DeviceInfo = deviceInfo;
+
             var (accessTokenSuccess, accessTokenValue) = await GenerateJWTToken(userToken);
             if (!accessTokenSuccess)
                 return new LoginResponse(false, accessTokenValue);
@@ -114,11 +98,11 @@ namespace Application.Services
                 claims.Add(new Claim("Fullname", $"{user.FirstName} {user.LastName}"));
                 claims.AddRange(permissions.Select(permission => new Claim("Permissions", permission.Name)));
 
-                tokenExpiration = DateTime.UtcNow.AddMinutes(1);
+                tokenExpiration = DateTime.UtcNow.AddMinutes(10);
             }
             else
             {
-                tokenExpiration = DateTime.UtcNow.AddMinutes(2);
+                tokenExpiration = DateTime.UtcNow.AddMinutes(20);
             }
 
             var newLogin = new LoginAuditDto
@@ -127,8 +111,8 @@ namespace Application.Services
                 IdCCNit = user.IdCCNit,
                 IssuedAt = DateTime.UtcNow,
                 ExpiresAt = tokenExpiration,
-                IPAddress = GetClientIpAddress(),
-                DeviceInfo = GetDeviceInfo(),
+                IPAddress = user.IPAddress,
+                DeviceInfo = user.DeviceInfo,
                 TokenStatusId = (int)TokenStatus.Valid,
                 TokenTypeId =  isAccessToken ? (int)TokenType.Access : (int)TokenType.Refresh,
                 CompanyId = companyId,
@@ -174,7 +158,7 @@ namespace Application.Services
         }
 
 
-        public async Task<RefreshTokenResponseDto> RefreshTokens(string refreshToken)
+        public async Task<RefreshTokenResponseDto> RefreshTokens(string refreshToken, string ipAddress, string deviceInfo)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var jwtRefreshToken = tokenHandler.ReadJwtToken(refreshToken);
@@ -189,6 +173,8 @@ namespace Application.Services
                 return new RefreshTokenResponseDto(false, "No se pudo refrescar los tokens, el usuario no existe", IsBadRequest: true);
 
             var userToken = user!.ToUserJwtTokenDto();
+            userToken.IPAddress = ipAddress;
+            userToken.DeviceInfo = deviceInfo;
 
             var (accessTokenSuccess, newAccessToken) = await GenerateJWTToken(userToken);
             if (!accessTokenSuccess)
