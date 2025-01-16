@@ -1,7 +1,7 @@
-﻿using Application.DTOs.Authentication;
+﻿using Application.Authorization;
+using Application.DTOs.Authentication;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-using System.IdentityModel.Tokens.Jwt;
 
 namespace WebAPI.Controllers
 {
@@ -52,7 +52,7 @@ namespace WebAPI.Controllers
             if (claims == null)
                 return Unauthorized(new { Message = "Token inválido o no proporcionado" });
 
-            var idCCNit = claims.TryGetValue("IdCCNIT", out var idValues) ? idValues.FirstOrDefault() : null;
+            var idCCNit = claims.TryGetValue(UserClaims.IdCCNit.ToString(), out var idValues) ? idValues.FirstOrDefault() : null;
             if (string.IsNullOrWhiteSpace(idCCNit))
                 return BadRequest(new { Message = "El refresh token no tiene el claim 'IdCCNIT'" });
 

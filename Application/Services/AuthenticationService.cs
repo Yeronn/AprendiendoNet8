@@ -1,4 +1,5 @@
-﻿using Application.DTOs.Authentication;
+﻿using Application.Authorization;
+using Application.DTOs.Authentication;
 using Application.DTOs.LoginAudit;
 using Application.DTOs.User;
 using Application.Interfaces;
@@ -82,11 +83,10 @@ namespace Application.Services
 
             var claims = new List<Claim>
             {
-                //TODO: Hacer un enum para los claims
-                new Claim("CompanyId", $"{companyId}"),
-                new Claim("IdCCNIT", user.IdCCNit.ToString()),
+                new Claim(UserClaims.CompanyId.ToString(), $"{companyId}"),
+                new Claim(UserClaims.IdCCNit.ToString(), user.IdCCNit.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, jti),
-                new Claim("TokenType", isAccessToken ? TokenType.Access.ToString() : TokenType.Refresh.ToString())
+                new Claim(UserClaims.TokenType.ToString(), isAccessToken ? TokenType.Access.ToString() : TokenType.Refresh.ToString())
             };
 
             
@@ -95,8 +95,8 @@ namespace Application.Services
             if (isAccessToken)
             {
                 var permissions = await _permissionService.GetPermissionsByRoleIdAsync(user.RoleId);
-                claims.Add(new Claim("Fullname", $"{user.FirstName} {user.LastName}"));
-                claims.AddRange(permissions.Select(permission => new Claim("Permissions", permission.Name)));
+                claims.Add(new Claim(UserClaims.Fullname.ToString(), $"{user.FirstName} {user.LastName}"));
+                claims.AddRange(permissions.Select(permission => new Claim(UserClaims.Permissions.ToString(), permission.Name)));
 
                 tokenExpiration = DateTime.UtcNow.AddMinutes(10);
             }

@@ -23,6 +23,12 @@ namespace WebAPI.Controllers
         [HttpGet("{id}", Name = "GetRole")]
         public async Task<IActionResult> GetRoleById(int id)
         {
+            var claims = HttpContext.Items["JwtClaims"] as Dictionary<string, List<string>>;
+            if (claims == null)
+                return Unauthorized(new { Message = "Token inválido o no proporcionado" });
+
+            var companyId = claims.TryGetValue(UserClaims.CompanyId.ToString(), out var idValues) ? idValues.FirstOrDefault() : null;
+
             var role = await _roleService.GetRoleByIdAsync(id);
             if (role == null)
                 return NotFound("El rol no existe");
