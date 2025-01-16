@@ -18,7 +18,7 @@ namespace WebAPI.Middleware
         public async Task Invoke(HttpContext context)
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
-
+            bool loginPath = context.Request.Path.StartsWithSegments("/api/auth/login");
             if (token != null)
             {
                 using (var scope = _scopeFactory.CreateScope())
@@ -45,9 +45,19 @@ namespace WebAPI.Middleware
                             return;
                         }
 
+                        var claimsDictionary = new Dictionary<string, List<string>>();
+                        foreach (var claim in jwtToken.Claims)
+                        {
+                            if (claimsDictionary.ContainsKey(claim.Type))
+                                claimsDictionary[claim.Type].Add(claim.Value);
+                            else
+                                claimsDictionary[claim.Type] = [claim.Value];
+                        }
+                        context.Items["JwtClaims"] = claimsDictionary;
+
                         bool refreshPath = context.Request.Path.StartsWithSegments("/api/auth/refresh-token");
-                        
-                        if (tokenType == TokenType.Access.ToString() && !refreshPath)
+
+                        if (tokenType == TokenType.Access.ToString() && !refreshPath && !loginPath)
                         {
                             await _next(context);
                             return;
@@ -69,8 +79,19 @@ namespace WebAPI.Middleware
                     }
                 }
             }
+            ////TODO: Solo puede pasar la petición si va a la ruta de login
+            //if (loginPath)
+            //{
+            //    await _next(context);
+            //    return;
+            //}
+
+            //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+            //return;
+
             await _next(context);
         }
+
 
     }
 

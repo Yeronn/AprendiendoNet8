@@ -42,29 +42,17 @@ namespace WebAPI.Controllers
         [HttpPost("refresh-token")]
         public async Task<IActionResult> RefreshToken()
         {
-            var refreshToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
-            if (string.IsNullOrWhiteSpace(refreshToken))
-                return BadRequest(new { Message = "Refresh token no proporcionado" });
-
             var ipAddress = Request.Headers["X-Forwarded-For"].FirstOrDefault()
                             ?? HttpContext.Connection.RemoteIpAddress?.ToString()
                             ?? "Unknown";
 
             var deviceInfo = Request.Headers["User-Agent"].FirstOrDefault() ?? "Unknown";
 
-            var tokenHandler = new JwtSecurityTokenHandler();
-            JwtSecurityToken? jwtRefreshToken;
+            var claims = HttpContext.Items["JwtClaims"] as Dictionary<string, List<string>>;
+            if (claims == null)
+                return Unauthorized(new { Message = "Token inválido o no proporcionado" });
 
-            try
-            {
-                jwtRefreshToken = tokenHandler.ReadJwtToken(refreshToken);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = "El token proporcionado es inválido", Error = ex.Message });
-            }
-
-            var idCCNit = jwtRefreshToken.Claims.FirstOrDefault(c => c.Type == "IdCCNIT")?.Value;
+            var idCCNit = claims.TryGetValue("IdCCNIT", out var idValues) ? idValues.FirstOrDefault() : null;
             if (string.IsNullOrWhiteSpace(idCCNit))
                 return BadRequest(new { Message = "El refresh token no tiene el claim 'IdCCNIT'" });
 
