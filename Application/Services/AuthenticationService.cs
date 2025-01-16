@@ -158,21 +158,13 @@ namespace Application.Services
         }
 
 
-        public async Task<RefreshTokenResponseDto> RefreshTokens(string refreshToken, string ipAddress, string deviceInfo)
+        public async Task<RefreshTokenResponseDto> RefreshTokens(string idCCNit, string ipAddress, string deviceInfo)
         {
-            var tokenHandler = new JwtSecurityTokenHandler();
-            var jwtRefreshToken = tokenHandler.ReadJwtToken(refreshToken);
-
-            string? idCCNit = jwtRefreshToken.Claims.FirstOrDefault(c => c.Type == "IdCCNIT")?.Value;
-
-            if (idCCNit == null)
-                return new RefreshTokenResponseDto(false, "El refresh token no tiene el idCCNit", IsBadRequest: true);
-
             var user = await _userService.GetUserByIdCCNitAsync(idCCNit);
             if (user == null)
                 return new RefreshTokenResponseDto(false, "No se pudo refrescar los tokens, el usuario no existe", IsBadRequest: true);
 
-            var userToken = user!.ToUserJwtTokenDto();
+            var userToken = user.ToUserJwtTokenDto();
             userToken.IPAddress = ipAddress;
             userToken.DeviceInfo = deviceInfo;
 
@@ -189,8 +181,5 @@ namespace Application.Services
 
             return new RefreshTokenResponseDto(true, "Tokens generados", newAccessToken, newRefreshToken);
         }
-
-
-
     }
 }

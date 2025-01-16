@@ -1,6 +1,7 @@
 ﻿using Application.DTOs.Authentication;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace WebAPI.Controllers
 {
@@ -43,28 +44,45 @@ namespace WebAPI.Controllers
         {
             var refreshToken = Request.Headers["Authorization"].ToString().Replace("Bearer ", "");
             if (string.IsNullOrWhiteSpace(refreshToken))
-                return BadRequest(new { Mesagge = "Refresh token no proporcionado"});
+                return BadRequest(new { Message = "Refresh token no proporcionado" });
 
             var ipAddress = Request.Headers["X-Forwarded-For"].FirstOrDefault()
                             ?? HttpContext.Connection.RemoteIpAddress?.ToString()
                             ?? "Unknown";
 
-            string deviceInfo = Request.Headers["User-Agent"].FirstOrDefault()
-                                ?? "Unknown";
+            var deviceInfo = Request.Headers["User-Agent"].FirstOrDefault() ?? "Unknown";
 
-            var generatedTokens = await _authService.RefreshTokens(refreshToken, ipAddress, deviceInfo);
+            var tokenHandler = new JwtSecurityTokenHandler();
+            JwtSecurityToken? jwtRefreshToken;
+
+            try
+            {
+                jwtRefreshToken = tokenHandler.ReadJwtToken(refreshToken);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Message = "El token proporcionado es inválido", Error = ex.Message });
+            }
+
+            var idCCNit = jwtRefreshToken.Claims.FirstOrDefault(c => c.Type == "IdCCNIT")?.Value;
+            if (string.IsNullOrWhiteSpace(idCCNit))
+                return BadRequest(new { Message = "El refresh token no tiene el claim 'IdCCNIT'" });
+
+            var generatedTokens = await _authService.RefreshTokens(idCCNit, ipAddress, deviceInfo);
 
             if (generatedTokens.Success)
-                return Ok( new
+            {
+                return Ok(new
                 {
                     generatedTokens.Message,
                     generatedTokens.Token,
                     generatedTokens.RefreshToken,
-                } );
+                });
+            }
 
-            else if (generatedTokens.IsBadRequest)
+            if (generatedTokens.IsBadRequest)
                 return BadRequest(generatedTokens.Message);
-            
+
             return StatusCode(StatusCodes.Status500InternalServerError, $"Ocurrió un error inesperado: {generatedTokens.Message}");
         }
     }
