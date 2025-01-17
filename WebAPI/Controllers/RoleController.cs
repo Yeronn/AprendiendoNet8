@@ -20,19 +20,26 @@ namespace WebAPI.Controllers
 
 
         [Authorize(Policy = PermissionPolicy.Read)]
-        [HttpGet("{id}", Name = "GetRole")]
-        public async Task<IActionResult> GetRoleById(int id)
+        [HttpGet("{roleId}", Name = "GetRole")]
+        public async Task<IActionResult> GetRoleById(int roleId)
         {
             var claims = HttpContext.Items["JwtClaims"] as Dictionary<string, List<string>>;
             if (claims == null)
                 return Unauthorized(new { Message = "Token inválido o no proporcionado" });
 
-            var companyId = claims.TryGetValue(UserClaims.CompanyId.ToString(), out var idValues) ? idValues.FirstOrDefault() : null;
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = claims.TryGetValue(companyClaimName, out var idValues) ? idValues.FirstOrDefault() : null;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
 
-            var role = await _roleService.GetRoleByIdAsync(id);
-            if (role == null)
-                return NotFound("El rol no existe");
-            return Ok(role);
+
+            var role = await _roleService.GetRoleByIdAsync(roleId, int.Parse(companyId));
+            if (role.Success)
+                return Ok(role.Role);
+            else if (role.IsNotFound)
+                return NotFound(role.Message);
+            else
+                return BadRequest(role.Message);
         }
 
 
@@ -51,10 +58,11 @@ namespace WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateRol([FromBody] CreateRoleDto createRole)
         {
+            //TODO: Esta devolviendo solo el mensaje de exito
             var result = await _roleService.CreateRoleAsync(createRole);
 
             if (result.Success)
-                return CreatedAtRoute("GetRole", new { id = result.Role!.Id}, result.Role);
+                return CreatedAtRoute("GetRole", new { roleId = result.Role!.Id!}, result.Role);
             else if (result.IsConflict)
                 return Conflict(result.Message);
             else

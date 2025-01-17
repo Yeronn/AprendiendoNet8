@@ -20,16 +20,20 @@ namespace Application.Services
         }
 
 
-        public async Task<RoleDto?> GetRoleByIdAsync(int id)
+        public async Task<RoleResponseDto> GetRoleByIdAsync(int roleId, int companyId = 0)
         {
-            var exists = await ValidateRoleExistsByIdAsync(id);
-            if (!exists.Success)
-                return null;
-            var role = await _roleRepository.GetRoleByIdAsync(id);
+            if (companyId <= 0)
+                return new RoleResponseDto(false, "El identificador de la empresa no es válido.", IsBadRequest: true);
+
+            var role = await _roleRepository.GetRoleByIdAsync(roleId, companyId);
+
+            if (role == null)
+                return new RoleResponseDto(false, $"El rol con el id {roleId} no existe en el sistema", IsNotFound: true);
+
             var roleDto = role!.ToDto();
-            var permissions = await _permissionService.GetPermissionsByRoleIdAsync(id);
+            var permissions = await _permissionService.GetPermissionsByRoleIdAsync(roleId);
             roleDto.Permissions = permissions.ToList();
-            return roleDto;
+            return new RoleResponseDto(true, "", roleDto);
         }
 
 
@@ -68,7 +72,7 @@ namespace Application.Services
                 return new RoleResponseDto(false, "Se creó el rol, pero ocurrió un error al asignarle permisos: " + assignedPermissions.Message);
             }
             var createdRole = await GetRoleByIdAsync(newRoleId);
-            return new RoleResponseDto(true, "Rol creado exitosamente.", createdRole);
+            return new RoleResponseDto(true, "Rol creado exitosamente.", createdRole.Role);
         }
 
 
@@ -101,7 +105,7 @@ namespace Application.Services
                 return new RoleResponseDto(false, "No se pudo actualizar el rol: " + updatedPermissions.Message);
             }
             var updatedRol = await GetRoleByIdAsync(roleId);
-            return new RoleResponseDto(true, "Rol actualizado exitosamente.", updatedRol);
+            return new RoleResponseDto(true, "Rol actualizado exitosamente.", updatedRol.Role);
         }
 
 
@@ -137,7 +141,7 @@ namespace Application.Services
             var roleExists = await ValidateRoleExistsByIdAsync(roleId);
             if (!roleExists.Success)
                 return null;
-            var role = await _roleRepository.GetRoleByIdAsync(roleId);
+            var role = await _roleRepository.GetRoleByIdAsync(roleId, 0);
             return role!.ToRoleWithoutPermissionsDto();
         }
 
@@ -203,9 +207,9 @@ namespace Application.Services
         }
 
 
-        public async Task<RoleResponseDto> ValidateRoleExistsByIdAsync(int id)
+        public async Task<RoleResponseDto> ValidateRoleExistsByIdAsync(int roleId)
         {
-            bool roleExists = await _roleRepository.ExistRoleByIdAsync(id);
+            bool roleExists = await _roleRepository.ExistRoleByIdAsync(roleId);
             if (!roleExists)
                 return new RoleResponseDto(false, "El rol no existe.", IsNotFound: true);
 

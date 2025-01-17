@@ -84,21 +84,23 @@ CREATE TABLE LoginAudits (
 );
 
 
-----Vaciar las tablas
---DELETE FROM RolePermissions;
---DELETE FROM Tokens;
---DELETE FROM LoginAudits;
---DELETE FROM Users;
---DELETE FROM Roles;
---DELETE FROM Companies;
---DELETE FROM Permissions;
+--Vaciar las tablas
+-- DELETE FROM RolePermissions;
+-- DELETE FROM LoginAudits;
+-- DELETE FROM Users;
+-- DELETE FROM Roles;
+-- DELETE FROM Companies;
+-- DELETE FROM Permissions;
+-- DELETE FROM TokenTypes;
+-- DELETE FROM TokenStatuses;
 
----- Reiniciar los IDs de las tablas
---DBCC CHECKIDENT ('Companies', RESEED, 0);
---DBCC CHECKIDENT ('Roles', RESEED, 0);
---DBCC CHECKIDENT ('Permissions', RESEED, 0);
---DBCC CHECKIDENT ('Users', RESEED, 0);
---DBCC CHECKIDENT ('Tokens', RESEED, 0);
+-- -- Reiniciar los IDs de las tablas
+-- DBCC CHECKIDENT ('Users', RESEED, 0);
+-- DBCC CHECKIDENT ('Roles', RESEED, 0);
+-- DBCC CHECKIDENT ('Companies', RESEED, 0);
+-- DBCC CHECKIDENT ('Permissions', RESEED, 0);
+-- DBCC CHECKIDENT ('TokenTypes', RESEED, 0);
+-- DBCC CHECKIDENT ('TokenStatuses', RESEED, 0);
 
 -- Insertar los tipos de token
 INSERT INTO TokenTypes (Name)
@@ -112,7 +114,6 @@ VALUES
     ('Valid'), 
     ('Revoked');
 
-
 -- Insertar datos en la tabla Companies
 INSERT INTO Companies (Name, Nit)
 VALUES 
@@ -125,7 +126,9 @@ VALUES
     ('Admin', 'Administrator Role', 1, 1),
     ('Reader', 'Read-only Role', 1, 1),
     ('Writer', 'Write-only Role', 1, 1),
-    ('Deleter', 'Delete-only Role', 1, 1);
+    ('Deleter', 'Delete-only Role', 1, 1),
+    ('Manager', 'Manager Role', 1, 2),    -- Nuevo rol para la segunda empresa
+    ('Auditor', 'Auditor Role', 1, 2);   -- Otro nuevo rol para la segunda empresa
 
 -- Insertar datos en la tabla Permissions
 INSERT INTO Permissions (Name, Description)
@@ -142,7 +145,10 @@ VALUES
     (1, 3, GETDATE()),  -- Admin tiene permiso de eliminación
     (2, 1, GETDATE()),  -- Reader tiene permiso de lectura
     (3, 2, GETDATE()),  -- Writer tiene permiso de escritura
-    (4, 3, GETDATE());  -- Deleter tiene permiso de eliminación
+    (4, 3, GETDATE()),  -- Deleter tiene permiso de eliminación
+    (5, 1, GETDATE()),  -- Manager tiene permiso de lectura
+    (5, 2, GETDATE()),  -- Manager tiene permiso de escritura
+    (6, 1, GETDATE());  -- Auditor tiene permiso de lectura
 
 -- Insertar datos en la tabla Users
 INSERT INTO Users (IdCCNit, FirstName, LastName, Email, CCIdentification, HashedPassword, RoleId)
@@ -150,7 +156,9 @@ VALUES
     ('12345678-123456789', 'AdminUser', 'Admin', 'admin@techsolutions.com', 12345678, '$2a$11$42SEpdmo4cqPU12WDidWCuD./tZ9FTKYqk.6yJR6rBXssNkNAjYum', 1),  -- Admin con todos los permisos
     ('12345679-123456789', 'ReaderUser', 'ReadOnly', 'reader@techsolutions.com', 12345679, '$2a$11$hBpNanyk4DjzEeN.UzUlN.EHPZXWwGly7D31FvyMfzGajzXVCoOhO', 2),  -- Usuario con permiso de lectura
     ('12345680-123456789', 'WriterUser', 'WriteOnly', 'writer@techsolutions.com', 12345680, '$2a$11$Cbym63.EY0oXvUB.lmaKd.AYj0/IaA1vRPFjiCiSFeg79/3C/PbYG', 3),  -- Usuario con permiso de escritura
-    ('12345681-123456789', 'DeleterUser', 'DeleteOnly', 'deleter@techsolutions.com', 12345681, '$2a$11$38do9f0M6WLc6nw6NwbIeOrfx3GHraN4rmpTuK4fs3NsmudrRTIeK', 4);  -- Usuario con permiso de eliminación
+    ('12345681-123456789', 'DeleterUser', 'DeleteOnly', 'deleter@techsolutions.com', 12345681, '$2a$11$38do9f0M6WLc6nw6NwbIeOrfx3GHraN4rmpTuK4fs3NsmudrRTIeK', 4),  -- Usuario con permiso de eliminación
+    ('12345682-987654321', 'ManagerUser', 'Manager', 'manager@globalenterprises.com', 12345682, '$2a$11$5Fg6CdPZ7UtpJTOFf./LReYB8ikIK9d/7G7qKQDbj3z9BoPg9lXje', 5),  -- Manager de la segunda empresa
+    ('12345683-987654321', 'AuditorUser', 'Auditor', 'auditor@globalenterprises.com', 12345683, '$2a$11$8Rt4LO7AeIW4Xm7p2cdVeu38U5WiJ6UPxFZVz3jHsew9C1kOIA4Q6', 6);  -- Auditor de la segunda empresa
 
 
 CREATE LOGIN [IIS APPPOOL\.NET Core 8.0] FROM WINDOWS;

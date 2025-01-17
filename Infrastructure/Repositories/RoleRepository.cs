@@ -2,6 +2,7 @@
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
+using System.ComponentModel.Design;
 
 namespace Infrastructure.Repositories
 {
@@ -82,12 +83,12 @@ namespace Infrastructure.Repositories
 
 
 
-        public async Task<RoleEntity?> GetRoleByIdAsync(int id)
+        public async Task<RoleEntity?> GetRoleByIdAsync(int roleId, int companyId)
         {
-            var query = "SELECT * FROM Roles WHERE Id = @Id";
+            var query = "SELECT * FROM Roles WHERE Id = @Id AND CompanyId = @CompanyId";
             using (var connection = _context.CreateConnection())
             {
-                return await connection.QuerySingleOrDefaultAsync<RoleEntity>(query, new { Id = id });
+                return await connection.QuerySingleOrDefaultAsync<RoleEntity>(query, new { Id = roleId, CompanyId = companyId });
             }
         }
 

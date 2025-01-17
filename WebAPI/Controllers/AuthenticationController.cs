@@ -52,9 +52,11 @@ namespace WebAPI.Controllers
             if (claims == null)
                 return Unauthorized(new { Message = "Token inválido o no proporcionado" });
 
-            var idCCNit = claims.TryGetValue(UserClaims.IdCCNit.ToString(), out var idValues) ? idValues.FirstOrDefault() : null;
+
+            string idCCNitClaimName = UserClaims.IdCCNit.ToString();
+            var idCCNit = claims.TryGetValue(idCCNitClaimName, out var idValues) ? idValues.FirstOrDefault() : null;
             if (string.IsNullOrWhiteSpace(idCCNit))
-                return BadRequest(new { Message = "El refresh token no tiene el claim 'IdCCNIT'" });
+                return BadRequest(new { Message = $"El refresh token no tiene el claim {idCCNitClaimName}" });
 
             var generatedTokens = await _authService.RefreshTokens(idCCNit, ipAddress, deviceInfo);
 
