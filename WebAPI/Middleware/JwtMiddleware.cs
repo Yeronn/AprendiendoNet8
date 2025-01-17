@@ -19,77 +19,98 @@ namespace WebAPI.Middleware
         {
             var token = context.Request.Headers["Authorization"].FirstOrDefault()?.Split(" ").Last();
             bool loginPath = context.Request.Path.StartsWithSegments("/api/auth/login");
+
             if (token != null)
             {
                 using (var scope = _scopeFactory.CreateScope())
                 {
                     var authenticationService = scope.ServiceProvider.GetRequiredService<IAuthenticationService>();
-                    var tokenHandler = new JwtSecurityTokenHandler();
 
-                    try
+                    var validatedToken = await ValidateToken(context, token, authenticationService);
+                    if (!validatedToken)
                     {
-                        var jwtToken = tokenHandler.ReadJwtToken(token);
-                        var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
-                        var tokenType = jwtToken.Claims.FirstOrDefault(c => c.Type == "TokenType")?.Value;
-
-                        if (jti == null || string.IsNullOrEmpty(tokenType))
-                        {
-                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                            return;
-                        }
-
-                        bool isTokenValid = await authenticationService.ValidateToken(token);
-                        if (!isTokenValid)
-                        {
-                            context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-                            return;
-                        }
-
-                        var claimsDictionary = new Dictionary<string, List<string>>();
-                        foreach (var claim in jwtToken.Claims)
-                        {
-                            if (claimsDictionary.ContainsKey(claim.Type))
-                                claimsDictionary[claim.Type].Add(claim.Value);
-                            else
-                                claimsDictionary[claim.Type] = [claim.Value];
-                        }
-                        context.Items["JwtClaims"] = claimsDictionary;
-
-                        bool refreshPath = context.Request.Path.StartsWithSegments("/api/auth/refresh-token");
-
-                        if (tokenType == TokenType.Access.ToString() && !refreshPath && !loginPath)
-                        {
-                            await _next(context);
-                            return;
-                        }
-
-                        if (tokenType == TokenType.Refresh.ToString() && refreshPath)
-                        {
-                            await _next(context);
-                            return;
-                        }
-
-                        context.Response.StatusCode = StatusCodes.Status403Forbidden;
                         return;
                     }
-                    catch (Exception)
+
+                    var tokenType = ((Dictionary<string, List<string>>)context.Items["JwtClaims"]!)["TokenType"].FirstOrDefault();
+                    bool refreshPath = context.Request.Path.StartsWithSegments("/api/auth/refresh-token");
+
+                    if ((tokenType == TokenType.Access.ToString() && !refreshPath && !loginPath) ||
+                        (tokenType == TokenType.Refresh.ToString() && refreshPath))
                     {
-                        context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                        await _next(context);
+
+                        if (context.Response.StatusCode == StatusCodes.Status403Forbidden)
+                            await WriteErrorResponse(context, StatusCodes.Status403Forbidden, "El usuario no tiene permisos.");
                         return;
                     }
+
+                    await WriteErrorResponse(context, StatusCodes.Status403Forbidden, "El token no tiene permisos.");
+                    return;
                 }
             }
-            ////TODO: Solo puede pasar la petición si va a la ruta de login
-            //if (loginPath)
-            //{
-            //    await _next(context);
-            //    return;
-            //}
 
-            //context.Response.StatusCode = StatusCodes.Status401Unauthorized;
-            //return;
+            if (loginPath)
+            {
+                await _next(context);
+                return;
+            }
 
-            await _next(context);
+            await WriteErrorResponse(context, StatusCodes.Status401Unauthorized, "Token inválido o sesión expirada.");
+        }
+
+
+        private async Task<bool> ValidateToken(HttpContext context, string token, IAuthenticationService authenticationService)
+        {
+            var tokenHandler = new JwtSecurityTokenHandler();
+
+            try
+            {
+                var jwtToken = tokenHandler.ReadJwtToken(token);
+                var jti = jwtToken.Claims.FirstOrDefault(c => c.Type == JwtRegisteredClaimNames.Jti)?.Value;
+                var tokenType = jwtToken.Claims.FirstOrDefault(c => c.Type == "TokenType")?.Value;
+
+                if (jti == null || string.IsNullOrEmpty(tokenType))
+                {
+                    await WriteErrorResponse(context, StatusCodes.Status401Unauthorized, "Token inválido o sesión expirada.");
+                    return false;
+                }
+
+                bool isTokenValid = await authenticationService.ValidateToken(token);
+                if (!isTokenValid)
+                {
+                    await WriteErrorResponse(context, StatusCodes.Status401Unauthorized, "Token inválido o sesión expirada.");
+                    return false;
+                }
+
+                var claimsDictionary = jwtToken.Claims
+                    .GroupBy(c => c.Type)
+                    .ToDictionary(g => g.Key, g => g.Select(c => c.Value).ToList());
+
+                context.Items["JwtClaims"] = claimsDictionary;
+
+                return true;
+            }
+            catch
+            {
+                await WriteErrorResponse(context, StatusCodes.Status401Unauthorized, "Token inválido o sesión expirada.");
+                return false;
+            }
+        }
+
+
+        private async Task WriteErrorResponse(HttpContext context, int statusCode, string message)
+        {
+            context.Response.StatusCode = statusCode;
+            context.Response.ContentType = "application/json";
+
+            var response = new
+            {
+                StatusCode = statusCode,
+                Message = message
+            };
+
+            await context.Response.WriteAsJsonAsync(response);
         }
 
 
