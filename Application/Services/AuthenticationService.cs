@@ -94,15 +94,16 @@ namespace Application.Services
 
             if (isAccessToken)
             {
-                var permissions = await _permissionService.GetPermissionsByRoleIdAsync(user.RoleId);
                 claims.Add(new Claim(UserClaims.Fullname.ToString(), $"{user.FirstName} {user.LastName}"));
+
+                var permissions = await _permissionService.GetPermissionsByRoleIdAsync(user.RoleId);
                 claims.AddRange(permissions.Select(permission => new Claim(UserClaims.Permissions.ToString(), permission.Name)));
 
-                tokenExpiration = DateTime.UtcNow.AddMinutes(10);
+                tokenExpiration = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:AccessTokenExpirationMinutes"]!));
             }
             else
             {
-                tokenExpiration = DateTime.UtcNow.AddMinutes(20);
+                tokenExpiration = DateTime.UtcNow.AddMinutes(int.Parse(_configuration["Jwt:RefreshTokenExpirationMinutes"]!));
             }
 
             var newLogin = new LoginAuditDto

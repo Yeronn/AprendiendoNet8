@@ -1,4 +1,5 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using Application.Interfaces;
 using Domain.Enums;
 
@@ -32,8 +33,9 @@ namespace WebAPI.Middleware
                         return;
                     }
 
-                    var tokenType = ((Dictionary<string, List<string>>)context.Items["JwtClaims"]!)["TokenType"].FirstOrDefault();
                     bool refreshPath = context.Request.Path.StartsWithSegments("/api/auth/refresh-token");
+
+                    var tokenType = context.User.FindFirst("TokenType")?.Value;
 
                     if ((tokenType == TokenType.Access.ToString() && !refreshPath && !loginPath) ||
                         (tokenType == TokenType.Refresh.ToString() && refreshPath))
@@ -83,11 +85,15 @@ namespace WebAPI.Middleware
                     return false;
                 }
 
-                var claimsDictionary = jwtToken.Claims
-                    .GroupBy(c => c.Type)
-                    .ToDictionary(g => g.Key, g => g.Select(c => c.Value).ToList());
+                var claims = jwtToken.Claims.Select(c => new Claim(c.Type, c.Value)).ToList();
 
-                context.Items["JwtClaims"] = claimsDictionary;
+                var identity = new ClaimsIdentity(claims, "Jwt");
+                context.User = new ClaimsPrincipal(identity);
+                if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
+                {
+                    await WriteErrorResponse(context, StatusCodes.Status401Unauthorized, "Token inválido o no proporcionado.");
+                    return false;
+                }
 
                 return true;
             }
