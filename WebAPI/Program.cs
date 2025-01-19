@@ -29,13 +29,13 @@ if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 }
 
 
+app.UseCors("AllowSpecificOrigin"); // Aplica la política de CORS
+
 app.UseMiddleware<JwtMiddleware>();
 
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseCors("AllowSpecificOrigin"); // Aplica la política de CORS
 
 app.UseHttpsRedirection();
 
