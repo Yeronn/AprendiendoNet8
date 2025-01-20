@@ -91,24 +91,27 @@ namespace Application.Services
 
             var currentRole = currentRoleResponse.Role!;
 
+            var availableName = await CheckRoleNameAvailabilityAsync(updateRoleDto.Name!, currentRole.CompanyId);
+            if (!availableName.Success && updateRoleDto.Name != currentRole.Name )
+                return availableName;
+
             var updateRoleEntity = updateRoleDto.ToEntity();
             updateRoleEntity.Id = roleId;
             updateRoleEntity.CompanyId = companyId;
-            
-            var availableName = await CheckRoleNameAvailabilityAsync(updateRoleDto.Name!, updateRoleEntity.CompanyId!);
-            if (!availableName.Success && (updateRoleEntity.CompanyId != currentRole.CompanyId || updateRoleDto.Name != currentRole.Name) )
-                return availableName;
 
             bool updatedRole = await _roleRepository.UpdateRoleAsync(updateRoleEntity);
             if(!updatedRole)
                 return new RoleResponseDto(false, "Error al actualizar el rol");
-            
-            //TODO: Cuando se realiza una peticion con los mismos permisos del rol, no se procesa la peticion
-            var updatedPermissions = await UpdateRolePermissions(roleId, updateRoleEntity.CompanyId, updateRoleDto.PermissionsIds);
-            if(!updatedPermissions.Success)
+
+            var currentRolePermissionIds = currentRole.Permissions.Select(p => (int)p.Id!).ToList();
+            if (!currentRolePermissionIds.OrderBy(p => p).SequenceEqual(updateRoleDto.PermissionsIds.OrderBy(p => p)))
             {
-                await _roleRepository.UpdateRoleAsync(currentRole.ToEntity());
-                return new RoleResponseDto(false, "No se pudo actualizar el rol: " + updatedPermissions.Message);
+                var updatedPermissions = await UpdateRolePermissions(roleId, updateRoleEntity.CompanyId, updateRoleDto.PermissionsIds);
+                if (!updatedPermissions.Success)
+                {
+                    await _roleRepository.UpdateRoleAsync(currentRole.ToEntity());
+                    return new RoleResponseDto(false, "No se pudo actualizar el rol: " + updatedPermissions.Message);
+                }
             }
             var updatedRol = await GetRoleByIdAsync(roleId);
             return new RoleResponseDto(true, "Rol actualizado exitosamente.", updatedRol.Role);
