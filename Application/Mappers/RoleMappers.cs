@@ -31,11 +31,11 @@ namespace Application.Mappers
         }
 
 
-        public static RoleEntity ToEntity(this RoleWithoutPermissionsDto role)
+        public static RoleEntity ToEntity(this RoleDto role)
         {
             return new RoleEntity
             {
-                Id = role.Id,
+                Id = (int)role.Id!,
                 Name = role.Name,
                 Description = role.Description,
                 Status = role.Status,

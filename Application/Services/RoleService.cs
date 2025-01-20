@@ -54,7 +54,7 @@ namespace Application.Services
             if(companyExists.Success == false)
                 return new RoleResponseDto(false, companyExists.Message);
 
-            var nameAvalible = await CheckRoleNameAvailabilityAsync(createRole.Name!, createRole.CompanyId!);
+            var nameAvalible = await CheckRoleNameAvailabilityAsync(createRole.Name, createRole.CompanyId);
             if (!nameAvalible.Success)
                 return nameAvalible;
 
@@ -68,26 +68,32 @@ namespace Application.Services
             {
                 var deletedRole = await DeleteRoleAsync(newRoleId);
                 if (deletedRole.Success)
-                    return new RoleResponseDto(false, "No se pudo crear el rol: " + assignedPermissions.Message);
-                return new RoleResponseDto(false, "Se creó el rol, pero ocurrió un error al asignarle permisos: " + assignedPermissions.Message);
+                    return assignedPermissions;
+                return new RoleResponseDto(false, "Se creó el rol, pero ocurrió un error: " + assignedPermissions.Message);
             }
-            var createdRole = await GetRoleByIdAsync(newRoleId);
+            var createdRole = await GetRoleByIdAsync(newRoleId, createRole.CompanyId);
             return new RoleResponseDto(true, "Rol creado exitosamente.", createdRole.Role);
         }
 
 
-        public async Task<RoleResponseDto> UpdateRoleAsync(int roleId, UpdateRoleDto updateRoleDto)
+        public async Task<RoleResponseDto> UpdateRoleAsync(int roleId, UpdateRoleDto updateRoleDto, int companyId)
         {
             if (updateRoleDto.PermissionsIds.Count == 0)
                 return new RoleResponseDto(false, "No envió los permisos", IsBadRequest: true);
 
-            var currentRole = await GetRoleWithoutPermissionsByIdAsync(roleId);
-            if (currentRole == null)
-                return new RoleResponseDto(false, "El rol no existe.", IsNotFound: true);
+            var companyExists = await _companyService.ValidateCompanyExistsByIdAsync(companyId);
+            if (companyExists.Success == false)
+                return new RoleResponseDto(false, companyExists.Message);
+
+            var currentRoleResponse = await GetRoleByIdAsync(roleId, companyId);
+            if (!currentRoleResponse.Success)
+                return currentRoleResponse;
+
+            var currentRole = currentRoleResponse.Role!;
 
             var updateRoleEntity = updateRoleDto.ToEntity();
             updateRoleEntity.Id = roleId;
-            updateRoleEntity.CompanyId = currentRole.CompanyId;
+            updateRoleEntity.CompanyId = companyId;
             
             var availableName = await CheckRoleNameAvailabilityAsync(updateRoleDto.Name!, updateRoleEntity.CompanyId!);
             if (!availableName.Success && (updateRoleEntity.CompanyId != currentRole.CompanyId || updateRoleDto.Name != currentRole.Name) )
@@ -133,16 +139,6 @@ namespace Application.Services
             return success
                 ? new RoleResponseDto(true, "Rol eliminado exitosamente.")
                 : new RoleResponseDto(false, "Error al eliminar el rol.");
-        }
-
-
-        public async Task<RoleWithoutPermissionsDto?> GetRoleWithoutPermissionsByIdAsync(int roleId)
-        {
-            var roleExists = await ValidateRoleExistsByIdAsync(roleId);
-            if (!roleExists.Success)
-                return null;
-            var role = await _roleRepository.GetRoleByIdAsync(roleId, 0);
-            return role!.ToRoleWithoutPermissionsDto();
         }
 
 
@@ -219,6 +215,16 @@ namespace Application.Services
 
 
 
+        private async Task<RoleWithoutPermissionsDto?> GetRoleWithoutPermissionsByIdAsync(int roleId, int companyId)
+        {
+            var roleExists = await ValidateRoleExistsByIdAsync(roleId);
+            if (!roleExists.Success)
+                return null;
+            var role = await _roleRepository.GetRoleByIdAsync(roleId, 0);
+            return role!.ToRoleWithoutPermissionsDto();
+        }
+
+
         private async Task<RoleResponseDto> CheckRoleNameAvailabilityAsync(string roleName, int companyId)
         {
             bool nameIsUnique = await _roleRepository.CheckRoleNameAvailabilityAsync(roleName, companyId);
@@ -284,7 +290,7 @@ namespace Application.Services
             {
                 var rolePermissionIds = role.Permissions.Select(p => (int)p.Id!).ToList();
                 if (rolePermissionIds.OrderBy(p => p).SequenceEqual(permissionsIds.OrderBy(p => p)))
-                    return new RoleResponseDto(false, "Esta combinación de permisos ya la tiene otro rol", IsConflict: true);
+                    return new RoleResponseDto(false, "La combinación de permisos ya la tiene otro rol", IsConflict: true);
             }
             return new RoleResponseDto(true, "Combinación de permisos válida");
         }

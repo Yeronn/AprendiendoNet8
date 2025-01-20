@@ -93,7 +93,8 @@ namespace WebAPI.Extensions
                 {
                     policy.WithOrigins("http://localhost:5173") // Aquí va la URL del frontend
                           .AllowAnyHeader()
-                          .AllowAnyMethod();
+                          .AllowAnyMethod()
+                          .AllowCredentials();
                 });
             });
 

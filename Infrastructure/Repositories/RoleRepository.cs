@@ -16,6 +16,16 @@ namespace Infrastructure.Repositories
         }
 
 
+        public async Task<RoleEntity?> GetRoleByIdAsync(int roleId, int companyId)
+        {
+            var query = "SELECT * FROM Roles WHERE Id = @Id AND CompanyId = @CompanyId";
+            using (var connection = _context.CreateConnection())
+            {
+                return await connection.QuerySingleOrDefaultAsync<RoleEntity>(query, new { Id = roleId, CompanyId = companyId });
+            }
+        }
+
+
         public async Task<IEnumerable<RoleEntity>> GetRolesAsync(int companyId)
         {
             const string query = @"
@@ -78,17 +88,6 @@ namespace Infrastructure.Repositories
                 );
 
                 return roleDictionary.Values;
-            }
-        }
-
-
-
-        public async Task<RoleEntity?> GetRoleByIdAsync(int roleId, int companyId)
-        {
-            var query = "SELECT * FROM Roles WHERE Id = @Id AND CompanyId = @CompanyId";
-            using (var connection = _context.CreateConnection())
-            {
-                return await connection.QuerySingleOrDefaultAsync<RoleEntity>(query, new { Id = roleId, CompanyId = companyId });
             }
         }
 

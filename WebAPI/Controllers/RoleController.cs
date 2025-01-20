@@ -25,13 +25,12 @@ namespace WebAPI.Controllers
         {
             string companyClaimName = UserClaims.CompanyId.ToString();
             var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
-            var permissions = HttpContext.User.FindAll(UserClaims.Permissions.ToString()).Select(c => c.Value).ToList();
-
             if (string.IsNullOrWhiteSpace(companyId))
                 return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
-
+            //var permissions = HttpContext.User.FindAll(UserClaims.Permissions.ToString()).Select(c => c.Value).ToList
 
             var role = await _roleService.GetRoleByIdAsync(roleId, int.Parse(companyId));
+
             if (role.Success)
                 return Ok(role.Role);
             else if (role.IsNotFound)
@@ -42,21 +41,33 @@ namespace WebAPI.Controllers
 
 
         [Authorize(Policy = PermissionPolicy.Read)]
-        [HttpGet("RoleByCompany/{companyId}")]
-        public async Task<IActionResult> GetAllRoles(int companyId)
+        [HttpGet]
+        public async Task<IActionResult> GetAllRoles()
         {
-            var roles = await _roleService.GetRolesAsync(companyId);
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
+
+            var roles = await _roleService.GetRolesAsync(int.Parse(companyId));
+
             if (!roles.Any())
                 return NotFound("No hay roles en el sistema");
+
             return Ok(roles);
         }
 
 
-        // [Authorize(Policy = "Write")]
+        [Authorize(Policy = "Write")]
         [HttpPost]
         public async Task<IActionResult> CreateRol([FromBody] CreateRoleDto createRole)
         {
-            //TODO: Esta devolviendo solo el mensaje de exito
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
+
+            createRole.CompanyId = int.Parse(companyId);
             var result = await _roleService.CreateRoleAsync(createRole);
 
             if (result.Success)
@@ -69,10 +80,15 @@ namespace WebAPI.Controllers
 
 
         [Authorize(Policy = PermissionPolicy.Write)]
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateRol(int id, [FromBody] UpdateRoleDto updateRoleDto)
+        [HttpPut("{roleId}")]
+        public async Task<IActionResult> UpdateRol(int roleId, [FromBody] UpdateRoleDto updateRoleDto)
         {
-            var result = await _roleService.UpdateRoleAsync(id, updateRoleDto);
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
+
+            var result = await _roleService.UpdateRoleAsync(roleId, updateRoleDto, int.Parse(companyId));
             if (result.Success)
                 return Ok(new
                 {
@@ -95,9 +111,12 @@ namespace WebAPI.Controllers
         {
             var result = await _roleService.DeleteRoleAsync(id);
             if (result.Success)
-                return NoContent();
+                //return NoContent();
+                return StatusCode(StatusCodes.Status204NoContent, "Se eliminó el rol");
+
             else if (result.IsNotFound) 
                 return NotFound(result.Message);
+
             return BadRequest(result.Message);
         }
 
@@ -155,5 +174,7 @@ namespace WebAPI.Controllers
                 return NotFound($"El permiso con el id {permissionId} no existe");
             return Ok(roles);
         }
+
+
     }
 }
