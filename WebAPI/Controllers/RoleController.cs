@@ -106,12 +106,16 @@ namespace WebAPI.Controllers
 
 
         [Authorize(Policy = PermissionPolicy.Delete)]
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteRol(int id)
+        [HttpDelete("{roleId}")]
+        public async Task<IActionResult> DeleteRol(int roleId)
         {
-            var result = await _roleService.DeleteRoleAsync(id);
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
+
+            var result = await _roleService.DeleteRoleAsync(roleId, int.Parse(companyId));
             if (result.Success)
-                //return NoContent();
                 return StatusCode(StatusCodes.Status204NoContent, "Se eliminó el rol");
 
             else if (result.IsNotFound) 
@@ -124,12 +128,12 @@ namespace WebAPI.Controllers
         [HttpPost("{roleId}/addPermissionsToRole")]
         public async Task<IActionResult> AddPermissionsToRole(int roleId, [FromBody] List<int> permissionIds)
         {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest("Datos inválidos.");
-            }
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
 
-            var result = await _roleService.AssignPermissionsToRoleAsync(roleId, permissionIds);
+            var result = await _roleService.AssignPermissionsToRoleAsync(roleId, permissionIds, int.Parse(companyId));
 
             if (result.Success)
                 return Ok(new
@@ -149,7 +153,12 @@ namespace WebAPI.Controllers
         [HttpDelete("{roleId}/removePermissionsFromRole")]
         public async Task<IActionResult> RemovePermissionsFromRole(int roleId, [FromBody] List<int> permissionIds)
         {
-            var result = await _roleService.RemovePermissionsFromRoleAsync(roleId, permissionIds);
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
+
+            var result = await _roleService.RemovePermissionsFromRoleAsync(roleId, permissionIds, int.Parse(companyId));
 
             if (result.Success)
                 return Ok(new
@@ -169,7 +178,12 @@ namespace WebAPI.Controllers
         [HttpGet("rolesByPermission/{permissionId}")]
         public async Task<IActionResult> GetRolesByPermissionId(int permissionId)
         {
-            var roles = await _roleService.GetAllRolesWithoutPermissionsByPermissionIdAsync(permissionId);
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
+
+            var roles = await _roleService.GetRolesByPermissionIdAsync(permissionId, int.Parse(companyId));
             if (roles == null)
                 return NotFound($"El permiso con el id {permissionId} no existe");
             return Ok(roles);

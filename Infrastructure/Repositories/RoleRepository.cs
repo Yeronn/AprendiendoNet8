@@ -149,12 +149,12 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> ExistRoleByIdAsync(int id)
+        public async Task<bool> ExistRoleByIdAsync(int roleId, int companyId)
         {
-            var query = "SELECT COUNT(1) FROM Roles WHERE Id = @Id";
+            var query = "SELECT COUNT(1) FROM Roles WHERE Id = @Id AND CompanyId = @CompanyId";
             using (var connection = _context.CreateConnection())
             {
-                var count = await connection.ExecuteScalarAsync<int>(query, new { Id = id });
+                var count = await connection.ExecuteScalarAsync<int>(query, new { Id = roleId, CompanyId = companyId });
                 return count > 0;
             }
         }
@@ -200,16 +200,21 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<IEnumerable<RoleEntity>> GetAllRolesByPermissionIdAsync(int permissionId)
+        public async Task<IEnumerable<RoleEntity>> GetAllRolesByPermissionIdAsync(int permissionId, int companyId)
         {
-            var query = @"SELECT r.* FROM Roles r
+            var query = @"
+                        SELECT r.* 
+                        FROM Roles r
                         JOIN RolePermissions rp ON r.Id = rp.RoleId
-                        WHERE rp.PermissionId = @PermissionId";
+                        WHERE rp.PermissionId = @PermissionId
+                          AND r.CompanyId = @CompanyId";
+
             using (var connection = _context.CreateConnection())
             {
-                return await connection.QueryAsync<RoleEntity>(query, new { PermissionId = permissionId });
+                return await connection.QueryAsync<RoleEntity>(query, new { PermissionId = permissionId, CompanyId = companyId });
             }
         }
+
 
 
         public async Task<RoleEntity?> GetRoleByUserIdAsync(int userId)

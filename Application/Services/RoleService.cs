@@ -66,7 +66,7 @@ namespace Application.Services
             var assignedPermissions = await UpdateRolePermissions(newRoleId, createRole.CompanyId, createRole.PermissionsIds);
             if(!assignedPermissions.Success)
             {
-                var deletedRole = await DeleteRoleAsync(newRoleId);
+                var deletedRole = await DeleteRoleAsync(newRoleId, createRole.CompanyId);
                 if (deletedRole.Success)
                     return assignedPermissions;
                 return new RoleResponseDto(false, "Se creó el rol, pero ocurrió un error: " + assignedPermissions.Message);
@@ -118,9 +118,9 @@ namespace Application.Services
         }
 
 
-        public async Task<RoleResponseDto> DeleteRoleAsync(int roleId)
+        public async Task<RoleResponseDto> DeleteRoleAsync(int roleId, int companyId)
         {
-            var roleExists = await ValidateRoleExistsByIdAsync(roleId);
+            var roleExists = await ValidateRoleExistsByIdAsync(roleId, companyId);
             if (!roleExists.Success)
                 return roleExists;
 
@@ -132,7 +132,7 @@ namespace Application.Services
             if (rolePermissions.Any())
             {
                 var rolePermissionsIds = rolePermissions.Select(rp => (int)rp.Id!).ToList();
-                var removedRolePermissionRecords = await RemovePermissionsFromRoleAsync(roleId, rolePermissionsIds);
+                var removedRolePermissionRecords = await RemovePermissionsFromRoleAsync(roleId, rolePermissionsIds, companyId);
 
                 if (!removedRolePermissionRecords.Success)
                     return removedRolePermissionRecords;
@@ -145,12 +145,12 @@ namespace Application.Services
         }
 
 
-        public async Task<RoleResponseDto> AssignPermissionsToRoleAsync(int roleId, List<int> newPermissionIds)
+        public async Task<RoleResponseDto> AssignPermissionsToRoleAsync(int roleId, List<int> newPermissionIds, int companyId)
         {
             if(newPermissionIds.Count == 0)
                 return new RoleResponseDto(false, "Está tratando de añadir permisos al rol, pero no envió los permisos", IsBadRequest: true);
 
-            var roleExists = await ValidateRoleExistsByIdAsync(roleId);
+            var roleExists = await ValidateRoleExistsByIdAsync(roleId, companyId);
             if (!roleExists.Success)
                 return roleExists;
 
@@ -171,9 +171,9 @@ namespace Application.Services
         }
 
 
-        public async Task<RoleResponseDto> RemovePermissionsFromRoleAsync(int roleId, List<int> permissionIds)
+        public async Task<RoleResponseDto> RemovePermissionsFromRoleAsync(int roleId, List<int> permissionIds, int companyId)
         {
-            var roleExists = await ValidateRoleExistsByIdAsync(roleId);
+            var roleExists = await ValidateRoleExistsByIdAsync(roleId, companyId);
             if (!roleExists.Success)
                 return roleExists;
 
@@ -194,21 +194,21 @@ namespace Application.Services
         }
 
 
-        public async Task<IEnumerable<RoleWithoutPermissionsDto>?> GetAllRolesWithoutPermissionsByPermissionIdAsync(int permissionId)
+        public async Task<IEnumerable<RoleDto>?> GetRolesByPermissionIdAsync(int permissionId, int companyId)
         {
             var permissionExists = await _permissionService.ValidatePermissionExistsByIdAsync(permissionId);
             if(!permissionExists.Success)
                 return null;
-            var rolesByPermission = await _roleRepository.GetAllRolesByPermissionIdAsync(permissionId);
+            var rolesByPermission = await _roleRepository.GetAllRolesByPermissionIdAsync(permissionId, companyId);
             //TODO: Decidir si tambien traiga los permisos de cada rol
-            var rolesByPermissionDto = rolesByPermission.Select(role => role.ToRoleWithoutPermissionsDto());
+            var rolesByPermissionDto = rolesByPermission.Select(role => role.ToDto());
             return rolesByPermissionDto;
         }
 
 
-        public async Task<RoleResponseDto> ValidateRoleExistsByIdAsync(int roleId)
+        public async Task<RoleResponseDto> ValidateRoleExistsByIdAsync(int roleId, int companyId)
         {
-            bool roleExists = await _roleRepository.ExistRoleByIdAsync(roleId);
+            bool roleExists = await _roleRepository.ExistRoleByIdAsync(roleId, companyId);
             if (!roleExists)
                 return new RoleResponseDto(false, "El rol no existe.", IsNotFound: true);
 
@@ -217,17 +217,7 @@ namespace Application.Services
 
 
 
-
-        private async Task<RoleWithoutPermissionsDto?> GetRoleWithoutPermissionsByIdAsync(int roleId, int companyId)
-        {
-            var roleExists = await ValidateRoleExistsByIdAsync(roleId);
-            if (!roleExists.Success)
-                return null;
-            var role = await _roleRepository.GetRoleByIdAsync(roleId, 0);
-            return role!.ToRoleWithoutPermissionsDto();
-        }
-
-
+        
         private async Task<RoleResponseDto> CheckRoleNameAvailabilityAsync(string roleName, int companyId)
         {
             bool nameIsUnique = await _roleRepository.CheckRoleNameAvailabilityAsync(roleName, companyId);
@@ -268,7 +258,7 @@ namespace Application.Services
             var permissionsToRemove = currentPermissionsIds.Except(permissionsIds).ToList();
             if (permissionsToRemove.Count != 0)
             {
-                var permissionsRemoved = await RemovePermissionsFromRoleAsync(roleId, permissionsToRemove);
+                var permissionsRemoved = await RemovePermissionsFromRoleAsync(roleId, permissionsToRemove, companyId);
                 if (!permissionsRemoved.Success)
                     return permissionsRemoved;
             }
@@ -276,7 +266,7 @@ namespace Application.Services
             var permissionsToAdd = permissionsIds.Except(currentPermissionsIds).ToList();
             if (permissionsToAdd.Count != 0)
             {
-                var permissionsAssigned = await AssignPermissionsToRoleAsync(roleId, permissionsToAdd);
+                var permissionsAssigned = await AssignPermissionsToRoleAsync(roleId, permissionsToAdd, companyId);
                 if (!permissionsAssigned.Success)
                     return permissionsAssigned;
             }
