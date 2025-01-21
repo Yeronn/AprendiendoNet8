@@ -2,6 +2,7 @@
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
+using System.ComponentModel.Design;
 
 namespace Infrastructure.Repositories
 {
@@ -25,12 +26,12 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<UserEntity?> GetUserByIdCCNitAsync(string idCCNit)
+        public async Task<UserEntity?> GetUserByCCNumberAndCompanyIdAsync(int ccNumber, int companyId)
         {
-            var query = "SELECT * FROM Users WHERE IdCCNit = @IdCCNit";
+            var query = "SELECT * FROM Users WHERE CCNumber = @CCNumber AND CompanyId = @CompanyId";
             using (var connection = _context.CreateConnection())
             {
-                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { IdCCNit = idCCNit });
+                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { CCNumber = ccNumber, CompanyId = companyId });
             }
         }
 

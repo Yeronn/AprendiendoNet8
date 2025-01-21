@@ -113,5 +113,17 @@ namespace Infrastructure.Repositories
             }
 
         }
+
+
+        public async Task<int?> GetCompanyIdByNitAsync(int nit)
+        {
+            const string query = "SELECT Id FROM Companies WHERE Nit = @Nit";
+
+            using (var connection = _context.CreateConnection())
+            {
+                return await connection.QueryFirstOrDefaultAsync<int?>(query, new { Nit = nit });
+            }
+        }
+
     }
 }

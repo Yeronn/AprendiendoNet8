@@ -6,7 +6,7 @@ namespace Domain.Interfaces
     {
         Task<IEnumerable<UserEntity>> GetUsersAsync();
         Task<UserEntity?> GetUserByIdAsync(int id);
-        Task<UserEntity?> GetUserByIdCCNitAsync(string idCCNit);
+        Task<UserEntity?> GetUserByCCNumberAndCompanyIdAsync(int ccNumber, int companyId);
         Task<int?> CreateUserAsync(UserEntity user);
         Task<bool> UpdateUserAsync(UserEntity user);
         Task<bool> DeleteUserAsync(string idCCNit); 

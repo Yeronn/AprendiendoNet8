@@ -9,5 +9,6 @@ namespace Application.Interfaces
         Task<CompanyResponseDto> UpdateCompanyAsync(int companyId, CreateUpdateCompanyDto companyDto);
         Task<CompanyResponseDto> ValidateCompanyExistsByIdAsync(int companyId);
         Task<CompanyDto?> GetCompanyByRoleIdAsync(int roleId);
+        Task<int?> GetCompanyIdByNitAsync(int nit);
     }
 }

@@ -20,7 +20,7 @@ namespace Application.Services
         }
 
 
-        public async Task<RoleResponseDto> GetRoleByIdAsync(int roleId, int companyId = 0)
+        public async Task<RoleResponseDto> GetRoleByIdAsync(int roleId, int companyId)
         {
             if (companyId <= 0)
                 return new RoleResponseDto(false, "El identificador de la empresa no es válido.", IsBadRequest: true);
@@ -113,7 +113,7 @@ namespace Application.Services
                     return new RoleResponseDto(false, "No se pudo actualizar el rol: " + updatedPermissions.Message);
                 }
             }
-            var updatedRol = await GetRoleByIdAsync(roleId);
+            var updatedRol = await GetRoleByIdAsync(roleId, companyId);
             return new RoleResponseDto(true, "Rol actualizado exitosamente.", updatedRol.Role);
         }
 

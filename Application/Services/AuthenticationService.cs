@@ -42,7 +42,7 @@ namespace Application.Services
 
         public async Task<LoginResponse> Login(LoginDto login, string ipAddress, string deviceInfo)
         {
-            var user = await _userService.GetUserByIdCCNitAsync(login.IdCCNit);
+            var user = await _userService.GetUserByCCNumberAndNitAsync(login.CcNumber, login.Nit);
             if (user == null)
                 return new LoginResponse(false, "Credenciales Inválidas", IsBadRequest: true);
 

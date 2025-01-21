@@ -131,6 +131,13 @@ namespace Application.Services
         }
 
 
+        public async Task<int?> GetCompanyIdByNitAsync(int nit)
+        {
+            if (nit <= 0)
+                return null;
 
+            var companyId = await _companyRepository.GetCompanyIdByNitAsync(nit);
+            return companyId;
+        }
     }
 }

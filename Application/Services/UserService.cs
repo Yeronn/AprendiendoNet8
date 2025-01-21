@@ -27,10 +27,20 @@ namespace Application.Services
             return users.Select(u => u.ToUserDto());
         }
 
-        public async Task<UserDto?> GetUserByIdCCNitAsync(string IdCCNit)
+        public async Task<UserResponseDto> GetUserByCCNumberAndNitAsync(int ccNumber, int nit)
         {
-            var user = await _userRepository.GetUserByIdCCNitAsync(IdCCNit);
-            return user?.ToUserDto();
+            var companyId = await _companyService.GetCompanyIdByNitAsync(nit);
+            if (companyId == null)
+                return new UserResponseDto(false, "El nit no existe", IsNotFound: true);
+
+            if (ccNumber <= 0)
+                return new UserResponseDto(false, "El número de cédula debe ser positivo", IsBadRequest: true);
+
+            var user = await _userRepository.GetUserByCCNumberAndCompanyIdAsync(ccNumber, (int)companyId);
+            if (user == null)
+                return new UserResponseDto(false, "El usuario no existe");
+
+            return new UserResponseDto(true, "Usuario válido", user.ToUserDto());
         }
 
         public async Task<UserDto?> GetUserByIdAsync(int id)
@@ -42,7 +52,7 @@ namespace Application.Services
 
         public async Task<UserResponseDto> CreateUserAsync(RegisterUserDto newUser)
         {
-            var roleExists = await _roleService.ValidateRoleExistsByIdAsync(newUser.RoleId);
+            var roleExists = await _roleService.ValidateRoleExistsByIdAsync(newUser.RoleId, 0); //TODO: Arreglar
             if (!roleExists.Success)
                 return new UserResponseDto(false, "El rol no es válido", IsBadRequest:true);
 
@@ -77,7 +87,7 @@ namespace Application.Services
 
         public async Task<UserResponseDto> UpdateUserAsync(string idCCNit, UpdateUserDto updateUserDto)
         {
-            var roleExists = await _roleService.ValidateRoleExistsByIdAsync(updateUserDto.RoleId);
+            var roleExists = await _roleService.ValidateRoleExistsByIdAsync(updateUserDto.RoleId, 0); //TODO: Arreglar
             if (!roleExists.Success)
                 return new UserResponseDto(false, "El rol no es válido", IsBadRequest:true);
             

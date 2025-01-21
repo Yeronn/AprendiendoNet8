@@ -17,10 +17,10 @@ namespace WebAPI.Controllers
         }
 
 
-        // GET: api/users/by-id/{id}
         [HttpGet("/byId/{id}", Name = "GetUserById") ]
         public async Task<IActionResult> GetUserById(int id)
         {
+
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null)
                 return NotFound(new { Message = "Usuario no encontrado." });
