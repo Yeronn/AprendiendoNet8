@@ -9,9 +9,8 @@ namespace Application.Interfaces
         Task<IEnumerable<UserDto>> GetUsersByCompanyIdAsync(int companyId);
         Task<UserDto?> GetUserByIdAndCompanyIdAsync(int userId, int companyId);
         Task<UserResponseDto> CreateUserAsync(RegisterUserDto newUser);
-        Task<UserResponseDto> UpdateUserAsync(string idCCNit, UpdateUserDto updateUserDto);
+        Task<UserResponseDto> UpdateUserAsync(int userId, int companyId, UpdateUserDto updateUserDto);
         Task<bool> DeleteUserAsync(string idCCNit);
         Task<string?> GetPasswordByUserIdAsync(int userId);
-        Task<UserResponseDto> IsEmailAvailableInCompanyAsync(string email, int companyId);
     }
 }

@@ -69,22 +69,30 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpPut("{IdCCNit}")]
-        public async Task<IActionResult> UpdateUser(string IdCCNit, [FromBody] UpdateUserDto updateUserDto)
+        [HttpPut("{userId}")]
+        public async Task<IActionResult> UpdateUser(int userId, [FromBody] UpdateUserDto updateUserDto)
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
 
-            var updatedUser = await _userService.UpdateUserAsync(IdCCNit, updateUserDto);
-            if (updatedUser == null)
-                return NotFound(new { Message = "User not found." });
-            
+            var updatedUser = await _userService.UpdateUserAsync(userId, int.Parse(companyId), updateUserDto);
 
-            return Ok(updatedUser);
+            if (updatedUser.Success)
+                return Ok(updatedUser.User);
+
+            else if (updatedUser.IsNotFound)
+                return NotFound(updatedUser.Message);
+
+            else if (updatedUser.IsConflict)
+                return Conflict(updatedUser.Message);
+
+            return BadRequest(updatedUser.Message);
         }
 
 
-        [HttpDelete("{IdCCNit:int}")]
+        [HttpDelete("{userId:int}")]
         public async Task<IActionResult> DeleteUser(string IdCCNit)
         {
             var result = await _userService.DeleteUserAsync(IdCCNit);

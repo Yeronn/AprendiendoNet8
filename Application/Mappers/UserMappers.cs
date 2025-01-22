@@ -30,7 +30,6 @@ namespace Application.Mappers
                 LastName = updateUserDto.LastName,
                 Email = updateUserDto.Email,
                 CCNumber = updateUserDto.CCNumber,
-                CompanyId = updateUserDto.CompanyId,
                 HashedPassword = updateUserDto.Password,
                 RoleId = updateUserDto.RoleId
             };

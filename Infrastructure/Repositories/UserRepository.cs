@@ -16,6 +16,17 @@ namespace Infrastructure.Repositories
         }
 
 
+        public async Task<UserEntity?> GetUserByIdAsync(int userId)
+        {
+            var query = "SELECT * FROM Users WHERE Id = @UserId";
+
+            using (var connection = _context.CreateConnection())
+            {
+                return await connection.QueryFirstOrDefaultAsync<UserEntity>(query, new { UserId = userId });
+            }
+        }
+
+
         public async Task<IEnumerable<UserEntity>> GetUsersByCompanyIdAsync(int companyId)
         {
             var query = "SELECT * FROM Users WHERE CompanyId = @CompanyId";
@@ -60,13 +71,13 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> UpdateUserAsync(UserEntity user) //*? Si actualiza la identificacion, es decir, la cédula, entonces hay que actualizar el IdCCNit
+        public async Task<bool> UpdateUserAsync(UserEntity user)
         {
             var query = @"UPDATE Users 
                         SET FirstName = @FirstName, LastName = @LastName, Email = @Email, 
-                            CCIdentification = @CCIdentification, HashedPassword = @HashedPassword, 
+                            CCNumber = @CCNumber, HashedPassword = @HashedPassword, 
                             RoleId = @RoleId 
-                        WHERE IdCCNit = @IdCCNit";
+                        WHERE Id = @Id AND CompanyId = @CompanyId";
 
             using (var connection = _context.CreateConnection())
             {
@@ -124,6 +135,18 @@ namespace Infrastructure.Repositories
                 return count == 0;
             }
         }
+
+
+        public async Task<bool> CheckUserExistsByIdAsync(int userId)
+        {
+            var query = "SELECT COUNT(1) FROM Users WHERE Id = @UserId";
+            using (var connection = _context.CreateConnection())
+            {
+                var count = await connection.ExecuteScalarAsync<int>(query, new { UserId = userId });
+                return count > 0;
+            }
+        }
+
 
     }
 }

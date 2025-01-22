@@ -4,6 +4,7 @@ namespace Domain.Interfaces
 {
     public interface IUserRepository
     {
+        Task<UserEntity?> GetUserByIdAsync(int userId);
         Task<IEnumerable<UserEntity>> GetUsersByCompanyIdAsync(int companyId);
         Task<UserEntity?> GetUserByIdAndCompanyIdAsync(int userId, int companyId);
         Task<UserEntity?> GetUserByCCNumberAndCompanyIdAsync(int ccNumber, int companyId);
@@ -13,5 +14,6 @@ namespace Domain.Interfaces
         Task<bool> VerifyUserExistsByCCNumberAndCompanyIdAsync(int ccNumber, int companyId);
         Task<string?> GetPasswordByUserIdAsync(int userId);
         Task<bool> IsEmailAvailableInCompanyAsync(string email, int companyId);
+        Task<bool> CheckUserExistsByIdAsync(int userId);
     }
 }
