@@ -14,7 +14,7 @@ namespace Application.Mappers
             return new LoginAuditEntity
             {
                 TokenId = loginAudit.TokenId,
-                IdCCNit = loginAudit.IdCCNit,
+                UserId = loginAudit.UserId,
                 IssuedAt = loginAudit.IssuedAt,
                 ExpiresAt = loginAudit.ExpiresAt,   
                 IPAddress = loginAudit.IPAddress,
@@ -31,7 +31,7 @@ namespace Application.Mappers
             return new LoginAuditDto
             {
                 TokenId = loginAudit.TokenId,
-                IdCCNit = loginAudit.IdCCNit,
+                UserId = loginAudit.UserId,
                 IssuedAt = loginAudit.IssuedAt,
                 ExpiresAt = loginAudit.ExpiresAt,   
                 IPAddress = loginAudit.IPAddress,

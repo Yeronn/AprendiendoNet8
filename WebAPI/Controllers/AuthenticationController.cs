@@ -48,14 +48,14 @@ namespace WebAPI.Controllers
 
             var deviceInfo = Request.Headers["User-Agent"].FirstOrDefault() ?? "Unknown";
 
-            var idCCNitClaimName = UserClaims.IdCCNit.ToString();
-            var idCCNit = HttpContext.User.FindFirst(idCCNitClaimName)?.Value;
+            var userIdClaimName = UserClaims.UserId.ToString();
+            var userId = HttpContext.User.FindFirst(userIdClaimName)?.Value;
 
-            if (string.IsNullOrWhiteSpace(idCCNit))
-                return BadRequest(new { Message = $"El refresh token no tiene el claim {idCCNitClaimName}" });
+            if (string.IsNullOrWhiteSpace(userId))
+                return BadRequest(new { Message = $"El refresh token no tiene el claim {userId}" });
 
 
-            var generatedTokens = await _authService.RefreshTokens(idCCNit, ipAddress, deviceInfo);
+            var generatedTokens = await _authService.RefreshTokens(int.Parse(userId), ipAddress, deviceInfo);
 
             if (generatedTokens.Success)
             {

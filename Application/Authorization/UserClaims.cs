@@ -3,7 +3,8 @@
     public enum UserClaims
     {
         CompanyId,
-        IdCCNit,
+        UserId,
+        Nit,
         TokenType,
         Fullname,
         Permissions

@@ -82,15 +82,15 @@ namespace WebAPI.Controllers
         }
 
 
-        // GET: api/users/{IdCCNit}
-        [HttpGet("{IdCCNit:int}")]
-        public async Task<IActionResult> GetUserByIdCCNit(string IdCCNit)
-        {
-            var user = await _userService.GetUserByIdCCNitAsync(IdCCNit);
-            if (user == null)
-                return NotFound(new { Message = "User not found." });
-            return Ok(user);
-        }
+        //// GET: api/users/{IdCCNit}
+        //[HttpGet("{IdCCNit:int}")]
+        //public async Task<IActionResult> GetUserByIdCCNit(string IdCCNit)
+        //{
+        //    var user = await _userService.GetUserByIdCCNitAsync(IdCCNit);
+        //    if (user == null)
+        //        return NotFound(new { Message = "User not found." });
+        //    return Ok(user);
+        //}
 
     }
 }

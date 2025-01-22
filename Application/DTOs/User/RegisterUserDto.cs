@@ -4,7 +4,6 @@ namespace Application.DTOs.User
 {
     public class RegisterUserDto
     {
-        public string IdCCNit { get; set; } = string.Empty;
         [Required]
         public string FirstName { get; set; } = string.Empty;
         [Required]
@@ -12,7 +11,9 @@ namespace Application.DTOs.User
         [Required]
         public string Email { get; set; } = string.Empty;
         [Required]
-        public int CCIdentification { get; set; }
+        public int CCNumber { get; set; }
+        [Required]
+        public int CompanyId { get; set; }
         [Required]
         public string Password { get; set; } = string.Empty;
         [Required]

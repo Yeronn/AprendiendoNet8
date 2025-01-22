@@ -32,13 +32,13 @@ namespace Application.Services
             
             if (loginAudit.TokenTypeId == (int)TokenType.Access)
             {
-                bool revokedPreviousTokens = await RevokeAllTokensAsync(loginAudit.IdCCNit);
+                bool revokedPreviousTokens = await RevokeAllTokensAsync(loginAudit.UserId);
                 if (!revokedPreviousTokens)
                     return new LoginAuditResponseDto(false, "No se pudo revocar los anteriores tokens", IsInternalServerError: true);
             }
             else if (loginAudit.TokenTypeId == (int)TokenType.Refresh)
             {
-                bool deletedRefreshTokens = await DeleteRefreshTokensAsync(loginAudit.IdCCNit);
+                bool deletedRefreshTokens = await DeleteRefreshTokensAsync(loginAudit.UserId);
                 if (!deletedRefreshTokens)
                     return new LoginAuditResponseDto(false, "No se pudo eliminar los anteriores refresh tokens", IsInternalServerError: true);
             }
@@ -58,13 +58,13 @@ namespace Application.Services
         }
 
 
-        public async Task<bool> RevokeAllTokensAsync(string idCCNit)
+        public async Task<bool> RevokeAllTokensAsync(int userId)
         {
-            bool hasActiveTokens = await _loginAuditRepository.HasActiveTokensAsync(idCCNit);
+            bool hasActiveTokens = await _loginAuditRepository.HasActiveTokensAsync(userId);
             if (!hasActiveTokens)
                 return true;
 
-            bool revokedTokens = await _loginAuditRepository.RevokeAllTokensAsync(idCCNit);
+            bool revokedTokens = await _loginAuditRepository.RevokeAllTokensAsync(userId);
             return revokedTokens;
         }
 
@@ -93,12 +93,12 @@ namespace Application.Services
         }
 
 
-        private async Task<bool> DeleteRefreshTokensAsync(string idCCNit)
+        private async Task<bool> DeleteRefreshTokensAsync(int userId)
         {
-            bool hasActiveTokens = await _loginAuditRepository.HasActiveRefreshTokensAsync(idCCNit);
+            bool hasActiveTokens = await _loginAuditRepository.HasActiveRefreshTokensAsync(userId);
             if (!hasActiveTokens)
                 return true;
-            bool deletedRefreshTokens = await _loginAuditRepository.DeleteRefreshTokensAsync(idCCNit);
+            bool deletedRefreshTokens = await _loginAuditRepository.DeleteRefreshTokensAsync(userId);
             return deletedRefreshTokens;
         }
     }

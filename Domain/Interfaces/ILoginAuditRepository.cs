@@ -6,11 +6,11 @@ namespace Domain.Interfaces
     {
         Task<LoginAuditEntity?> GetLoginAuditByTokenIdAsync(string tokenId);
         Task<bool> CreateLoginAuditAsync(LoginAuditEntity loginAudit);
-        Task<bool> RevokeAllTokensAsync(string idCCNit);
+        Task<bool> RevokeAllTokensAsync(int userId);
         Task<bool> RevokeTokenAsync(string tokenId);
         Task<bool> IsTokenValidAsync(string tokenId);
-        Task<bool> HasActiveTokensAsync(string idCCNit);
-        Task<bool> DeleteRefreshTokensAsync(string idCCNit);
-        Task<bool> HasActiveRefreshTokensAsync(string idCCNit);
+        Task<bool> HasActiveTokensAsync(int userId);
+        Task<bool> DeleteRefreshTokensAsync(int userId);
+        Task<bool> HasActiveRefreshTokensAsync(int userId);
     }
 }

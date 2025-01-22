@@ -36,21 +36,21 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<UserEntity?> GetUserByIdAsync(int id)
+        public async Task<UserEntity?> GetUserByIdAsync(int userId)
         {
             var query = "SELECT * FROM Users WHERE Id = @Id";
             using (var connection = _context.CreateConnection())
             {
-                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Id = id });
+                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Id = userId });
             }
         }
 
 
         public async Task<int?> CreateUserAsync(UserEntity user)
         {
-            var query = @"INSERT INTO Users (IdCCNit, FirstName, LastName, Email, CCIdentification, HashedPassword, RoleId, RegistrationDate)
+            var query = @"INSERT INTO Users (FirstName, LastName, Email, CCNumber, HashedPassword, RoleId, RegistrationDate, CompanyId)
                         OUTPUT INSERTED.Id  -- Devolver el ID generado
-                        VALUES (@IdCCNit, @FirstName, @LastName, @Email, @CCIdentification, @HashedPassword, @RoleId, @RegistrationDate)";
+                        VALUES (@FirstName, @LastName, @Email, @CCNumber, @HashedPassword, @RoleId, @RegistrationDate, @CompanyId)";
 
             using (var connection = _context.CreateConnection())
             {
@@ -88,25 +88,25 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> IdCCNitExistsAsync(string idCCNit)
+        public async Task<bool> VerifyUserExistsByCCNumberAndCompanyIdAsync(int ccNumber, int companyId)
         {
-            var query = "SELECT COUNT(1) FROM Users WHERE IdCCNit = @IdCCNit";
+            var query = "SELECT COUNT(1) FROM Users WHERE CCNumber = @CCNumber AND CompanyId = @CompanyId";
             
             using (var connection = _context.CreateConnection())
             {
-                var count = await connection.ExecuteScalarAsync<int>(query, new { IdCCNit = idCCNit });
+                var count = await connection.ExecuteScalarAsync<int>(query, new { CCNumber = ccNumber, CompanyId = companyId });
                 return count > 0;
             }
         }
 
 
-        public async Task<string?> GetPasswordByIdCCNitAsync(string idCCNit)
+        public async Task<string?> GetPasswordByUserIdAsync(int userId)
         {
-            var query = "SELECT HashedPassword FROM [Users] WHERE IdCCNit = @IdCCNit";
+            var query = "SELECT HashedPassword FROM [Users] WHERE Id = @Id";
 
             using (var connection = _context.CreateConnection())
             {
-                return await connection.QuerySingleOrDefaultAsync<string>(query, new { IdCCNit = idCCNit });
+                return await connection.QuerySingleOrDefaultAsync<string>(query, new { Id = userId });
             }
         }
 

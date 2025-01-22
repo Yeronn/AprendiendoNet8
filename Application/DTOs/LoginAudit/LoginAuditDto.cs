@@ -10,8 +10,8 @@ namespace Application.DTOs.LoginAudit
         [MaxLength(50, ErrorMessage = "El TokenId no puede exceder los 50 caracteres.")]
         public string TokenId { get; set; } = null!;
 
-        [Required(ErrorMessage = "El IdCCNit es obligatorio.")]
-        public string IdCCNit { get; set; } = string.Empty;
+        [Required(ErrorMessage = "El UserId es obligatorio.")]
+        public int UserId { get; set; }
 
         [Required(ErrorMessage = "La fecha de emisión es obligatoria.")]
         public DateTime IssuedAt { get; set; }

@@ -30,8 +30,8 @@ namespace Infrastructure.Repositories
         public async Task<bool> CreateLoginAuditAsync(LoginAuditEntity loginAudit)
         {
             var query = @"
-                INSERT INTO LoginAudits (TokenId, IdCCNit, IssuedAt, ExpiresAt, IPAddress, DeviceInfo, TokenStatusId, TokenTypeId, CompanyId)
-                VALUES (@TokenId, @IdCCNit, @IssuedAt, @ExpiresAt, @IPAddress, @DeviceInfo, @TokenStatusId, @TokenTypeId, @CompanyId)";
+                INSERT INTO LoginAudits (TokenId, UserId, IssuedAt, ExpiresAt, IPAddress, DeviceInfo, TokenStatusId, TokenTypeId, CompanyId)
+                VALUES (@TokenId, @UserId, @IssuedAt, @ExpiresAt, @IPAddress, @DeviceInfo, @TokenStatusId, @TokenTypeId, @CompanyId)";
 
             using (var connection = _context.CreateConnection())
             {
@@ -41,15 +41,15 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> RevokeAllTokensAsync(string idCCNit)
+        public async Task<bool> RevokeAllTokensAsync(int userId)
         {
-            var query = "UPDATE LoginAudits SET TokenStatusId = @RevokedStatus WHERE IdCCNit = @IdCCNit AND TokenStatusId = @ActiveStatus";
+            var query = "UPDATE LoginAudits SET TokenStatusId = @RevokedStatus WHERE UserId = @UserId AND TokenStatusId = @ActiveStatus";
 
             using (var connection = _context.CreateConnection())
             {
                 var result = await connection.ExecuteAsync(query, new
                 {
-                    IdCCNit = idCCNit,
+                    UserId = userId,
                     ActiveStatus = (int)TokenStatus.Valid,
                     RevokedStatus = (int)TokenStatus.Revoked
                 });
@@ -85,27 +85,27 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> HasActiveTokensAsync(string idCCNit)
+        public async Task<bool> HasActiveTokensAsync(int userId)
         {
-            var query = "SELECT COUNT(1) FROM LoginAudits WHERE IdCCNit = @IdCCNit AND TokenStatusId = @TokenStatusId";
+            var query = "SELECT COUNT(1) FROM LoginAudits WHERE UserId = @UserId AND TokenStatusId = @TokenStatusId";
 
             using (var connection = _context.CreateConnection())
             {
-                var count = await connection.ExecuteScalarAsync<int>(query, new { IdCCNit = idCCNit, TokenStatusId = (int)TokenStatus.Valid });
+                var count = await connection.ExecuteScalarAsync<int>(query, new { UserId = userId, TokenStatusId = (int)TokenStatus.Valid });
                 return count > 0;
             }
         }
 
 
-        public async Task<bool> DeleteRefreshTokensAsync(string idCCNit)
+        public async Task<bool> DeleteRefreshTokensAsync(int userId)
         {
-            var query = "DELETE FROM LoginAudits WHERE IdCCNit = @IdCCNit AND TokenTypeId = @RefreshToken";
+            var query = "DELETE FROM LoginAudits WHERE UserId = @UserId AND TokenTypeId = @RefreshToken";
 
             using (var connection = _context.CreateConnection())
             {
                 var result = await connection.ExecuteAsync(query, new
                 {
-                    IdCCNit = idCCNit,
+                    UserId = userId,
                     RefreshToken = (int)TokenType.Refresh
                 });
 
@@ -114,15 +114,15 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> HasActiveRefreshTokensAsync(string idCCNit)
+        public async Task<bool> HasActiveRefreshTokensAsync(int userId)
         {
-            var query = "SELECT COUNT(1) FROM LoginAudits WHERE IdCCNit = @IdCCNit AND TokenTypeId = @RefreshToken";
+            var query = "SELECT COUNT(1) FROM LoginAudits WHERE UserId = @UserId AND TokenTypeId = @RefreshToken";
 
             using (var connection = _context.CreateConnection())
             {
                 var count = await connection.ExecuteScalarAsync<int>(query, new
                 {
-                    IdCCNit = idCCNit,
+                    UserId = userId,
                     RefreshToken = (int)TokenType.Refresh
                 });
 

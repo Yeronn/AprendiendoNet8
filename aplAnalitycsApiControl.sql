@@ -165,3 +165,60 @@ CREATE LOGIN [IIS APPPOOL\.NET Core 8.0] FROM WINDOWS;
 USE aplAnalitycsApiControl;
 CREATE USER [IIS APPPOOL\.NET Core 8.0] FOR LOGIN [IIS APPPOOL\.NET Core 8.0];
 ALTER ROLE db_owner ADD MEMBER [IIS APPPOOL\.NET Core 8.0];
+
+-- [
+--   {
+--     "firstName": "AdminUser",
+--     "lastName": "Admin",
+--     "email": "admin@techsolutions.com",
+--     "ccNumber": 12345678,
+--     "companyId": 1,
+--     "password": "admin123",
+--     "roleId": 1
+--   },
+--   {
+--     "firstName": "ReaderUser",
+--     "lastName": "ReadOnly",
+--     "email": "reader@techsolutions.com",
+--     "ccNumber": 12345679,
+--     "companyId": 1,
+--     "password": "reader123",
+--     "roleId": 2
+--   },
+--   {
+--     "firstName": "WriterUser",
+--     "lastName": "WriteOnly",
+--     "email": "writer@techsolutions.com",
+--     "ccNumber": 12345680,
+--     "companyId": 1,
+--     "password": "writer123",
+--     "roleId": 3
+--   },
+--   {
+--     "firstName": "DeleterUser",
+--     "lastName": "DeleteOnly",
+--     "email": "deleter@techsolutions.com",
+--     "ccNumber": 12345681,
+--     "companyId": 1,
+--     "password": "deleter123",
+--     "roleId": 4
+--   },
+--   {
+--     "firstName": "ManagerUser",
+--     "lastName": "Manager",
+--     "email": "manager@globalenterprises.com",
+--     "ccNumber": 12345682,
+--     "companyId": 2,
+--     "password": "manager123",
+--     "roleId": 5
+--   },
+--   {
+--     "firstName": "AuditorUser",
+--     "lastName": "Auditor",
+--     "email": "auditor@globalenterprises.com",
+--     "ccNumber": 12345683,
+--     "companyId": 2,
+--     "password": "auditor123",
+--     "roleId": 6
+--   }
+-- ]

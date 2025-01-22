@@ -20,15 +20,13 @@ namespace Application.Services
         private readonly IPermissionService _permissionService;
         private readonly ILoginAuditService _loginAuditService;
         private readonly IPasswordHasherService _passwordHasher;
-        private readonly ICompanyService _companyService;
 
         public AuthenticationService(
                 IConfiguration configuration, 
                 IUserService userService, 
                 IPermissionService permissionService,
                 ILoginAuditService loginAuditService,
-                IPasswordHasherService passwordHasher,
-                ICompanyService companyService
+                IPasswordHasherService passwordHasher
             )
         {
             _configuration = configuration;
@@ -36,17 +34,18 @@ namespace Application.Services
             _permissionService = permissionService;
             _loginAuditService = loginAuditService;
             _passwordHasher = passwordHasher;
-            _companyService = companyService;
         }
 
 
         public async Task<LoginResponse> Login(LoginDto login, string ipAddress, string deviceInfo)
         {
-            var user = await _userService.GetUserByCCNumberAndNitAsync(login.CcNumber, login.Nit);
-            if (user == null)
+            var userResponse = await _userService.GetUserByCCNumberAndNitAsync(login.CcNumber, login.Nit);
+            if (!userResponse.Success)
                 return new LoginResponse(false, "Credenciales Inválidas", IsBadRequest: true);
 
-            var hashedPassword = await _userService.GetPasswordByIdCCNitAsync(login.IdCCNit);
+            var user = userResponse.User;
+
+            var hashedPassword = await _userService.GetPasswordByUserIdAsync(user!.Id);
             bool checkPassword = _passwordHasher.VerifyPassword(login.Password, hashedPassword!);
 
             if (!checkPassword)
@@ -63,7 +62,7 @@ namespace Application.Services
             var (refreshTokenSuccess, refreshTokenValue) = await GenerateJWTToken(userToken, false);
             if (!refreshTokenSuccess)
             {
-                await _loginAuditService.RevokeAllTokensAsync(userToken.IdCCNit);
+                await _loginAuditService.RevokeAllTokensAsync(userToken.UserId);
                 return new LoginResponse(false, refreshTokenValue);
             }
 
@@ -78,13 +77,10 @@ namespace Application.Services
             var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]!));
             var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
 
-            var company = await _companyService.GetCompanyByRoleIdAsync(user.RoleId);
-            int companyId = company!.Id;
-
             var claims = new List<Claim>
             {
-                new Claim(UserClaims.CompanyId.ToString(), $"{companyId}"),
-                new Claim(UserClaims.IdCCNit.ToString(), user.IdCCNit.ToString()),
+                new Claim(UserClaims.CompanyId.ToString(), user.CompanyId.ToString()),
+                new Claim(UserClaims.UserId.ToString(), user.UserId.ToString()),
                 new Claim(JwtRegisteredClaimNames.Jti, jti),
                 new Claim(UserClaims.TokenType.ToString(), isAccessToken ? TokenType.Access.ToString() : TokenType.Refresh.ToString())
             };
@@ -109,14 +105,14 @@ namespace Application.Services
             var newLogin = new LoginAuditDto
             {
                 TokenId = jti,
-                IdCCNit = user.IdCCNit,
+                UserId = user.UserId,
                 IssuedAt = DateTime.UtcNow,
                 ExpiresAt = tokenExpiration,
                 IPAddress = user.IPAddress,
                 DeviceInfo = user.DeviceInfo,
                 TokenStatusId = (int)TokenStatus.Valid,
                 TokenTypeId =  isAccessToken ? (int)TokenType.Access : (int)TokenType.Refresh,
-                CompanyId = companyId,
+                CompanyId = user.CompanyId,
             };
             var createdLoginAudit = await _loginAuditService.CreateLoginAuditAsync(newLogin);
             if (!createdLoginAudit.Success)
@@ -159,11 +155,11 @@ namespace Application.Services
         }
 
 
-        public async Task<RefreshTokenResponseDto> RefreshTokens(string idCCNit, string ipAddress, string deviceInfo)
+        public async Task<RefreshTokenResponseDto> RefreshTokens(int userId, string ipAddress, string deviceInfo)
         {
-            var user = await _userService.GetUserByIdCCNitAsync(idCCNit);
+            var user = await _userService.GetUserByIdAsync(userId);
             if (user == null)
-                return new RefreshTokenResponseDto(false, "No se pudo refrescar los tokens, el usuario no existe", IsBadRequest: true);
+                return new RefreshTokenResponseDto(false, "No se pudo refrescar los tokens, el usuario no existe", isNotFound: true);
 
             var userToken = user.ToUserJwtTokenDto();
             userToken.IPAddress = ipAddress;
@@ -176,7 +172,7 @@ namespace Application.Services
             var (refreshTokenSuccess, newRefreshToken) = await GenerateJWTToken(userToken, false);
             if (!refreshTokenSuccess)
             {
-                await _loginAuditService.RevokeAllTokensAsync(userToken.IdCCNit);
+                await _loginAuditService.RevokeAllTokensAsync(userToken.UserId);
                 return new RefreshTokenResponseDto(false, newRefreshToken, IsBadRequest: true);
             }
 
