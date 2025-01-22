@@ -16,12 +16,12 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<IEnumerable<UserEntity>> GetUsersAsync()
+        public async Task<IEnumerable<UserEntity>> GetUsersByCompanyIdAsync(int companyId)
         {
-            var query = "SELECT * FROM Users";
+            var query = "SELECT * FROM Users WHERE CompanyId = @CompanyId";
             using (var connection = _context.CreateConnection())
             {
-                return await connection.QueryAsync<UserEntity>(query);
+                return await connection.QueryAsync<UserEntity>(query, new { CompanyId = companyId });
             }
         }
 

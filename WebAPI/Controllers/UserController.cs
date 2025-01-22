@@ -36,7 +36,12 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
-            var users = await _userService.GetUsersAsync();
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
+
+            var users = await _userService.GetUsersByCompanyIdAsync(int.Parse(companyId));
             if (!users.Any())
                 return NotFound("No hay usuarios en el sistema");
             return Ok(users);

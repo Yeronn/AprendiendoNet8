@@ -21,9 +21,9 @@ namespace Application.Services
             _passwordHasher = passwordHasher;
         }
 
-        public async Task<IEnumerable<UserDto>> GetUsersAsync()
+        public async Task<IEnumerable<UserDto>> GetUsersByCompanyIdAsync(int companyId)
         {
-            var users = await _userRepository.GetUsersAsync();
+            var users = await _userRepository.GetUsersByCompanyIdAsync(companyId);
             return users.Select(u => u.ToUserDto());
         }
 
