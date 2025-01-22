@@ -27,7 +27,6 @@ namespace WebAPI.Controllers
             var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
             if (string.IsNullOrWhiteSpace(companyId))
                 return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
-            //var permissions = HttpContext.User.FindAll(UserClaims.Permissions.ToString()).Select(c => c.Value).ToList
 
             var role = await _roleService.GetRoleByIdAsync(roleId, int.Parse(companyId));
 
@@ -122,56 +121,6 @@ namespace WebAPI.Controllers
                 return NotFound(result.Message);
 
             return BadRequest(result.Message);
-        }
-
-
-        [HttpPost("{roleId}/addPermissionsToRole")]
-        public async Task<IActionResult> AddPermissionsToRole(int roleId, [FromBody] List<int> permissionIds)
-        {
-            string companyClaimName = UserClaims.CompanyId.ToString();
-            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
-            if (string.IsNullOrWhiteSpace(companyId))
-                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
-
-            var result = await _roleService.AssignPermissionsToRoleAsync(roleId, permissionIds, int.Parse(companyId));
-
-            if (result.Success)
-                return Ok(new
-                {
-                    result.Success,
-                    result.Message,
-                });
-            else if (result.IsNotFound)
-                return NotFound(result.Message);
-            else if (result.IsBadRequest)
-                return BadRequest(result.Message);
-
-            return StatusCode(500, result.Message);
-        }
-
-
-        [HttpDelete("{roleId}/removePermissionsFromRole")]
-        public async Task<IActionResult> RemovePermissionsFromRole(int roleId, [FromBody] List<int> permissionIds)
-        {
-            string companyClaimName = UserClaims.CompanyId.ToString();
-            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
-            if (string.IsNullOrWhiteSpace(companyId))
-                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
-
-            var result = await _roleService.RemovePermissionsFromRoleAsync(roleId, permissionIds, int.Parse(companyId));
-
-            if (result.Success)
-                return Ok(new
-                {
-                    result.Success,
-                    result.Message,
-                });
-            else if (result.IsNotFound)
-                return NotFound(result.Message);
-            else if (result.IsBadRequest)
-                return BadRequest(result.Message);
-
-            return StatusCode(500, result.Message);
         }
 
 
