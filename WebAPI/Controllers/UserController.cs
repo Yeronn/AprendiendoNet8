@@ -1,4 +1,5 @@
-﻿using Application.DTOs;
+﻿using Application.Authorization;
+using Application.DTOs;
 using Application.DTOs.User;
 using Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -17,18 +18,21 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("/byId/{id}", Name = "GetUserById") ]
-        public async Task<IActionResult> GetUserById(int id)
+        [HttpGet("/byId/{userId}", Name = "GetUserById") ]
+        public async Task<IActionResult> GetUserById(int userId)
         {
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
 
-            var user = await _userService.GetUserByIdAsync(id);
+            var user = await _userService.GetUserByIdAndCompanyIdAsync(userId, int.Parse(companyId));
             if (user == null)
                 return NotFound(new { Message = "Usuario no encontrado." });
             return Ok(user);
         }
 
 
-        // GET: api/users
         [HttpGet]
         public async Task<IActionResult> GetUsers()
         {
@@ -38,8 +42,7 @@ namespace WebAPI.Controllers
             return Ok(users);
         }
 
-
-        // [Authorize(Roles = "Admin")]
+        
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] RegisterUserDto newUser)
         {
@@ -54,7 +57,6 @@ namespace WebAPI.Controllers
         }
 
 
-        // PUT: api/users/{IdCCNit}
         [HttpPut("{IdCCNit}")]
         public async Task<IActionResult> UpdateUser(string IdCCNit, [FromBody] UpdateUserDto updateUserDto)
         {
@@ -70,7 +72,6 @@ namespace WebAPI.Controllers
         }
 
 
-        // DELETE: api/users/{IdCCNit}
         [HttpDelete("{IdCCNit:int}")]
         public async Task<IActionResult> DeleteUser(string IdCCNit)
         {
@@ -80,17 +81,6 @@ namespace WebAPI.Controllers
 
             return NoContent();
         }
-
-
-        //// GET: api/users/{IdCCNit}
-        //[HttpGet("{IdCCNit:int}")]
-        //public async Task<IActionResult> GetUserByIdCCNit(string IdCCNit)
-        //{
-        //    var user = await _userService.GetUserByIdCCNitAsync(IdCCNit);
-        //    if (user == null)
-        //        return NotFound(new { Message = "User not found." });
-        //    return Ok(user);
-        //}
 
     }
 }

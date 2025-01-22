@@ -5,7 +5,7 @@ namespace Domain.Interfaces
     public interface IUserRepository
     {
         Task<IEnumerable<UserEntity>> GetUsersAsync();
-        Task<UserEntity?> GetUserByIdAsync(int userId);
+        Task<UserEntity?> GetUserByIdAndCompanyIdAsync(int userId, int companyId);
         Task<UserEntity?> GetUserByCCNumberAndCompanyIdAsync(int ccNumber, int companyId);
         Task<int?> CreateUserAsync(UserEntity user);
         Task<bool> UpdateUserAsync(UserEntity user);

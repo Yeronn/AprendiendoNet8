@@ -36,12 +36,12 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<UserEntity?> GetUserByIdAsync(int userId)
+        public async Task<UserEntity?> GetUserByIdAndCompanyIdAsync(int userId, int companyId)
         {
-            var query = "SELECT * FROM Users WHERE Id = @Id";
+            var query = "SELECT * FROM Users WHERE Id = @Id AND CompanyId = @CompanyId";
             using (var connection = _context.CreateConnection())
             {
-                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Id = userId });
+                return await connection.QuerySingleOrDefaultAsync<UserEntity>(query, new { Id = userId, CompanyId = companyId });
             }
         }
 

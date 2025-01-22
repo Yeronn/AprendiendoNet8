@@ -54,8 +54,13 @@ namespace WebAPI.Controllers
             if (string.IsNullOrWhiteSpace(userId))
                 return BadRequest(new { Message = $"El refresh token no tiene el claim {userId}" });
 
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
 
-            var generatedTokens = await _authService.RefreshTokens(int.Parse(userId), ipAddress, deviceInfo);
+
+            var generatedTokens = await _authService.RefreshTokens(int.Parse(userId), int.Parse(companyId), ipAddress, deviceInfo);
 
             if (generatedTokens.Success)
             {

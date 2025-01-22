@@ -155,9 +155,9 @@ namespace Application.Services
         }
 
 
-        public async Task<RefreshTokenResponseDto> RefreshTokens(int userId, string ipAddress, string deviceInfo)
+        public async Task<RefreshTokenResponseDto> RefreshTokens(int userId, int companyId, string ipAddress, string deviceInfo)
         {
-            var user = await _userService.GetUserByIdAsync(userId);
+            var user = await _userService.GetUserByIdAndCompanyIdAsync(userId, companyId);
             if (user == null)
                 return new RefreshTokenResponseDto(false, "No se pudo refrescar los tokens, el usuario no existe", isNotFound: true);
 

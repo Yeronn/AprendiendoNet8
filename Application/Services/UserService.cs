@@ -43,9 +43,9 @@ namespace Application.Services
             return new UserResponseDto(true, "Usuario válido", user);
         }
 
-        public async Task<UserDto?> GetUserByIdAsync(int userId)
+        public async Task<UserDto?> GetUserByIdAndCompanyIdAsync(int userId, int companyId)
         {
-            var user = await _userRepository.GetUserByIdAsync(userId);
+            var user = await _userRepository.GetUserByIdAndCompanyIdAsync(userId, companyId);
             return user?.ToUserDto();
         }
 
@@ -64,7 +64,7 @@ namespace Application.Services
             if (IdCCNitExists)
                 return new UserResponseDto(false, "La cédula ya está regitrada en otro usuario", IsConflict: true);
 
-            var availableEmail = await IsEmailAvailableInCompanyAsync(newUser.Email, (int)company.Id!);
+            var availableEmail = await IsEmailAvailableInCompanyAsync(newUser.Email, company.Id!);
             if (!availableEmail.Success)
                 return new UserResponseDto(false, availableEmail.Message, IsConflict: availableEmail.IsConflict);
 
@@ -76,9 +76,10 @@ namespace Application.Services
 
             if (createdUserId.HasValue)
             {
-                var createdUser = await GetUserByIdAsync(createdUserId.Value);
+                var createdUser = await GetUserByIdAndCompanyIdAsync(createdUserId.Value, company.Id);
                 return new UserResponseDto(true, "El usuario se creó correctamente", createdUser);
             }
+
             return new UserResponseDto(false, "Error en el servidor al crear al usuario");
         }
 
