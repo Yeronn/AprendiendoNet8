@@ -51,10 +51,17 @@ namespace WebAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser([FromBody] RegisterUserDto newUser)
         {
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
+
+            newUser.CompanyId = int.Parse(companyId);
+
             var createdResponse = await _userService.CreateUserAsync(newUser);
 
             if (createdResponse.Success)
-                return CreatedAtRoute("GetUserById", new { id = createdResponse.User!.Id }, createdResponse);
+                return CreatedAtRoute("GetUserById", new { userId = createdResponse.User!.Id }, createdResponse.User);
             else if (createdResponse.IsConflict) 
                 return Conflict(createdResponse.Message);
             else

@@ -116,8 +116,7 @@ namespace Infrastructure.Repositories
             var query = @"
                 SELECT COUNT(1)
                 FROM Users U
-                INNER JOIN Roles R ON U.RoleId = R.Id
-                WHERE U.Email = @Email AND R.CompanyId = @CompanyId";
+                WHERE U.Email = @Email AND U.CompanyId = @CompanyId";
 
             using (var connection = _context.CreateConnection())
             {
@@ -125,5 +124,6 @@ namespace Infrastructure.Repositories
                 return count == 0;
             }
         }
+
     }
 }

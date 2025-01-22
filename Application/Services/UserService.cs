@@ -56,15 +56,11 @@ namespace Application.Services
             if (!roleExists.Success)
                 return new UserResponseDto(false, "El rol no es válido", IsBadRequest: true);
 
-            var company = await _companyService.GetCompanyByRoleIdAsync(newUser.RoleId); //Agregar el companyId en el controlador a traves de los claims
-            if (company == null)
-                return new UserResponseDto(false, "La empresa a la que esta asociada el rol no existe: ");
-
             bool IdCCNitExists = await VerifyUserExistsByCCNumberAndCompanyIdAsync(newUser.CCNumber, newUser.CompanyId);
             if (IdCCNitExists)
                 return new UserResponseDto(false, "La cédula ya está regitrada en otro usuario", IsConflict: true);
 
-            var availableEmail = await IsEmailAvailableInCompanyAsync(newUser.Email, company.Id!);
+            var availableEmail = await IsEmailAvailableInCompanyAsync(newUser.Email, newUser.CompanyId!);
             if (!availableEmail.Success)
                 return new UserResponseDto(false, availableEmail.Message, IsConflict: availableEmail.IsConflict);
 
@@ -76,7 +72,7 @@ namespace Application.Services
 
             if (createdUserId.HasValue)
             {
-                var createdUser = await GetUserByIdAndCompanyIdAsync(createdUserId.Value, company.Id);
+                var createdUser = await GetUserByIdAndCompanyIdAsync(createdUserId.Value, newUser.CompanyId);
                 return new UserResponseDto(true, "El usuario se creó correctamente", createdUser);
             }
 
