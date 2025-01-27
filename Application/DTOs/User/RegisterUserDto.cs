@@ -13,8 +13,6 @@ namespace Application.DTOs.User
         [Required]
         public int CCNumber { get; set; }
         [Required]
-        public int CompanyId { get; set; }
-        [Required]
         public string Password { get; set; } = string.Empty;
         [Required]
         public int RoleId { get; set; }

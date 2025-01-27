@@ -50,17 +50,17 @@ namespace Application.Services
         }
 
 
-        public async Task<UserResponseDto> CreateUserAsync(RegisterUserDto newUser)
+        public async Task<UserResponseDto> CreateUserAsync(int companyId, RegisterUserDto newUser)
         {
-            var roleExists = await _roleService.ValidateRoleExistsByIdAsync(newUser.RoleId, newUser.CompanyId); 
+            var roleExists = await _roleService.ValidateRoleExistsByIdAsync(newUser.RoleId, companyId); 
             if (!roleExists.Success)
                 return new UserResponseDto(false, "El rol no es válido", IsBadRequest: true);
 
-            bool IdCCNitExists = await VerifyUserExistsByCCNumberAndCompanyIdAsync(newUser.CCNumber, newUser.CompanyId);
-            if (IdCCNitExists)
+            bool ccNumberExists = await VerifyUserExistsByCCNumberAndCompanyIdAsync(newUser.CCNumber, companyId);
+            if (ccNumberExists)
                 return new UserResponseDto(false, "La cédula ya está regitrada en otro usuario", IsConflict: true);
 
-            var availableEmail = await IsEmailAvailableInCompanyAsync(newUser.Email, newUser.CompanyId!);
+            var availableEmail = await IsEmailAvailableInCompanyAsync(newUser.Email, companyId);
             if (!availableEmail)
                 return new UserResponseDto(false, "Email no disponible", IsConflict: true);
 
@@ -68,11 +68,12 @@ namespace Application.Services
             newUser.Password = hashedPassword;
 
             var userEntity = newUser.ToUserEntity();
+            userEntity.CompanyId = companyId;
             var createdUserId = await _userRepository.CreateUserAsync(userEntity);
 
             if (createdUserId.HasValue)
             {
-                var createdUser = await GetUserByIdAndCompanyIdAsync(createdUserId.Value, newUser.CompanyId);
+                var createdUser = await GetUserByIdAndCompanyIdAsync(createdUserId.Value, companyId);
                 return new UserResponseDto(true, "El usuario se creó correctamente", createdUser);
             }
 

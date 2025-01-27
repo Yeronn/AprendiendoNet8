@@ -56,9 +56,7 @@ namespace WebAPI.Controllers
             if (string.IsNullOrWhiteSpace(companyId))
                 return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
 
-            newUser.CompanyId = int.Parse(companyId);
-
-            var createdResponse = await _userService.CreateUserAsync(newUser);
+            var createdResponse = await _userService.CreateUserAsync(int.Parse(companyId), newUser);
 
             if (createdResponse.Success)
                 return CreatedAtRoute("GetUserById", new { userId = createdResponse.User!.Id }, createdResponse.User);

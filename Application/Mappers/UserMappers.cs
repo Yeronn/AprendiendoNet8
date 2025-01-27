@@ -14,7 +14,6 @@ namespace Application.Mappers
                 LastName = registerUserDto.LastName,
                 Email = registerUserDto.Email,
                 CCNumber = registerUserDto.CCNumber,
-                CompanyId = registerUserDto.CompanyId,
                 HashedPassword = registerUserDto.Password,
                 RoleId = registerUserDto.RoleId,
                 RegistrationDate = DateTime.UtcNow 
