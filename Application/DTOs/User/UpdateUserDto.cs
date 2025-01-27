@@ -8,6 +8,7 @@ namespace Application.DTOs
         public int CCNumber { get; set; }
         public string Password { get; set; } = string.Empty;
         public int RoleId { get; set; }
+        public bool IsActive { get; set; } = true;
     }
 
 }

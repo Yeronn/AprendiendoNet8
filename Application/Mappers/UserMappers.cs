@@ -30,7 +30,8 @@ namespace Application.Mappers
                 Email = updateUserDto.Email,
                 CCNumber = updateUserDto.CCNumber,
                 HashedPassword = updateUserDto.Password,
-                RoleId = updateUserDto.RoleId
+                RoleId = updateUserDto.RoleId,
+                IsActive = updateUserDto.IsActive
             };
         }
 
@@ -40,13 +41,14 @@ namespace Application.Mappers
             return new UserDto
             {
                 Id = userEntity.Id,
-                FirstName = userEntity.FirstName!,
-                LastName = userEntity.LastName!,
-                Email = userEntity.Email!,
-                CCNumber = userEntity.CCNumber!,
+                FirstName = userEntity.FirstName,
+                LastName = userEntity.LastName,
+                Email = userEntity.Email,
+                CCNumber = userEntity.CCNumber,
                 CompanyId = userEntity.CompanyId,
                 RoleId = userEntity.RoleId,
-                RegistrationDate = userEntity.RegistrationDate
+                RegistrationDate = userEntity.RegistrationDate,
+                IsActive = userEntity.IsActive,
             };
         }
 

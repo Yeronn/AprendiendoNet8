@@ -51,10 +51,12 @@ CREATE TABLE Users (
     HashedPassword VARCHAR(255) NOT NULL,  -- Contraseña hasheada
     RoleId INT NOT NULL,  -- Clave foránea a Roles
     RegistrationDate DATETIME NOT NULL DEFAULT GETDATE(),
+    IsActive BIT NOT NULL DEFAULT 1, -- Estado del usuario, activado por defecto
     UNIQUE (CCNumber, CompanyId),
     FOREIGN KEY (RoleId) REFERENCES Roles(Id),
     FOREIGN KEY (CompanyId) REFERENCES Companies(Id)
 );
+
 
 -- Crear la nueva tabla para los tipos de token
 CREATE TABLE TokenTypes (

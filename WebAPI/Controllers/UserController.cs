@@ -2,6 +2,7 @@
 using Application.DTOs;
 using Application.DTOs.User;
 using Application.Interfaces;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers
@@ -90,14 +91,19 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpDelete("{userId:int}")]
-        public async Task<IActionResult> DeleteUser(string IdCCNit)
+        [HttpPatch("{userId:int}/deactivate")]
+        public async Task<IActionResult> SetUserInactive(int userId)
         {
-            var result = await _userService.DeleteUserAsync(IdCCNit);
-            if (!result)
-                return NotFound(new { Message = "User not found." });
+            string companyClaimName = UserClaims.CompanyId.ToString();
+            var companyId = HttpContext.User.FindFirst(companyClaimName)?.Value;
+            if (string.IsNullOrWhiteSpace(companyId))
+                return BadRequest(new { Message = $"El access token no tiene el claim {companyClaimName}" });
 
-            return NoContent();
+            var inactivatedUser = await _userService.SetUserInactiveAsync(userId, int.Parse(companyId));
+            if (inactivatedUser.IsNotFound)
+                return NotFound(inactivatedUser.Message);
+
+            return Ok(inactivatedUser.Message);
         }
 
     }

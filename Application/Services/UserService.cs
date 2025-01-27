@@ -34,7 +34,7 @@ namespace Application.Services
                 return new UserResponseDto(false, "El nit no existe", IsNotFound: true);
 
             if (ccNumber <= 0)
-                return new UserResponseDto(false, "El número de cédula debe ser positivo", IsBadRequest: true);
+                return new UserResponseDto(false, "El número de cédula debe no es válido", IsBadRequest: true);
 
             var user = await GetUserByCCNumberAndCompanyIdAsync(ccNumber, (int)companyId);
             if (user == null)
@@ -117,9 +117,16 @@ namespace Application.Services
         }
 
 
-        public async Task<bool> DeleteUserAsync(string IdCCNit)
+        public async Task<UserResponseDto> SetUserInactiveAsync(int userId, int companyId)
         {
-            return await _userRepository.DeleteUserAsync(IdCCNit);
+            if (userId <= 0 || companyId <= 0)
+                return new UserResponseDto(false, "Datos inválidos", IsBadRequest: true);
+
+            var inactivatedUser = await _userRepository.SetUserInactiveAsync(userId, companyId);
+
+            return inactivatedUser 
+                ? new UserResponseDto(true, "Usuario desactivado")
+                : new UserResponseDto(false, "El usuario no existe", IsNotFound: true);
         }
 
 
@@ -138,6 +145,7 @@ namespace Application.Services
             var exists = await _userRepository.VerifyUserExistsByCCNumberAndCompanyIdAsync(ccNumber, companyId);
             return exists;
         }
+
 
 
 

@@ -10,7 +10,7 @@ namespace Application.Interfaces
         Task<UserDto?> GetUserByIdAndCompanyIdAsync(int userId, int companyId);
         Task<UserResponseDto> CreateUserAsync(int companyId, RegisterUserDto newUser);
         Task<UserResponseDto> UpdateUserAsync(int userId, int companyId, UpdateUserDto updateUserDto);
-        Task<bool> DeleteUserAsync(string idCCNit);
+        Task<UserResponseDto> SetUserInactiveAsync(int userId, int companyId);
         Task<string?> GetPasswordByUserIdAsync(int userId);
     }
 }

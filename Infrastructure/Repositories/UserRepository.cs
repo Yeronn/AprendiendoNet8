@@ -2,7 +2,6 @@
 using Domain.Entities;
 using Domain.Interfaces;
 using Infrastructure.Data;
-using System.ComponentModel.Design;
 
 namespace Infrastructure.Repositories
 {
@@ -76,7 +75,7 @@ namespace Infrastructure.Repositories
             var query = @"UPDATE Users 
                         SET FirstName = @FirstName, LastName = @LastName, Email = @Email, 
                             CCNumber = @CCNumber, HashedPassword = @HashedPassword, 
-                            RoleId = @RoleId 
+                            RoleId = @RoleId, IsActive = @IsActive
                         WHERE Id = @Id AND CompanyId = @CompanyId";
 
             using (var connection = _context.CreateConnection())
@@ -87,13 +86,13 @@ namespace Infrastructure.Repositories
         }
 
 
-        public async Task<bool> DeleteUserAsync(string idCCNit)
+        public async Task<bool> SetUserInactiveAsync(int userId, int companyId)
         {
-            var query = "DELETE FROM Users WHERE IdCCNit = @IdCCNit";
+            var query = "UPDATE Users SET IsActive = 0 WHERE Id = @UserId AND CompanyId = @CompanyId";
 
             using (var connection = _context.CreateConnection())
             {
-                var result = await connection.ExecuteAsync(query, new { IdCCNit = idCCNit });
+                var result = await connection.ExecuteAsync(query, new { UserId = userId, CompanyId = companyId });
                 return result > 0;
             }
         }
