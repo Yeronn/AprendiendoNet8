@@ -87,8 +87,8 @@ namespace Application.Services
             if (currentUser == null)
                 return new UserResponseDto(false, "El usuario no existe", IsNotFound: true);
 
-            bool IdCCNitExists = await VerifyUserExistsByCCNumberAndCompanyIdAsync(updateUserDto.CCNumber, companyId);
-            if (IdCCNitExists && currentUser.CCNumber != updateUserDto.CCNumber)
+            bool newCCNumberExists = await VerifyUserExistsByCCNumberAndCompanyIdAsync(updateUserDto.CCNumber, companyId);
+            if (newCCNumberExists && currentUser.CCNumber != updateUserDto.CCNumber)
                 return new UserResponseDto(false, "La cédula ya está regitrada en otro usuario", IsConflict: true);
 
             var roleExists = await _roleService.ValidateRoleExistsByIdAsync(updateUserDto.RoleId, companyId);
